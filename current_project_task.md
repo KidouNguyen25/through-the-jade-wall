@@ -10,38 +10,38 @@ Create the initial production repository and make a verified blank 3D build depl
 
 ## Required outcome
 
-- repository initialized;
-- Vite + React + TypeScript;
-- Three.js + React Three Fiber;
-- basic full-screen scene rendering;
-- ESLint;
-- Prettier;
-- TypeScript strict mode;
-- Vitest;
-- Playwright smoke-test scaffold;
-- CI;
-- GitHub Pages deploy workflow;
-- README run/build/test instructions;
-- `WORKLOG.md`;
-- `CHANGELOG.md`;
-- `ASSET_PROVENANCE.md`;
-- first ADR confirming browser-first architecture.
+- [x] repository initialized;
+- [x] Vite + React + TypeScript;
+- [x] Three.js + React Three Fiber;
+- [x] basic full-screen scene rendering;
+- [x] ESLint;
+- [x] Prettier;
+- [x] TypeScript strict mode;
+- [x] Vitest;
+- [x] Playwright smoke-test scaffold;
+- [x] CI;
+- [x] GitHub Pages deploy workflow;
+- [x] README run/build/test instructions;
+- [x] `WORKLOG.md`;
+- [x] `CHANGELOG.md`;
+- [x] `ASSET_PROVENANCE.md`;
+- [x] first ADR confirming browser-first architecture.
 
 ## Acceptance criteria
 
-- [ ] clean install from lockfile succeeds;
-- [ ] format check passes;
-- [ ] lint passes;
-- [ ] typecheck passes;
-- [ ] unit tests pass;
-- [ ] production build passes;
-- [ ] local application renders a basic 3D scene;
-- [ ] no production console errors;
-- [ ] CI workflow is committed;
-- [ ] Pages workflow is committed;
-- [ ] if authenticated GitHub tooling exists, remote repo is created and pushed;
-- [ ] if remote supports it, `main` protection/ruleset is applied;
-- [ ] remote/deployment status is truthfully recorded.
+- [x] clean install from lockfile succeeds;
+- [x] format check passes;
+- [x] lint passes;
+- [x] typecheck passes;
+- [x] unit tests pass;
+- [x] production build passes;
+- [x] local application renders a basic 3D scene;
+- [x] no production console errors;
+- [x] CI workflow is committed;
+- [x] Pages workflow is committed;
+- [x] if authenticated GitHub tooling exists, remote repo is created and pushed;
+- [x] if remote supports it, `main` protection/ruleset is applied;
+- [x] remote/deployment status is truthfully recorded.
 
 ## Scope exclusions
 
