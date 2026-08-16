@@ -76,13 +76,28 @@ npm run preview
 
 ---
 
+## 🕹 Game Mechanics & Vertical Slice
+
+The complete **Act I: The East District** vertical slice features:
+
+1. **Sequence Bridge (Chi)**: Aligning consecutive suit tiles (Bamboo 2-3-4) to mechanically bridge chasms in space.
+2. **Same-Door Principle (Pair / Toitsu)**: Inscribing identical dragon marks to quantum-entangle distant thresholds into a singular point in space.
+3. **Holographic Rebirth (Triad / Pung)**: Synthesizing contradictory memory fragments onto the Dais of Triads to reconstruct the forgotten history of the Jade Wall.
+4. **Discard Consequence (Tedashi Sacrifice)**: Permanent tile sacrifices opening one branch while irrevocably collapsing the alternative route.
+5. **Dead Hand Invalidation (Furiten & Chombo)**: Stealth navigation through Watcher Sentinel searchlights via safe discard zones, culminating in a ceremonial gong strike declaring an invalid hand.
+6. **Refusal of the Premise (The White Tile Climax)**: Refusing the synthetic judgment of The Dealer by playing the uncarved White Tile (_Haku_), proving that _"A hand may be complete and still be wrong."_
+7. **Procedural Web Audio Engine**: Zero-asset, pure browser Web Audio synthesis providing ceramic tile clicks, deep stone grinding, crystalline shimmers, metallic gongs, and ethereal climax chords.
+
+---
+
 ## 🏛 Architecture & Guidelines
 
-- **`src/domain/`**: Pure deterministic game logic (Mahjong resolver, puzzle rules). No React / 3D dependencies.
+- **`src/domain/`**: Pure deterministic game logic (Mahjong resolver, puzzle rules, boss topology, stealth detection). Zero React / 3D dependencies.
+- **`src/audio/`**: Pure procedural Web Audio synthesis engine.
 - **`src/game/`**: 3D engine runtime, player locomotion, camera controls, collision, interaction volumes.
-- **`src/world/`**: Scene definitions, puzzles, lighting, and environmental props.
-- **`src/state/`**: Cross-system application state (Zustand).
-- **`src/ui/`**: Responsive accessible HUD, dialogue overlays, modals.
+- **`src/world/`**: Scene definitions, 3D puzzles, procedural lighting, materials, and environmental props.
+- **`src/state/`**: Cross-system reactive application state (Zustand) with versioned localStorage persistence.
+- **`src/ui/`**: Responsive, accessible HUD, dialogue cards, inspection overlays, and victory climax modal.
 - **`docs/adr/`**: Architecture Decision Records.
 
 See [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md) and [ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md) for details.

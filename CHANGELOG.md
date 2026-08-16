@@ -5,6 +5,15 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-08-16
+
+### Added
+
+- **Procedural Web Audio Engine**: Zero-asset, fully procedural browser audio synthesizer in `src/audio/audioEngine.ts` utilizing the Web Audio API to produce real-time ceramic tile clacks, stone mechanism rumblings, crystalline holographic shimmers, metallic invalidation gongs, and ethereal climax fanfare chords.
+- **Audio & Accessibility Integration**: Master and SFX volume sliders seamlessly integrated into the Settings modal; high contrast indicator and reduced motion preferences fully respected across all 3D scene shaders and physics loops.
+- **Complete Act I Vertical Slice**: Finished all 8 phases of the development roadmap representing a complete 20–30 minute narrative 3D puzzle experience from the rainy alleys of Jade Court to the circular amphitheater of The Dealer.
+- **Unit Test Coverage & Quality Gates**: 73/73 unit tests passing across 10 test suites; 100% Prettier formatting, ESLint 9 compliance, TypeScript strict checking, clean production bundle, and full end-to-end Playwright smoke test passing with 0 console errors.
+
 ## [0.7.0] - 2026-08-16
 
 ### Added
@@ -12,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dealer Boss Domain Model & Wind Topology Engine**: Pure deterministic domain logic in `src/domain/boss/dealerBossModel.ts` implementing Wind quadrant sectors (East, South, West, North), dynamic arena floor rotation calculations, hazard zone detection, and White Tile interruption resolution.
 - **Seat of the Dealer 3D Scene**: Massive circular amphitheater level in `src/world/scenes/BossCourtScene.tsx` featuring the towering Dealer Arbiter automaton figure, four elemental Wind Obelisks, rotating jade arena floor rings, dynamic danger shields, and the Central Tribunal Anchor Dais.
 - **Wind Rotation Battle Progression**: Scripted Wind declaration sequence where the Dealer discards Winds (East Ton, South Nan) dynamically re-orienting the arena floor and hazard radiants before declaring the Final Hand (Ron).
-- **The Secret Third Solution — White Tile Interruption**: Place the unclassified Blank Tile on the Tribunal Anchor to refuse the false indictment premise, shatter the Dealer's synthetic pair, and complete the vertical slice with the iconic revelation: *"A hand may be complete and still be wrong."*
+- **The Secret Third Solution — White Tile Interruption**: Place the unclassified Blank Tile on the Tribunal Anchor to refuse the false indictment premise, shatter the Dealer's synthetic pair, and complete the vertical slice with the iconic revelation: _"A hand may be complete and still be wrong."_
 - **Vertical Slice Complete Victory Modal**: Celebratory end-game interface displaying journey completion milestones, philosophical resolution, and options to continue exploring or restart.
 - **Quality Gates & Test Coverage**: 67/67 unit tests passing across 9 test suites; comprehensive multi-phase Playwright E2E test verifying complete player journey from Rain Alley through Balcony Bridge, Portal Gate, Memory Sanctuary, Discard Canyon, Watcher Courtyard, Dealer's Court, and Victory Climax with 0 console errors.
 

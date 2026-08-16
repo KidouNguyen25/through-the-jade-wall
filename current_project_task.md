@@ -2,33 +2,32 @@
 
 ## Active milestone
 
-**Phase 6 — Dead Hand (Watcher Pair Encounter & Detection System)**
+**Phase 8 — Polish & Public Release (v1.0.0 Completed)**
 
 ## Objective
 
-Implement the Watcher's Courtyard level (`dead_hand_encounter`), rule-based hostile automaton sentinels (Watcher Alpha & Beta), telegraphing scanning cones, safe tile zone mechanics (Furiten / Discard sanctuary), non-combat detection/reset loop, and the Dead Hand Invalidation Gong mechanism that freezes the sentinels and unlocks the Dealer's Boss Court.
+Deliver the complete, polished Act I vertical slice of **Through the Jade Wall** with procedural Web Audio sound synthesis, full accessibility settings, 100% quality gate compliance across 8 roadmap phases, verified Playwright end-to-end smoke coverage, and a clean public release tag.
 
-## Required outcome
+## Delivered Milestones
 
-- [ ] Dead Hand encounter domain model & detection logic (`src/domain/deadhand/deadHandModel.ts`);
-- [ ] Save schema v1 update for Dead Hand state and Watchers disabled flag (`src/domain/save/saveSchema.ts`);
-- [ ] Watcher dialogue and narrative reaction trees (`src/domain/narrative/dialogueData.ts`);
-- [ ] 3D Dead Hand Courtyard scene (`src/world/scenes/DeadHandScene.tsx`) with patrolling Watcher automata, sweeping light cones, safe floor tiles, and central Invalidation Gong;
-- [ ] Real-time detection raycasting/distance checks in `DeadHandScene.tsx` with smooth respawn at entrance checkpoint upon detection;
-- [ ] Dead Hand Invalidation sequence (Watchers freeze in stasis, glowing eyes turn gray, grand gates open to Phase 7);
-- [ ] Unit tests for stealth detection rules, safe tile evaluation, and invalidation in `src/test/deadhand.test.ts`;
-- [ ] Playwright E2E test verifying end-to-end traversal from Discard Passage into Watcher Courtyard, navigating past scanning cones, activating the Invalidation Gong, and unsealing the Boss Court.
+- [x] **Phase 1 — Project Foundation & Locomotion**: Vite + React 18 + R3F + TS strict setup, isometric camera, WASD/arrow locomotion with sprint, collision boundaries, and quality gate baseline.
+- [x] **Phase 2 — Mahjong Tile Grammar & Sequence Gate**: Tile grammar domain model, HUD inventory slots, 3-balcony spatial puzzle in East Arcade, and Sequence (Chi) alignment bridge.
+- [x] **Phase 3 — Same-Door Principle & Dragon Gate**: Same-door quantum pairing model, Red Dragon twin doorways, non-Euclidean spatial warp, and Altar inspection.
+- [x] **Phase 4 — Memory Reconstruction & Triad Pedestals**: Memory Sanctuary 3D scene, 3 resonance fragment pedestals, Dais of Triads, and holographic city wall reconstruction.
+- [x] **Phase 5 — Discard Consequence & Passage of Broken Tiles**: Permanent tile sacrifice model (_Tedashi_), White Dragon immunity, Obsidian Canyon level, and dynamic portcullis / barrier collapse.
+- [x] **Phase 6 — Dead Hand Encounter & Watcher Stealth System**: Safe discard sanctuary stealth (_Furiten_), sweeping vision searchlights, detection respawn loop, and Chombo Invalidation Gong stasis lock.
+- [x] **Phase 7 — Dealer Boss Puzzle & White Tile Climax**: Rotating circular amphitheater, 4 Wind Obelisk hazard radiants, The Dealer Arbiter automaton, and White Tile premise refusal climax (_"A hand may be complete and still be wrong."_).
+- [x] **Phase 8 — Polish, Audio Synthesizer & Public Release**: Zero-asset procedural Web Audio sound synthesis engine, volume sliders, accessibility preferences, 73/73 unit tests passing, full multi-phase Playwright E2E verification, and v1.0.0 release tag.
 
-## Acceptance criteria
+## Quality Gates Status
 
-- [ ] Watchers patrol with visible telegraphing light cones;
-- [ ] Standing on safe discard tile zones prevents detection;
-- [ ] Detection cleanly teleports player to courtyard entrance without console errors;
-- [ ] Activating the Invalidation Gong disables both Watchers and opens the Boss Gate;
-- [ ] 100% unit test pass rate;
-- [ ] 0 console errors during runtime, build, and tests;
-- [ ] All quality gates pass (`format`, `lint`, `typecheck`, `test`, `build`, `test:e2e`).
+- [x] 100% Prettier formatting compliance (`npm run format:check`)
+- [x] 0 ESLint errors & 0 warnings (`npm run lint`)
+- [x] 0 TypeScript compilation errors in strict mode (`npm run typecheck`)
+- [x] 73 / 73 unit tests passing across 10 test suites (`npm run test`)
+- [x] Clean production bundle in `dist/` (`npm run build`)
+- [x] 0 console errors across full end-to-end 56-step gameplay smoke test (`npm run test:e2e`)
 
-## Next task after completion
+## Status
 
-Phase 7 — Dealer Boss Puzzle (Rotating Circular Court & White Tile Interruption).
+**ALL ROADMAP PHASES COMPLETED — VERTICAL SLICE READY FOR PUBLIC RELEASE.**

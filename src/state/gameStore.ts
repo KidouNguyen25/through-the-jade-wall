@@ -37,6 +37,18 @@ import {
   DEALER_WHITE_TILE_INTERRUPT_TREE,
 } from '../domain/narrative/dialogueData';
 
+import { audioEngine } from '../audio/audioEngine';
+import { useSettingsStore } from './settingsStore';
+
+const getSfxVolume = () => {
+  try {
+    const s = useSettingsStore.getState();
+    return s.masterVolume * s.sfxVolume;
+  } catch {
+    return 0.5;
+  }
+};
+
 export type SceneId =
   'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
 
@@ -252,7 +264,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       selectedSlot: Math.max(0, Math.min(slot, state.inventoryTiles.length - 1)),
     })),
 
-  collectWhiteTile: () =>
+  collectWhiteTile: () => {
+    audioEngine.playTileInteractSound(getSfxVolume());
     set((state) => {
       if (state.hasWhiteTile) return state;
       const newInventory: TileId[] = state.inventoryTiles.includes('tile_white_dragon')
@@ -268,9 +281,11 @@ export const useGameStore = create<GameState>((set, get) => ({
         narrativeMessage:
           'Acquired White Tile (Haku)! The Tea House gate unlocks in response to the tile.',
       };
-    }),
+    });
+  },
 
-  collectBamboo4: () =>
+  collectBamboo4: () => {
+    audioEngine.playTileInteractSound(getSfxVolume());
     set((state) => {
       if (state.hasBamboo4) return state;
       const newInventory: TileId[] = state.inventoryTiles.includes('tile_bamboo_4')
@@ -284,9 +299,11 @@ export const useGameStore = create<GameState>((set, get) => ({
         narrativeMessage:
           'Acquired 4 Bamboo (Suu Sou)! It hums in resonance with the Balcony Sockets.',
       };
-    }),
+    });
+  },
 
-  collectRedDragon: () =>
+  collectRedDragon: () => {
+    audioEngine.playTileInteractSound(getSfxVolume());
     set((state) => {
       if (state.hasRedDragon) return state;
       const newInventory: TileId[] = state.inventoryTiles.includes('tile_dragon_red')
@@ -300,7 +317,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         narrativeMessage:
           'Acquired Red Dragon Plaque! In Mahjong, a Pair establishes spatial identity.',
       };
-    }),
+    });
+  },
 
   enterTeaHouse: () => {
     set({
@@ -368,6 +386,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const remainingTiles = state.inventoryTiles.filter((_, index) => index !== state.selectedSlot);
 
     const isWest = result.openedPath === 'west';
+    audioEngine.playGateShiftSound(getSfxVolume());
 
     set({
       inventoryTiles: remainingTiles,
@@ -430,6 +449,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       return false;
     }
 
+    audioEngine.playChomboGongSound(getSfxVolume());
+
     set({
       deadHandInvalidated: true,
       bossCourtUnlocked: true,
@@ -444,7 +465,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     return true;
   },
 
-  placeTileInSocket: (socketId, tileId) =>
+  placeTileInSocket: (socketId, tileId) => {
+    audioEngine.playTileInteractSound(getSfxVolume());
     set((state) => {
       const updatedPlaced = {
         ...state.placedTiles,
@@ -484,10 +506,12 @@ export const useGameStore = create<GameState>((set, get) => ({
       let newCheckpoint = state.checkpoint;
 
       if (sequenceResult.isSolved && !state.balconiesAligned) {
+        audioEngine.playGateShiftSound(getSfxVolume());
         message =
           'Sequence Bamboo (2-3-4) completed! The three balconies shift and lock into a solid bridge across the void.';
         newCheckpoint = 'cp_balconies_aligned';
       } else if (pairResult.isSolved && !state.sameDoorPairActive) {
+        audioEngine.playGateShiftSound(getSfxVolume());
         message =
           'Pair of Red Dragons established! The twin doorways are now identical points in space.';
         newCheckpoint = 'cp_same_door_active';
@@ -502,12 +526,14 @@ export const useGameStore = create<GameState>((set, get) => ({
         narrativeMessage: message,
         checkpoint: newCheckpoint,
       };
-    }),
+    });
+  },
 
   traverseSameDoor: (fromDoor) => {
     const { sameDoorPairActive } = get();
     if (!sameDoorPairActive) return;
 
+    audioEngine.playGateShiftSound(getSfxVolume());
     set({ portalWarping: true });
 
     if (fromDoor === 'alpha') {
@@ -613,6 +639,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     })),
 
   collectMemoryFragment: (fragmentId) => {
+    audioEngine.playTileInteractSound(getSfxVolume());
     set((state) => {
       const updated = {
         ...state.memoryFragments,
@@ -636,6 +663,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   reconstructMemory: () => {
+    audioEngine.playMemoryHologramSound(getSfxVolume());
     set({
       memoryReconstructed: true,
       checkpoint: 'cp_memory_reconstructed',
@@ -665,6 +693,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   advanceBossWind: (targetPhase) => {
+    audioEngine.playGateShiftSound(getSfxVolume());
     if (targetPhase === 'wind_east') {
       set({
         dealerPhase: 'wind_east',
@@ -708,6 +737,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       set({ narrativeMessage: result.message });
       return false;
     }
+
+    audioEngine.playClimaxShatterSound(getSfxVolume());
 
     // Success: Refuse the premise with the White Tile!
     set({

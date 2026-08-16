@@ -408,7 +408,7 @@ export function App() {
             </div>
           </div>
 
-          <div className="version-tag">v0.4.0-alpha</div>
+          <div className="version-tag">v1.0.0</div>
         </footer>
       </div>
 
