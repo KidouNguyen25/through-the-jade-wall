@@ -7,19 +7,20 @@ describe('Game State Management (Zustand)', () => {
     useGameStore.getState().resetGame();
   });
 
-  it('initializes with default bootstrap state', () => {
+  it('initializes with default Rain Alley state', () => {
     const state = useGameStore.getState();
-    expect(state.currentScene).toBe('bootstrap');
-    expect(state.activeCheckpoint).toBe('cp_bootstrap');
+    expect(state.currentScene).toBe('rain_alley');
+    expect(state.activeCheckpoint).toBe('cp_rain_alley_start');
     expect(state.isPaused).toBe(false);
     expect(state.inventoryTiles).toEqual([]);
     expect(state.solvedPuzzles).toEqual({});
+    expect(state.hasWhiteTile).toBe(false);
   });
 
   it('updates scene transition correctly', () => {
     const store = useGameStore.getState();
-    store.setScene('rain_alley');
-    expect(useGameStore.getState().currentScene).toBe('rain_alley');
+    store.setScene('tea_house');
+    expect(useGameStore.getState().currentScene).toBe('tea_house');
   });
 
   it('handles inventory tile addition and removal uniquely', () => {

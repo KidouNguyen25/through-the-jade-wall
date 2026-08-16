@@ -7,7 +7,17 @@ import './App.css';
 export function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { activeCheckpoint } = useGameStore();
+  const {
+    activeCheckpoint,
+    activeInteractable,
+    activeInspection,
+    setActiveInspection,
+    hasWhiteTile,
+    bannerMessage,
+    collectWhiteTile,
+    enterTeaHouse,
+  } = useGameStore();
+
   const {
     masterVolume,
     setMasterVolume,
@@ -16,6 +26,15 @@ export function App() {
     reducedMotion,
     setReducedMotion,
   } = useSettingsStore();
+
+  const handlePromptClick = () => {
+    if (!activeInteractable) return;
+    if (activeInteractable.id === 'white_tile_pickup') {
+      collectWhiteTile();
+    } else if (activeInteractable.id === 'enter_tea_house_trigger') {
+      enterTeaHouse();
+    }
+  };
 
   return (
     <div className="app-container">
@@ -29,13 +48,13 @@ export function App() {
         <header className="ui-header">
           <div className="title-group">
             <h1 className="game-title">THROUGH THE JADE WALL</h1>
-            <span className="game-subtitle">Prologue // Jade Court Memory Engine</span>
+            <span className="game-subtitle">Prologue // Rain Alley</span>
           </div>
 
           <div className="header-actions">
             <div className="status-badge" role="status" aria-label="System status">
               <span className="status-dot" aria-hidden="true" />
-              <span>Phase 0: Industrial Bootstrap</span>
+              <span>Phase 1: Rain Alley Slice</span>
             </div>
 
             <button
@@ -48,15 +67,40 @@ export function App() {
           </div>
         </header>
 
+        {/* Narrative Progression Banner */}
+        {bannerMessage && subtitles && (
+          <div className="narrative-banner" role="status">
+            <p className="narrative-text">{bannerMessage}</p>
+          </div>
+        )}
+
+        {/* Center Screen Interaction Prompt */}
+        {activeInteractable && (
+          <div className="interaction-prompt-container">
+            <button
+              className="interaction-prompt-badge"
+              onClick={handlePromptClick}
+              data-testid="interaction-prompt-button"
+            >
+              <span className="interact-key">E</span>
+              <span>{activeInteractable.promptText}</span>
+            </button>
+          </div>
+        )}
+
         <footer className="ui-footer">
           <div className="hint-bar" role="region" aria-label="Control hints">
             <div className="hint-item">
-              <span className="key-cap">Mouse Drag</span>
-              <span>Orbit View</span>
+              <span className="key-cap">WASD / ↑←↓→</span>
+              <span>Move Alice</span>
             </div>
             <div className="hint-item">
-              <span className="key-cap">Scroll</span>
-              <span>Zoom</span>
+              <span className="key-cap">Shift</span>
+              <span>Sprint</span>
+            </div>
+            <div className="hint-item">
+              <span className="key-cap">E / Space</span>
+              <span>Interact</span>
             </div>
             <div className="hint-item">
               <span className="key-cap">State</span>
@@ -64,11 +108,56 @@ export function App() {
             </div>
           </div>
 
+          {/* Inventory Tray */}
+          <div className="inventory-hud" aria-label="Tile inventory">
+            <div
+              className={`inventory-slot ${hasWhiteTile ? 'occupied' : ''}`}
+              title={hasWhiteTile ? 'The White Tile (White Dragon)' : 'Empty Slot'}
+              data-testid="inventory-slot-0"
+            >
+              {hasWhiteTile ? (
+                <div className="tile-icon">
+                  <span>WHITE</span>
+                  <br />
+                  <span>TILE</span>
+                </div>
+              ) : (
+                <span style={{ color: '#4a6358', fontSize: '0.7rem' }}>—</span>
+              )}
+            </div>
+          </div>
+
           <div className="version-tag">
-            <span>v0.0.1 (Pre-Alpha)</span>
+            <span>v0.1.0-alpha</span>
           </div>
         </footer>
       </div>
+
+      {/* Inspection Modal */}
+      {activeInspection && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setActiveInspection(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">{activeInspection.title}</h2>
+              <button
+                className="modal-close"
+                onClick={() => setActiveInspection(null)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <p style={{ lineHeight: 1.6, fontSize: '0.9rem', color: 'var(--color-ivory)' }}>
+              {activeInspection.description}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Settings Modal */}
       {isSettingsOpen && (

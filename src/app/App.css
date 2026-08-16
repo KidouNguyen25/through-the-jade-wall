@@ -105,6 +105,114 @@
   color: var(--color-jade-glow);
 }
 
+/* Narrative Center Banner */
+.narrative-banner {
+  align-self: center;
+  margin-top: 1rem;
+  max-width: 650px;
+  text-align: center;
+  background: rgba(8, 16, 13, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.65rem 1.5rem;
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.narrative-text {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--color-ivory);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+/* Interaction Prompt (Center Screen Floating HUD) */
+.interaction-prompt-container {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  z-index: 20;
+}
+
+.interaction-prompt-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 1.25rem;
+  background: rgba(9, 20, 16, 0.95);
+  border: 1px solid var(--color-jade-bright);
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(104, 211, 145, 0.35);
+  backdrop-filter: blur(8px);
+  color: var(--color-ivory);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.interaction-prompt-badge:hover {
+  border-color: var(--color-jade-glow);
+  box-shadow: 0 4px 25px rgba(104, 211, 145, 0.55);
+}
+
+.interact-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: var(--color-jade-deep);
+  border: 1px solid var(--color-jade-glow);
+  border-radius: 4px;
+  color: var(--color-jade-glow);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Inventory HUD Tray */
+.inventory-hud {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+
+.inventory-slot {
+  width: 48px;
+  height: 64px;
+  background: rgba(14, 23, 20, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+}
+
+.inventory-slot.occupied {
+  border-color: var(--color-jade-bright);
+  background: #162a22;
+  box-shadow: 0 0 10px rgba(104, 211, 145, 0.25);
+}
+
+.tile-icon {
+  font-size: 0.65rem;
+  font-family: var(--font-serif);
+  color: var(--color-ivory);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
 .ui-footer {
   display: flex;
   justify-content: space-between;
@@ -218,4 +326,15 @@
   accent-color: var(--color-jade-bright);
   width: 1rem;
   height: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
