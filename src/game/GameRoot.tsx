@@ -3,11 +3,13 @@ import { PerspectiveCamera } from '@react-three/drei';
 import PlayerController from './player/PlayerController';
 import ThirdPersonCamera from './camera/ThirdPersonCamera';
 import RainAlleyScene from '../world/scenes/RainAlleyScene';
+import EastArcadeScene from '../world/scenes/EastArcadeScene';
+import { useGameStore } from '../state/gameStore';
 
 export function SceneLighting() {
   return (
     <>
-      <ambientLight intensity={0.3} color="#2d4a3e" />
+      <ambientLight intensity={0.35} color="#2d4a3e" />
       <directionalLight
         position={[4, 10, 5]}
         intensity={0.8}
@@ -20,6 +22,8 @@ export function SceneLighting() {
 }
 
 export function GameRoot() {
+  const { currentScene } = useGameStore();
+
   return (
     <div
       style={{ width: '100%', height: '100%', position: 'relative' }}
@@ -27,11 +31,14 @@ export function GameRoot() {
     >
       <Canvas shadows>
         <color attach="background" args={['#050807']} />
-        <fog attach="fog" args={['#050807', 6, 26]} />
+        <fog attach="fog" args={['#050807', 6, 28]} />
         <PerspectiveCamera makeDefault position={[0, 3.2, 14]} fov={55} />
         <ThirdPersonCamera />
         <SceneLighting />
-        <RainAlleyScene />
+
+        {/* Scene Switcher based on Progression */}
+        {currentScene === 'east_arcade' ? <EastArcadeScene /> : <RainAlleyScene />}
+
         <PlayerController />
       </Canvas>
     </div>

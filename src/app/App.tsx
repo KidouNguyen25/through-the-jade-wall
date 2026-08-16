@@ -1,20 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GameRoot from '../game/GameRoot';
 import { useSettingsStore } from '../state/settingsStore';
 import { useGameStore } from '../state/gameStore';
+import { getTileById } from '../domain/mahjong/tileTypes';
 import './App.css';
 
 export function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const {
+    currentScene,
     activeCheckpoint,
     activeInteractable,
     activeInspection,
     setActiveInspection,
-    hasWhiteTile,
+    inventoryTiles,
+    selectedInventoryTileId,
+    selectInventoryTile,
     bannerMessage,
     collectWhiteTile,
+    collectBamboo4,
+    placeTileInSocket,
     enterTeaHouse,
   } = useGameStore();
 
@@ -27,14 +33,36 @@ export function App() {
     setReducedMotion,
   } = useSettingsStore();
 
+  // Keyboard shortcut to select tiles using numbers 1..5
+  useEffect(() => {
+    const handleNumberKey = (e: KeyboardEvent) => {
+      const num = parseInt(e.key, 10);
+      if (!isNaN(num) && num >= 1 && num <= inventoryTiles.length) {
+        const selectedId = inventoryTiles[num - 1];
+        selectInventoryTile(selectedId ?? null);
+      }
+    };
+
+    window.addEventListener('keydown', handleNumberKey);
+    return () => window.removeEventListener('keydown', handleNumberKey);
+  }, [inventoryTiles, selectInventoryTile]);
+
   const handlePromptClick = () => {
     if (!activeInteractable) return;
     if (activeInteractable.id === 'white_tile_pickup') {
       collectWhiteTile();
     } else if (activeInteractable.id === 'enter_tea_house_trigger') {
       enterTeaHouse();
+    } else if (activeInteractable.id === 'bamboo_4_pickup') {
+      collectBamboo4();
+    } else if (activeInteractable.id === 'socket_3_interaction') {
+      if (inventoryTiles.includes('tile_bamboo_4')) {
+        placeTileInSocket('socket_balcony_3', 'tile_bamboo_4');
+      }
     }
   };
+
+  const selectedTileDef = selectedInventoryTileId ? getTileById(selectedInventoryTileId) : null;
 
   return (
     <div className="app-container">
@@ -48,13 +76,21 @@ export function App() {
         <header className="ui-header">
           <div className="title-group">
             <h1 className="game-title">THROUGH THE JADE WALL</h1>
-            <span className="game-subtitle">Prologue // Rain Alley</span>
+            <span className="game-subtitle">
+              {currentScene === 'east_arcade'
+                ? 'Act I // East Arcade — Three Balconies'
+                : 'Prologue // Rain Alley'}
+            </span>
           </div>
 
           <div className="header-actions">
             <div className="status-badge" role="status" aria-label="System status">
               <span className="status-dot" aria-hidden="true" />
-              <span>Phase 1: Rain Alley Slice</span>
+              <span>
+                {currentScene === 'east_arcade'
+                  ? 'Phase 2: Mahjong Sequence Gate'
+                  : 'Phase 1: Rain Alley Slice'}
+              </span>
             </div>
 
             <button
@@ -103,32 +139,60 @@ export function App() {
               <span>Interact</span>
             </div>
             <div className="hint-item">
+              <span className="key-cap">1..5</span>
+              <span>Select Tile</span>
+            </div>
+            <div className="hint-item">
               <span className="key-cap">State</span>
               <span>{activeCheckpoint}</span>
             </div>
           </div>
 
-          {/* Inventory Tray */}
-          <div className="inventory-hud" aria-label="Tile inventory">
-            <div
-              className={`inventory-slot ${hasWhiteTile ? 'occupied' : ''}`}
-              title={hasWhiteTile ? 'The White Tile (White Dragon)' : 'Empty Slot'}
-              data-testid="inventory-slot-0"
-            >
-              {hasWhiteTile ? (
-                <div className="tile-icon">
-                  <span>WHITE</span>
-                  <br />
-                  <span>TILE</span>
-                </div>
-              ) : (
-                <span style={{ color: '#4a6358', fontSize: '0.7rem' }}>—</span>
-              )}
+          {/* Multi-Slot Tile Inventory Tray */}
+          <div className="inventory-tray-container">
+            {selectedTileDef && (
+              <div className="tile-tooltip" role="region" aria-label="Selected Tile Description">
+                <span className="tooltip-title">{selectedTileDef.label}</span>
+                <span className="tooltip-text">{selectedTileDef.narrativeFragment}</span>
+              </div>
+            )}
+
+            <div className="inventory-hud" aria-label="Tile inventory">
+              {[0, 1, 2, 3].map((index) => {
+                const tileId = inventoryTiles[index];
+                const tileDef = tileId ? getTileById(tileId) : null;
+                const isSelected = selectedInventoryTileId === tileId && tileId !== undefined;
+
+                return (
+                  <button
+                    key={index}
+                    className={`inventory-slot ${tileDef ? 'occupied' : ''} ${
+                      isSelected ? 'selected' : ''
+                    }`}
+                    title={tileDef ? tileDef.label : 'Empty Slot'}
+                    onClick={() => {
+                      if (tileId) {
+                        selectInventoryTile(isSelected ? null : tileId);
+                      }
+                    }}
+                    data-testid={`inventory-slot-${index}`}
+                  >
+                    {tileDef ? (
+                      <div className="tile-icon">
+                        <span className="slot-number">{index + 1}</span>
+                        <span className="tile-name">{tileDef.shortName}</span>
+                      </div>
+                    ) : (
+                      <span className="empty-slot-marker">—</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           <div className="version-tag">
-            <span>v0.1.0-alpha</span>
+            <span>v0.2.0-alpha</span>
           </div>
         </footer>
       </div>

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGameStore } from '../../state/gameStore';
@@ -40,6 +40,16 @@ export function Interactable({
     isPaused,
   } = useGameStore();
 
+  // Clear active interactable if this component unmounts while active
+  useEffect(() => {
+    return () => {
+      const current = useGameStore.getState().activeInteractable;
+      if (current?.id === id) {
+        useGameStore.getState().setActiveInteractable(null);
+      }
+    };
+  }, [id]);
+
   useFrame(() => {
     if (isPaused) return;
 
@@ -62,6 +72,7 @@ export function Interactable({
         if (isInteracting && !wasInteracting.current) {
           if (onInteract) {
             onInteract();
+            setActiveInteractable(null);
           } else if (inspectTitle && inspectDescription) {
             setActiveInspection({
               title: inspectTitle,

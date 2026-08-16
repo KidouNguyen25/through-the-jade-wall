@@ -6,6 +6,8 @@ import { useGameStore } from '../../state/gameStore';
 import {
   ALLEY_BOUNDS,
   ALLEY_OBSTACLES,
+  EAST_ARCADE_BOUNDS,
+  EAST_ARCADE_OBSTACLES,
   clampPositionToBounds,
   resolveBoxCollision,
 } from '../../domain/collision/collisionModel';
@@ -81,10 +83,10 @@ export function PlayerController() {
   const inputRef = useInput();
 
   const {
+    currentScene,
     playerPosition,
     setPlayerPosition,
     playerRotation,
-    setPlayerRotation,
     isPaused,
     teaHouseUnlocked,
   } = useGameStore();
@@ -92,6 +94,13 @@ export function PlayerController() {
   const currentPos = useRef(new THREE.Vector3(...playerPosition));
   const currentRotation = useRef(playerRotation);
   const walkCycle = useRef(0);
+  const prevScene = useRef(currentScene);
+
+  // Sync position on scene transition
+  if (prevScene.current !== currentScene) {
+    prevScene.current = currentScene;
+    currentPos.current.set(...playerPosition);
+  }
 
   useFrame((_, delta) => {
     if (isPaused || !groupRef.current) return;
@@ -124,18 +133,28 @@ export function PlayerController() {
       targetPosition.x += moveDirection.x * speed * delta;
       targetPosition.z += moveDirection.z * speed * delta;
 
-      // Check alley bounds
+      // Select scene-specific bounds and obstacles
+      const activeBounds = currentScene === 'east_arcade' ? EAST_ARCADE_BOUNDS : ALLEY_BOUNDS;
+      const activeObstacles =
+        currentScene === 'east_arcade' ? EAST_ARCADE_OBSTACLES : ALLEY_OBSTACLES;
+
+      // Check bounds
       let [clampedX, clampedZ] = clampPositionToBounds(
         targetPosition.x,
         targetPosition.z,
         playerRadius,
-        ALLEY_BOUNDS,
+        activeBounds,
       );
 
       // Check obstacle collisions
-      for (const obstacle of ALLEY_OBSTACLES) {
-        // If Tea House door is unlocked and player moves past z = -10, allow passage through the center doorway
-        if (teaHouseUnlocked && obstacle.minZ === -11.5 && Math.abs(clampedX) < 1.3) {
+      for (const obstacle of activeObstacles) {
+        // If Tea House door is unlocked in Rain Alley, allow passage through center
+        if (
+          currentScene === 'rain_alley' &&
+          teaHouseUnlocked &&
+          obstacle.minZ === -10.5 &&
+          Math.abs(clampedX) < 1.3
+        ) {
           continue;
         }
         [clampedX, clampedZ] = resolveBoxCollision(clampedX, clampedZ, playerRadius, obstacle);
@@ -147,6 +166,9 @@ export function PlayerController() {
       // Update walk cycle
       walkCycle.current += delta * speed * 3.5;
       groupRef.current.position.y = Math.sin(walkCycle.current * 2) * 0.04;
+
+      // Sync to game store for camera and interaction logic only when moving
+      setPlayerPosition([currentPos.current.x, currentPos.current.y, currentPos.current.z]);
     } else {
       groupRef.current.position.y = 0;
     }
@@ -155,14 +177,10 @@ export function PlayerController() {
     groupRef.current.position.x = currentPos.current.x;
     groupRef.current.position.z = currentPos.current.z;
     groupRef.current.rotation.y = currentRotation.current;
-
-    // Sync to game store for camera and interaction logic
-    setPlayerPosition([currentPos.current.x, currentPos.current.y, currentPos.current.z]);
-    setPlayerRotation(currentRotation.current);
   });
 
   return (
-    <group ref={groupRef} position={playerPosition} castShadow>
+    <group ref={groupRef} position={playerPosition}>
       <AliceMesh />
     </group>
   );

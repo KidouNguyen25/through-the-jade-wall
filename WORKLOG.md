@@ -1,9 +1,33 @@
 # WORKLOG
 
+## 2026-08-16 — Phase 2: Mahjong Domain Foundation & East Arcade Sequence Gate
+
+- **Task**: Active Milestone: Phase 2 — Mahjong domain foundation (`current_project_task.md`).
+- **Branch**: `feat/mahjong-domain-gate`
+- **Actions Taken**:
+  1. Created feature branch `feat/mahjong-domain-gate`.
+  2. Implemented Mahjong tile domain types, catalog, and equality functions in `src/domain/mahjong/tileTypes.ts`.
+  3. Implemented pure deterministic meld resolver (`isPair`, `isTriplet`, `isSequence`, `resolveMeld`) in `src/domain/mahjong/meldResolver.ts`.
+  4. Implemented puzzle socket data structures and state evaluation in `src/domain/puzzle/puzzleModel.ts`.
+  5. Built multi-slot interactive tile inventory HUD with keyboard number shortcuts (1..4), selection borders, and narrative lore inspection tooltips in `src/app/App.tsx` and `src/app/App.css`.
+  6. Created East Arcade 3D scene in `src/world/scenes/EastArcadeScene.tsx` with promenade architecture, chasm void, merchant table, and Bamboo 4 pickup prop.
+  7. Built Sequence Gate puzzle in `src/world/puzzles/SequenceGate.tsx` featuring 3 pedestal sockets and 3 floating balconies that physically shift and align into a bridge when `Sequence(Bamboo 2, 3, 4)` is completed.
+  8. Created comprehensive unit test suites in `src/test/mahjong.test.ts` and `src/test/puzzle.test.ts`.
+  9. Created automated Playwright e2e test in `tests/e2e/smoke.spec.ts` testing the complete progression from Rain Alley to East Arcade, collecting Bamboo 4, placing it into Socket 3, and verifying sequence resolution and balcony bridge alignment.
+- **Quality Gates Results**:
+  - `npm run format:check`: PASSED (100% Prettier compliance)
+  - `npm run lint`: PASSED (0 errors, 0 warnings)
+  - `npm run typecheck`: PASSED (0 errors)
+  - `npm run test`: PASSED (26 / 26 unit tests passed in 2.3s)
+  - `npm run build`: PASSED (Production bundle in `dist/`)
+  - `npm run test:e2e`: PASSED (Playwright e2e test in Chromium, 0 console errors)
+
+---
+
 ## 2026-08-16 — Phase 1: Playable Locomotion & Rain Alley Slice
 
 - **Task**: Active Milestone: Phase 1 — Playable locomotion (`current_project_task.md`).
-- **Branch**: `feat/locomotion-rain-alley`
+- **Branch**: `feat/locomotion-rain-alley` (Merged to `main` in `3211670`)
 - **Actions Taken**:
   1. Created feature branch `feat/locomotion-rain-alley`.
   2. Implemented keyboard input system in `src/game/input/useInput.ts`.
@@ -48,6 +72,3 @@
   - `npm run build`: PASSED (Production bundle built in `dist/`)
   - `npm run test:e2e`: PASSED (Playwright smoke test passed in Chromium browser, 0 console errors)
 - **Commit**: `chore(bootstrap): initialize repository and Phase 0 industrial skeleton` (`263661f`)
-- **Remote / Deployment Status**:
-  - Remote GitHub repository created: `https://github.com/KidouNguyen25/through-the-jade-wall`
-  - Push status: Ready locally.
