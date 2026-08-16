@@ -16,28 +16,28 @@ export const COURTYARD_SAFE_ZONES: SafeZone[] = [
   // West Discard Sanctuary & Colonnade (Marked with Bamboo 4)
   {
     id: 'safe_west_bamboo',
-    minX: -6.5,
-    maxX: -2.0,
-    minZ: -9.5,
-    maxZ: 5.0,
+    minX: -7.5,
+    maxX: -1.5,
+    minZ: -10.0,
+    maxZ: 9.0,
     tileId: 'tile_bamboo_4',
   },
   // East Discard Sanctuary & Colonnade (Marked with Red Dragon)
   {
     id: 'safe_east_dragon',
-    minX: 2.0,
-    maxX: 6.5,
-    minZ: -9.5,
-    maxZ: 5.0,
+    minX: 1.5,
+    maxX: 7.5,
+    minZ: -10.0,
+    maxZ: 9.0,
     tileId: 'tile_dragon_red',
   },
   // Central Gong Invalidation Dais Sanctuary
   {
     id: 'safe_central_gong',
-    minX: -3.0,
-    maxX: 3.0,
-    minZ: -10.0,
-    maxZ: -6.0,
+    minX: -3.5,
+    maxX: 3.5,
+    minZ: -10.5,
+    maxZ: -5.5,
     tileId: 'tile_white_dragon',
   },
 ];

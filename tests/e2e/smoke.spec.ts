@@ -147,7 +147,7 @@ test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
 
     await page.keyboard.down('ShiftLeft');
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2100);
+    await page.waitForTimeout(2300);
     await page.keyboard.up('KeyW');
     await page.keyboard.up('ShiftLeft');
 
@@ -288,7 +288,7 @@ test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
     await page.keyboard.up('KeyD');
 
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(550);
+    await page.waitForTimeout(700);
     await page.keyboard.up('KeyW');
     await page.keyboard.up('ShiftLeft');
 
@@ -484,15 +484,26 @@ test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
     await continueBtn.click();
     await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
 
-    // 44. Walk forward to unsealed Dealer's Court Gateway (at [0, 0, -20.5] from [0, 0, -8.0])
+    // 44. Walk around central gong and forward to unsealed Dealer's Court Gateway (at [0, 0, -20.5])
     await page.waitForTimeout(300);
     await page.locator('body').focus();
     await page.waitForTimeout(200);
 
+    // Move slightly right to bypass gong pedestal obstacle
+    await page.keyboard.down('KeyD');
+    await page.waitForTimeout(350);
+    await page.keyboard.up('KeyD');
+
+    // Sprint forward towards the northern gateway
     await page.keyboard.down('ShiftLeft');
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2400);
+    await page.waitForTimeout(2600);
     await page.keyboard.up('KeyW');
+
+    // Move back towards centerline
+    await page.keyboard.down('KeyA');
+    await page.waitForTimeout(350);
+    await page.keyboard.up('KeyA');
     await page.keyboard.up('ShiftLeft');
 
     // 45. Cross Gateway into Dealer's Court
@@ -500,12 +511,101 @@ test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
     await expect(promptButton).toContainText('Cross Gateway into Dealer’s Court');
     await promptButton.click({ force: true });
 
-    // Verify narrative message update
-    await expect(page.locator('.narrative-banner')).toContainText(
-      'Approaching the Circular Arena of the Dealer. The Final Wind draws near.',
-    );
+    // 46. Verify Dealer's Intro Dialogue in Boss Court
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('Seat of the Dealer');
+    await expect(page.locator('.status-badge')).toContainText('Phase 7: Dealer’s Court');
 
-    // 46. Verify 0 console errors across entire multi-phase journey!
+    // Advance 4 intro dialogue nodes
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 47. Walk forward from entrance [0, 0, 8.5] to Central Tribunal Dais [0, 0, 0]
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('ShiftLeft');
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(1600);
+    await page.keyboard.up('KeyW');
+    await page.keyboard.up('ShiftLeft');
+
+    // 48. Summon First Wind: Wind of the East (Ton)
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Hear Dealer’s Decree (Summon East Wind)');
+    await promptButton.click({ force: true });
+
+    // Verify East Wind dialogue & status badge
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('WIND OF THE EAST');
+    await expect(page.locator('.status-badge')).toContainText('Phase 7: Wind of the East');
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 49. Rotate Arena: Wind of the South (Nan)
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Endure East Wind (Rotate to South Wind)');
+    await promptButton.click({ force: true });
+
+    // Verify South Wind dialogue & status badge
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('WIND OF THE SOUTH');
+    await expect(page.locator('.status-badge')).toContainText('Phase 7: Wind of the South');
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 50. Trigger Final Hand Demand (Ron)
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Endure South Wind (Trigger Final Hand)');
+    await promptButton.click({ force: true });
+
+    // Verify Forced Hand dialogue & status badge
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('RON! The Final Wind is declared');
+    await expect(page.locator('.status-badge')).toContainText('Phase 7: The Final Hand (Ron)');
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 51. Select White Tile (Slot 1 / Key1) to refuse the premise
+    await page.keyboard.press('Digit1');
+
+    // 52. Place White Tile on Central Tribunal Anchor
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Place White Tile to Refuse Premise');
+    await promptButton.click({ force: true });
+
+    // 53. Verify Refusal Dialogue & Shattered False Trial
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('refuse the premise');
+    await expect(page.locator('.status-badge')).toContainText('Phase 7: Trial Shattered (Victory)');
+
+    // Advance 5 climax dialogue nodes
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 54. Verify Vertical Slice Complete Victory Modal
+    const victoryModal = page.locator('[data-testid="victory-modal"]');
+    await expect(victoryModal).toBeVisible({ timeout: 5000 });
+    await expect(victoryModal).toContainText('VERTICAL SLICE COMPLETE');
+    await expect(victoryModal).toContainText('“A hand may be complete and still be wrong.”');
+    await expect(victoryModal).toContainText('Sequence Bridge');
+    await expect(victoryModal).toContainText('Same-Door Principle');
+    await expect(victoryModal).toContainText('Refusal of the Premise');
+
+    // 55. Close victory modal to continue exploring
+    await page.locator('.btn-primary', { hasText: 'Continue Exploring' }).click();
+    await expect(victoryModal).not.toBeVisible({ timeout: 3000 });
+
+    // 56. Verify 0 console errors across entire completed vertical slice journey!
     expect(consoleErrors).toEqual([]);
   });
 });

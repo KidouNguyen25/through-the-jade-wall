@@ -128,6 +128,28 @@ export const BOSS_GATE_BARRIER: BoundingBox = {
   maxZ: -18.5,
 };
 
+// Bounds for Dealer's Court (Scene: 'boss_court')
+export const BOSS_COURT_BOUNDS: BoundingBox = {
+  minX: -11.5,
+  maxX: 11.5,
+  minZ: -11.5,
+  maxZ: 11.5,
+};
+
+// Obstacles in Dealer's Court
+export const BOSS_COURT_BASE_OBSTACLES: BoundingBox[] = [
+  // Central Tribunal Dais Pedestal at [0, 0, 0]
+  { minX: -0.9, maxX: 0.9, minZ: -0.9, maxZ: 0.9 },
+  // North Dealer Throne Dais at [0, 0, -9.0]
+  { minX: -2.5, maxX: 2.5, minZ: -10.2, maxZ: -7.8 },
+  // East Wind Obelisk at [8.5, 0, 0]
+  { minX: 7.8, maxX: 9.2, minZ: -0.7, maxZ: 0.7 },
+  // West Wind Obelisk at [-8.5, 0, 0]
+  { minX: -9.2, maxX: -7.8, minZ: -0.7, maxZ: 0.7 },
+  // South Wind Obelisk at [0, 0, 8.5]
+  { minX: -0.7, maxX: 0.7, minZ: 7.8, maxZ: 9.2 },
+];
+
 // Chasm Void Obstacle (active when balconies are NOT aligned)
 export const CHASM_VOID_OBSTACLE: BoundingBox = {
   minX: -6.5,

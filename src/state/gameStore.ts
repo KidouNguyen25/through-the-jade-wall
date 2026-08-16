@@ -28,6 +28,14 @@ import {
 } from '../domain/narrative/dialogueData';
 import { DiscardAltarType, evaluateSacrifice } from '../domain/discard/discardModel';
 import { evaluateInvalidation } from '../domain/deadhand/deadHandModel';
+import { BossPhase, WindDirection, evaluateBossInterruption } from '../domain/boss/dealerBossModel';
+import {
+  DEALER_INTRO_TREE,
+  DEALER_WIND_EAST_TREE,
+  DEALER_WIND_SOUTH_TREE,
+  DEALER_FORCED_HAND_TREE,
+  DEALER_WHITE_TILE_INTERRUPT_TREE,
+} from '../domain/narrative/dialogueData';
 
 export type SceneId =
   'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
@@ -94,6 +102,14 @@ export interface GameState {
   bossCourtUnlocked: boolean;
   watchersFrozen: boolean;
 
+  // Phase 7: Dealer Boss Puzzle State
+  dealerPhase: BossPhase;
+  arenaRotation: number;
+  activeHazardWind: WindDirection | null;
+  whiteTileInscribed: boolean;
+  verticalSliceCompleted: boolean;
+  victoryModalOpen: boolean;
+
   // Actions
   setPlayerPosition: (position: [number, number, number]) => void;
   setCurrentScene: (scene: SceneId) => void;
@@ -127,6 +143,12 @@ export interface GameState {
   collectMemoryFragment: (fragmentId: 'eastGate' | 'midnightBell' | 'captainSeal') => void;
   reconstructMemory: () => void;
   setNarrativeFlag: (flag: string, value?: boolean) => void;
+
+  // Phase 7 Actions
+  enterBossCourt: () => void;
+  advanceBossWind: (targetPhase: 'wind_east' | 'wind_south' | 'forced_hand') => void;
+  interruptWithWhiteTile: () => boolean;
+  closeVictoryModal: () => void;
 
   // Persistence
   saveGame: () => boolean;
@@ -187,6 +209,14 @@ export const useGameStore = create<GameState>((set, get) => ({
   deadHandInvalidated: false,
   bossCourtUnlocked: false,
   watchersFrozen: false,
+
+  // Phase 7 state
+  dealerPhase: 'intro',
+  arenaRotation: 0,
+  activeHazardWind: null,
+  whiteTileInscribed: false,
+  verticalSliceCompleted: false,
+  victoryModalOpen: false,
 
   setPlayerPosition: (position) => set({ playerPosition: position }),
   setCurrentScene: (scene) => set({ currentScene: scene }),
@@ -556,10 +586,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   closeDialogue: () => {
-    const { memoryFragments, memoryReconstructed } = get();
+    const { memoryFragments, memoryReconstructed, verticalSliceCompleted } = get();
     set({
       activeDialogueTree: null,
       activeDialogueNode: null,
+      victoryModalOpen: verticalSliceCompleted ? true : get().victoryModalOpen,
     });
 
     // If all 3 fragments are collected and memory is not yet reconstructed, trigger reconstruction
@@ -615,6 +646,89 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().saveGame();
   },
 
+  // Phase 7: Dealer Boss Puzzle Actions
+  enterBossCourt: () => {
+    set({
+      currentScene: 'boss_court',
+      playerPosition: [0, 0, 8.5],
+      checkpoint: 'cp_boss_court_entered',
+      dealerPhase: 'intro',
+      arenaRotation: 0,
+      activeHazardWind: null,
+      activeInteractable: null,
+      activeInspection: null,
+      narrativeMessage:
+        'The Seat of the Dealer — A vast circular amphitheater under the eye of the Supreme Arbiter.',
+    });
+    get().startDialogue(DEALER_INTRO_TREE);
+    get().saveGame();
+  },
+
+  advanceBossWind: (targetPhase) => {
+    if (targetPhase === 'wind_east') {
+      set({
+        dealerPhase: 'wind_east',
+        arenaRotation: 0,
+        activeHazardWind: 'east',
+        checkpoint: 'cp_boss_wind_east',
+        narrativeMessage:
+          'Wind of the East (Ton) active! The East sector radiates with hazard energy. Safe haven is West.',
+      });
+      get().startDialogue(DEALER_WIND_EAST_TREE);
+    } else if (targetPhase === 'wind_south') {
+      set({
+        dealerPhase: 'wind_south',
+        arenaRotation: Math.PI / 2,
+        activeHazardWind: 'south',
+        checkpoint: 'cp_boss_wind_south',
+        narrativeMessage:
+          'Wind of the South (Nan) active! The court rotates 90 degrees. Safe haven is North.',
+      });
+      get().startDialogue(DEALER_WIND_SOUTH_TREE);
+    } else if (targetPhase === 'forced_hand') {
+      set({
+        dealerPhase: 'forced_hand',
+        arenaRotation: Math.PI,
+        activeHazardWind: null,
+        checkpoint: 'cp_boss_forced_hand',
+        narrativeMessage: 'RON! The Dealer demands the Final Hand pair on the Tribunal Anchor!',
+      });
+      get().startDialogue(DEALER_FORCED_HAND_TREE);
+    }
+    get().saveGame();
+  },
+
+  interruptWithWhiteTile: () => {
+    const { inventoryTiles, selectedSlot, dealerPhase } = get();
+    const selectedTileId = inventoryTiles[selectedSlot] ?? null;
+
+    const result = evaluateBossInterruption(selectedTileId, dealerPhase);
+
+    if (!result.success) {
+      set({ narrativeMessage: result.message });
+      return false;
+    }
+
+    // Success: Refuse the premise with the White Tile!
+    set({
+      dealerPhase: 'interrupted_victory',
+      whiteTileInscribed: true,
+      verticalSliceCompleted: true,
+      victoryModalOpen: false,
+      checkpoint: 'cp_vertical_slice_complete',
+      activeHazardWind: null,
+      activeInteractable: null,
+      narrativeMessage:
+        '“A hand may be complete and still be wrong.” The White Tile shatters the false trial. The vertical slice is complete.',
+    });
+
+    get().startDialogue(DEALER_WHITE_TILE_INTERRUPT_TREE);
+    get().saveGame();
+    return true;
+  },
+
+  closeVictoryModal: () => set({ victoryModalOpen: false }),
+
   // Persistence
   saveGame: () => {
     const state = get();
@@ -643,6 +757,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       eastPathOpen: state.eastPathOpen,
       deadHandInvalidated: state.deadHandInvalidated,
       bossCourtUnlocked: state.bossCourtUnlocked,
+      dealerPhase: state.dealerPhase,
+      whiteTileInscribed: state.whiteTileInscribed,
+      verticalSliceCompleted: state.verticalSliceCompleted,
     };
     return saveToLocalStorage(saveState);
   },
@@ -675,6 +792,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       deadHandInvalidated: loaded.deadHandInvalidated ?? false,
       bossCourtUnlocked: loaded.bossCourtUnlocked ?? false,
       watchersFrozen: loaded.deadHandInvalidated ?? false,
+      dealerPhase: loaded.dealerPhase ?? 'intro',
+      whiteTileInscribed: loaded.whiteTileInscribed ?? false,
+      verticalSliceCompleted: loaded.verticalSliceCompleted ?? false,
     });
     return true;
   },
@@ -705,6 +825,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       deadHandInvalidated: initial.deadHandInvalidated,
       bossCourtUnlocked: initial.bossCourtUnlocked,
       watchersFrozen: false,
+      dealerPhase: initial.dealerPhase,
+      whiteTileInscribed: initial.whiteTileInscribed,
+      verticalSliceCompleted: initial.verticalSliceCompleted,
+      victoryModalOpen: false,
       activeInteractable: null,
       activeInspection: null,
       activeDialogueTree: null,

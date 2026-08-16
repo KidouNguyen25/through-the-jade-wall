@@ -197,25 +197,35 @@ export function App() {
             <div className="status-badge" role="status" aria-label="System status">
               <span className="status-dot" />
               <span>
-                {currentScene === 'dead_hand'
-                  ? useGameStore.getState().deadHandInvalidated
-                    ? 'Phase 6: Dead Hand Declared (Stasis Lock)'
-                    : 'Phase 6: Watcher Encounter'
-                  : currentScene === 'discard_passage'
-                    ? useGameStore.getState().discardPassageChoice === 'archivist'
-                      ? 'Phase 5: Scholar’s Ascent (West Unlocked)'
-                      : useGameStore.getState().discardPassageChoice === 'regent'
-                        ? 'Phase 5: Martial Passage (East Unlocked)'
-                        : 'Phase 5: Discard Consequence'
-                    : currentScene === 'memory_room'
-                      ? memoryReconstructed
-                        ? 'Phase 4: Memory Reconstructed'
-                        : 'Phase 4: Memory Sanctuary'
-                      : currentScene === 'east_arcade'
-                        ? useGameStore.getState().sameDoorPairActive
-                          ? 'Phase 3: Impossible Space Gate'
-                          : 'Phase 2: Mahjong Sequence Gate'
-                        : 'Phase 1: Rain Alley Slice'}
+                {currentScene === 'boss_court'
+                  ? useGameStore.getState().verticalSliceCompleted
+                    ? 'Phase 7: Trial Shattered (Victory)'
+                    : useGameStore.getState().dealerPhase === 'forced_hand'
+                      ? 'Phase 7: The Final Hand (Ron)'
+                      : useGameStore.getState().dealerPhase === 'wind_south'
+                        ? 'Phase 7: Wind of the South'
+                        : useGameStore.getState().dealerPhase === 'wind_east'
+                          ? 'Phase 7: Wind of the East'
+                          : 'Phase 7: Dealer’s Court'
+                  : currentScene === 'dead_hand'
+                    ? useGameStore.getState().deadHandInvalidated
+                      ? 'Phase 6: Dead Hand Declared (Stasis Lock)'
+                      : 'Phase 6: Watcher Encounter'
+                    : currentScene === 'discard_passage'
+                      ? useGameStore.getState().discardPassageChoice === 'archivist'
+                        ? 'Phase 5: Scholar’s Ascent (West Unlocked)'
+                        : useGameStore.getState().discardPassageChoice === 'regent'
+                          ? 'Phase 5: Martial Passage (East Unlocked)'
+                          : 'Phase 5: Discard Consequence'
+                      : currentScene === 'memory_room'
+                        ? memoryReconstructed
+                          ? 'Phase 4: Memory Reconstructed'
+                          : 'Phase 4: Memory Sanctuary'
+                        : currentScene === 'east_arcade'
+                          ? useGameStore.getState().sameDoorPairActive
+                            ? 'Phase 3: Impossible Space Gate'
+                            : 'Phase 2: Mahjong Sequence Gate'
+                          : 'Phase 1: Rain Alley Slice'}
               </span>
             </div>
 
@@ -575,6 +585,100 @@ export function App() {
                   onChange={(e) => setShowControlHints(e.target.checked)}
                 />
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Vertical Slice Victory Climax Modal */}
+      {useGameStore.getState().victoryModalOpen && (
+        <div
+          className="modal-backdrop"
+          onClick={() => useGameStore.getState().closeVictoryModal()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="victory-title"
+          data-testid="victory-modal"
+        >
+          <div
+            className="modal-card victory-card"
+            style={{
+              borderColor: '#10b981',
+              boxShadow: '0 0 40px rgba(16, 185, 129, 0.4)',
+              textAlign: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header" style={{ justifyContent: 'center' }}>
+              <h2
+                id="victory-title"
+                className="modal-title"
+                style={{ color: '#34d399', letterSpacing: '0.15em', fontSize: '1.4rem' }}
+              >
+                VERTICAL SLICE COMPLETE
+              </h2>
+            </div>
+
+            <p
+              style={{
+                fontStyle: 'italic',
+                color: '#fef08a',
+                margin: '1.2rem 0',
+                fontSize: '1.15rem',
+                borderLeft: '3px solid #10b981',
+                paddingLeft: '1rem',
+                textAlign: 'left',
+              }}
+            >
+              “A hand may be complete and still be wrong.”
+            </p>
+
+            <div
+              style={{
+                fontSize: '0.95rem',
+                color: '#cbd5e1',
+                lineHeight: 1.6,
+                textAlign: 'left',
+                margin: '1.2rem 0',
+                background: 'rgba(15, 23, 42, 0.6)',
+                padding: '1rem',
+                borderRadius: '8px',
+                border: '1px solid rgba(51, 65, 85, 0.8)',
+              }}
+            >
+              <div style={{ color: '#38bdf8', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                JOURNEY RECORD:
+              </div>
+              <div>✔ Sequence Bridge: Linked Bamboo 2-3-4 across the void</div>
+              <div>✔ Same-Door Principle: Traversed identical Red Dragon portals</div>
+              <div>✔ Holographic Rebirth: Synthesized 3 memory fragments of the Jade Wall</div>
+              <div>✔ Discard Consequence: Permanent sacrifice rendered in the Obsidian Canyon</div>
+              <div>✔ Dead Hand Invalidation: Watcher Sentinels locked in stasis by Chombo rule</div>
+              <div>✔ Refusal of the Premise: The uncarved White Tile broke the synthetic trial</div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: '1rem',
+                justifyContent: 'center',
+                marginTop: '1.5rem',
+              }}
+            >
+              <button
+                className="btn-primary"
+                onClick={() => useGameStore.getState().closeVictoryModal()}
+                style={{ background: '#059669', color: '#ffffff', padding: '0.6rem 1.4rem' }}
+              >
+                Continue Exploring
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => useGameStore.getState().resetGame()}
+                style={{ padding: '0.6rem 1.4rem' }}
+              >
+                Play Again
+              </button>
             </div>
           </div>
         </div>

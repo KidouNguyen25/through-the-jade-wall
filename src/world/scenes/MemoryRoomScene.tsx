@@ -264,7 +264,7 @@ function ExitGatewayToDiscardPassage() {
   if (!memoryReconstructed) return null;
 
   return (
-    <group position={[0, 0, -9.0]}>
+    <group position={[0, 0, -8.5]}>
       <mesh position={[0, 2.5, 0]}>
         <planeGeometry args={[3.2, 5.0]} />
         <meshStandardMaterial
@@ -278,8 +278,8 @@ function ExitGatewayToDiscardPassage() {
       <Interactable
         id="door_discard_passage"
         name="Discard Passage Gateway"
-        position={[0, 0, -8.0]}
-        radius={3.5}
+        position={[0, 0, -7.0]}
+        radius={4.5}
         promptText="Enter Discard Passage"
         onInteract={enterDiscardPassage}
       />

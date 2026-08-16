@@ -11,7 +11,8 @@ export type SpeakerId =
   | 'Altar of Discard'
   | 'Watcher Sentinel Alpha'
   | 'Watcher Sentinel Beta'
-  | 'Gong of Invalidation';
+  | 'Gong of Invalidation'
+  | 'Tribunal Anchor';
 
 export interface DialogueChoice {
   label: string;

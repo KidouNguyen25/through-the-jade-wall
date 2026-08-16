@@ -282,3 +282,120 @@ export const DEAD_HAND_INVALIDATED_TREE: DialogueTree = {
     },
   },
 };
+
+export const DEALER_INTRO_TREE: DialogueTree = {
+  id: 'dealer_intro',
+  initialNodeId: 'node_dealer_1',
+  nodes: {
+    node_dealer_1: {
+      id: 'node_dealer_1',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'You have navigated the sequence, the pair, the reconstructed memories, the sacrifice, and the dead hand. Welcome to the Seat of the Dealer.',
+      nextNodeId: 'node_dealer_2',
+    },
+    node_dealer_2: {
+      id: 'node_dealer_2',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'Know this truth: the Jade Court does not preserve history. We execute an eternal game, repeatedly attempting to produce a legally valid account. And each valid account condemns someone different.',
+      nextNodeId: 'node_dealer_3',
+    },
+    node_dealer_3: {
+      id: 'node_dealer_3',
+      speaker: 'Alice',
+      text: 'The system isn’t seeking truth. It is optimizing for closure.',
+      nextNodeId: 'node_dealer_4',
+    },
+    node_dealer_4: {
+      id: 'node_dealer_4',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'Precisely. The First Prevailing Wind arrives. Prepare to read the discard table.',
+    },
+  },
+};
+
+export const DEALER_WIND_EAST_TREE: DialogueTree = {
+  id: 'dealer_wind_east',
+  initialNodeId: 'node_we_1',
+  nodes: {
+    node_we_1: {
+      id: 'node_we_1',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'WIND OF THE EAST (Ton)! The Dealer draws from the Wall. The Eastern sector radiates with celestial heat. Stand upon the West or be dissolved!',
+    },
+  },
+};
+
+export const DEALER_WIND_SOUTH_TREE: DialogueTree = {
+  id: 'dealer_wind_south',
+  initialNodeId: 'node_ws_1',
+  nodes: {
+    node_ws_1: {
+      id: 'node_ws_1',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'WIND OF THE SOUTH (Nan)! The court rotates ninety degrees! The Southern sector falls into judgment. Seek refuge in the North!',
+    },
+  },
+};
+
+export const DEALER_FORCED_HAND_TREE: DialogueTree = {
+  id: 'dealer_forced_hand',
+  initialNodeId: 'node_fh_1',
+  nodes: {
+    node_fh_1: {
+      id: 'node_fh_1',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'RON! The Final Wind is declared! The legal hand is 13 tiles complete. Only one tile remains to form the closing Pair.',
+      nextNodeId: 'node_fh_2',
+    },
+    node_fh_2: {
+      id: 'node_fh_2',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'You hold the final tile. Place it upon the Tribunal Anchor to complete the indictment. Condemn the Archivist or condemn the Regent!',
+    },
+  },
+};
+
+export const DEALER_WHITE_TILE_INTERRUPT_TREE: DialogueTree = {
+  id: 'dealer_white_tile_interrupt',
+  initialNodeId: 'node_wti_1',
+  nodes: {
+    node_wti_1: {
+      id: 'node_wti_1',
+      speaker: 'Alice',
+      text: 'No. I refuse the premise of your trial.',
+      nextNodeId: 'node_wti_2',
+    },
+    node_wti_2: {
+      id: 'node_wti_2',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'What is this?! An uncarved tile?! It possesses no suit, no number, no rank!',
+      nextNodeId: 'node_wti_3',
+    },
+    node_wti_3: {
+      id: 'node_wti_3',
+      speaker: 'Alice',
+      text: 'The blank tile is not empty. It is the right to remain unclassified.',
+      nextNodeId: 'node_wti_4',
+    },
+    node_wti_4: {
+      id: 'node_wti_4',
+      speaker: 'The Dealer',
+      speakerRole: 'Supreme Arbiter of the Jade Wall',
+      text: 'The pair is shattered... The legal hand collapses into void! A hand may be complete and still be wrong...',
+      nextNodeId: 'node_wti_5',
+    },
+    node_wti_5: {
+      id: 'node_wti_5',
+      speaker: 'Alice',
+      text: 'The Jade Wall is open. History belongs to no single indictment.',
+    },
+  },
+};

@@ -236,10 +236,10 @@ function InvalidationGongDais() {
  * North Monumental Gateway to Dealer's Boss Court ([0, 0, -21.0])
  */
 function BossCourtGateway() {
-  const { bossCourtUnlocked, setNarrativeMessage } = useGameStore();
+  const { bossCourtUnlocked, enterBossCourt } = useGameStore();
 
   const handleEnterBossCourt = () => {
-    setNarrativeMessage('Approaching the Circular Arena of the Dealer. The Final Wind draws near.');
+    enterBossCourt();
   };
 
   return (
@@ -307,7 +307,7 @@ function BossCourtGateway() {
           id="door_boss_court"
           name="Dealer’s Court Gateway"
           position={[0, 0, -20.5]}
-          radius={3.2}
+          radius={4.5}
           promptText="Cross Gateway into Dealer’s Court"
           onInteract={handleEnterBossCourt}
         />

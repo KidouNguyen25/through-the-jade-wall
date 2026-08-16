@@ -30,6 +30,9 @@ export interface SaveStateV1 {
   eastPathOpen: boolean;
   deadHandInvalidated: boolean;
   bossCourtUnlocked: boolean;
+  dealerPhase: 'intro' | 'wind_east' | 'wind_south' | 'forced_hand' | 'interrupted_victory';
+  whiteTileInscribed: boolean;
+  verticalSliceCompleted: boolean;
 }
 
 export const SAVE_STORAGE_KEY = 'ttjw_save_slot_0';
@@ -75,6 +78,9 @@ export function createInitialSave(overrides?: Partial<SaveStateV1>): SaveStateV1
     eastPathOpen: false,
     deadHandInvalidated: false,
     bossCourtUnlocked: false,
+    dealerPhase: 'intro',
+    whiteTileInscribed: false,
+    verticalSliceCompleted: false,
     ...overrides,
   };
 }

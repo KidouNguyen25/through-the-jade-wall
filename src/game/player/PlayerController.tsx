@@ -17,6 +17,8 @@ import {
   DEAD_HAND_BOUNDS,
   DEAD_HAND_BASE_OBSTACLES,
   BOSS_GATE_BARRIER,
+  BOSS_COURT_BOUNDS,
+  BOSS_COURT_BASE_OBSTACLES,
   CHASM_VOID_OBSTACLE,
   clampPositionToBounds,
   resolveBoxCollision,
@@ -155,30 +157,34 @@ export function PlayerController() {
 
       // Select scene-specific bounds and obstacles
       const activeBounds =
-        currentScene === 'dead_hand'
-          ? DEAD_HAND_BOUNDS
-          : currentScene === 'discard_passage'
-            ? DISCARD_PASSAGE_BOUNDS
-            : currentScene === 'memory_room'
-              ? MEMORY_ROOM_BOUNDS
-              : currentScene === 'east_arcade'
-                ? EAST_ARCADE_BOUNDS
-                : ALLEY_BOUNDS;
+        currentScene === 'boss_court'
+          ? BOSS_COURT_BOUNDS
+          : currentScene === 'dead_hand'
+            ? DEAD_HAND_BOUNDS
+            : currentScene === 'discard_passage'
+              ? DISCARD_PASSAGE_BOUNDS
+              : currentScene === 'memory_room'
+                ? MEMORY_ROOM_BOUNDS
+                : currentScene === 'east_arcade'
+                  ? EAST_ARCADE_BOUNDS
+                  : ALLEY_BOUNDS;
 
       const activeObstacles = [
-        ...(currentScene === 'dead_hand'
-          ? [...DEAD_HAND_BASE_OBSTACLES, ...(!bossCourtUnlocked ? [BOSS_GATE_BARRIER] : [])]
-          : currentScene === 'discard_passage'
-            ? [
-                ...DISCARD_PASSAGE_BASE_OBSTACLES,
-                ...(!westPathOpen ? [WEST_GATE_BARRIER] : []),
-                ...(!eastPathOpen ? [EAST_GATE_BARRIER] : []),
-              ]
-            : currentScene === 'memory_room'
-              ? MEMORY_ROOM_OBSTACLES
-              : currentScene === 'east_arcade'
-                ? EAST_ARCADE_OBSTACLES
-                : ALLEY_OBSTACLES),
+        ...(currentScene === 'boss_court'
+          ? BOSS_COURT_BASE_OBSTACLES
+          : currentScene === 'dead_hand'
+            ? [...DEAD_HAND_BASE_OBSTACLES, ...(!bossCourtUnlocked ? [BOSS_GATE_BARRIER] : [])]
+            : currentScene === 'discard_passage'
+              ? [
+                  ...DISCARD_PASSAGE_BASE_OBSTACLES,
+                  ...(!westPathOpen ? [WEST_GATE_BARRIER] : []),
+                  ...(!eastPathOpen ? [EAST_GATE_BARRIER] : []),
+                ]
+              : currentScene === 'memory_room'
+                ? MEMORY_ROOM_OBSTACLES
+                : currentScene === 'east_arcade'
+                  ? EAST_ARCADE_OBSTACLES
+                  : ALLEY_OBSTACLES),
         ...(currentScene === 'east_arcade' && !balconiesAligned ? [CHASM_VOID_OBSTACLE] : []),
       ];
 
@@ -189,6 +195,16 @@ export function PlayerController() {
         playerRadius,
         activeBounds,
       );
+
+      // In boss_court circular arena, clamp to maximum radial distance (11.0m)
+      if (currentScene === 'boss_court') {
+        const radDist = Math.sqrt(clampedX * clampedX + clampedZ * clampedZ);
+        const maxRad = 11.0 - playerRadius;
+        if (radDist > maxRad) {
+          clampedX = (clampedX / radDist) * maxRad;
+          clampedZ = (clampedZ / radDist) * maxRad;
+        }
+      }
 
       // Check obstacle collisions
       for (const obstacle of activeObstacles) {

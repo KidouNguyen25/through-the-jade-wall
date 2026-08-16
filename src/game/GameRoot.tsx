@@ -7,6 +7,7 @@ import EastArcadeScene from '../world/scenes/EastArcadeScene';
 import MemoryRoomScene from '../world/scenes/MemoryRoomScene';
 import DiscardPassageScene from '../world/scenes/DiscardPassageScene';
 import DeadHandScene from '../world/scenes/DeadHandScene';
+import BossCourtScene from '../world/scenes/BossCourtScene';
 import { useGameStore } from '../state/gameStore';
 
 export function SceneLighting() {
@@ -40,7 +41,9 @@ export function GameRoot() {
         <SceneLighting />
 
         {/* Scene Switcher based on Progression */}
-        {currentScene === 'dead_hand' ? (
+        {currentScene === 'boss_court' ? (
+          <BossCourtScene />
+        ) : currentScene === 'dead_hand' ? (
           <DeadHandScene />
         ) : currentScene === 'discard_passage' ? (
           <DiscardPassageScene />
