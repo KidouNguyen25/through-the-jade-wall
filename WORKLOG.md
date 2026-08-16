@@ -1,9 +1,22 @@
 # WORKLOG
 
+## 2026-08-16 — Remote GitHub Synchronization & CI/CD Trigger
+
+- **Task**: Synchronize all branches and quality-verified commits to remote repository `KidouNguyen25/through-the-jade-wall`.
+- **Branches Pushed**:
+  - `main`: `0a6d62b` (Merged Phase 0, Phase 1, Phase 2)
+  - `feat/locomotion-rain-alley`: `8135b22` (Phase 1)
+  - `feat/mahjong-domain-gate`: `63ced54` (Phase 2)
+- **CI / CD Status**:
+  - Remote CI workflow (`ci.yml`) triggered on `main` (Run `31944158016`).
+  - GitHub Pages deployment workflow (`deploy.yml`) triggered on `main` (Run `31944158028`).
+
+---
+
 ## 2026-08-16 — Phase 2: Mahjong Domain Foundation & East Arcade Sequence Gate
 
 - **Task**: Active Milestone: Phase 2 — Mahjong domain foundation (`current_project_task.md`).
-- **Branch**: `feat/mahjong-domain-gate`
+- **Branch**: `feat/mahjong-domain-gate` (Merged to `main` in `0a6d62b`)
 - **Actions Taken**:
   1. Created feature branch `feat/mahjong-domain-gate`.
   2. Implemented Mahjong tile domain types, catalog, and equality functions in `src/domain/mahjong/tileTypes.ts`.
