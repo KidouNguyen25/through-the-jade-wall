@@ -127,4 +127,28 @@ describe('Progression State Machine', () => {
     expect(updated.activeCheckpoint).toBe('cp_east_arcade_start');
     expect(updated.narrativeFlags['entered_tea_house']).toBe(true);
   });
+
+  it('solves Same Door Pair and warps across space (Phase 3)', () => {
+    const store = useGameStore.getState();
+    store.enterTeaHouse();
+    store.collectRedDragon();
+
+    expect(useGameStore.getState().hasRedDragon).toBe(true);
+    expect(useGameStore.getState().inventoryTiles).toContain('tile_dragon_red');
+
+    // Place Red Dragon in Door Beta socket
+    const solved = store.placeTileInSocket('socket_door_beta', 'tile_dragon_red');
+    expect(solved).toBe(true);
+    expect(useGameStore.getState().sameDoorPairActive).toBe(true);
+    expect(useGameStore.getState().activeCheckpoint).toBe('cp_same_door_paired');
+
+    // Traverse from Door Alpha -> Warps to Door Beta at [-3.5, 0, -15.8]
+    store.traverseSameDoor('alpha');
+    expect(useGameStore.getState().playerPosition).toEqual([-3.5, 0, -15.8]);
+    expect(useGameStore.getState().activeCheckpoint).toBe('cp_upper_terrace_reached');
+
+    // Traverse from Door Beta -> Warps back to Door Alpha at [3.5, 0, -8.5]
+    store.traverseSameDoor('beta');
+    expect(useGameStore.getState().playerPosition).toEqual([3.5, 0, -8.5]);
+  });
 });

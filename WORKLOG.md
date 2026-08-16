@@ -1,5 +1,30 @@
 # WORKLOG
 
+## 2026-08-16 — Phase 3: First Impossible-Space Puzzle & Non-Euclidean Portal Traversal
+
+- **Task**: Active Milestone: Phase 3 — First Impossible-Space Puzzle (`current_project_task.md`).
+- **Branch**: `feat/impossible-space-doors` (Merged to `main`)
+- **Actions Taken**:
+  1. Created feature branch `feat/impossible-space-doors`.
+  2. Extended Mahjong tile domain in `src/domain/mahjong/tileTypes.ts` with Red Dragon (_Chun_), Green Dragon (_Hatsu_), White Dragon (_Haku_), and Wind tiles.
+  3. Defined `EAST_ARCADE_SAME_DOOR_PUZZLE` in `src/domain/puzzle/puzzleModel.ts` validating matching Red Dragon Pairs (_Toitsu_).
+  4. Updated collision bounds and obstacles in `src/domain/collision/collisionModel.ts` to include Upper Terrace courtyard (`z = -20.0 to 9.5`), shrine altar, and dynamic `CHASM_VOID_OBSTACLE` that opens when balconies align.
+  5. Implemented portal warping, state synchronization, and tiered hint system in `src/state/gameStore.ts` and `src/game/player/PlayerController.tsx`.
+  6. Built Upper Terrace level extension with Central Shrine altar in `src/world/scenes/EastArcadeScene.tsx`.
+  7. Built `SameDoorGate.tsx` featuring Doorway Alpha (fixed Red Dragon mark), Doorway Beta (plaque socket), and animated `PortalMistPlane` shimmering particle/mist planes.
+  8. Created 3-Tier progressive Guidance Hint modal (Layer 1 Environmental Observation, Layer 2 Mahjong Space Principle, Layer 3 Explicit Solution) accessible via `H` key or HUD button in `src/app/App.tsx` and `src/app/App.css`.
+  9. Added unit tests for Same Door pair gate and portal teleportation state progression in `src/test/puzzle.test.ts` and `src/test/locomotion.test.ts` (30/30 unit tests passing).
+  10. Built and verified comprehensive automated Playwright E2E test in `tests/e2e/smoke.spec.ts` testing the complete player journey: Rain Alley → White Tile → Tea House → East Arcade → Bamboo 4 → Balcony Alignment → Bridge Crossing → Altar Red Dragon → Doorway Beta Socket → Step-Through Portal Warp → Observation Tower emergence with 0 console errors.
+- **Quality Gates Results**:
+  - `npm run format:check`: PASSED (100% Prettier compliance)
+  - `npm run lint`: PASSED (0 errors, 0 warnings)
+  - `npm run typecheck`: PASSED (0 errors)
+  - `npm run test`: PASSED (30 / 30 unit tests passed in 2.6s)
+  - `npm run build`: PASSED (Production bundle in `dist/`)
+  - `npm run test:e2e`: PASSED (Playwright e2e test in Chromium, 45.4s, 0 console errors)
+
+---
+
 ## 2026-08-16 — Remote GitHub Synchronization & CI/CD Trigger
 
 - **Task**: Synchronize all branches and quality-verified commits to remote repository `KidouNguyen25/through-the-jade-wall`.
@@ -58,30 +83,3 @@
   - `npm run test`: PASSED (12 / 12 unit tests passed in 2.2s)
   - `npm run build`: PASSED (Production bundle in `dist/`)
   - `npm run test:e2e`: PASSED (Playwright e2e locomotion test in Chromium browser, 0 console errors)
-
----
-
-## 2026-08-16 — Phase 0: Industrial Bootstrap
-
-- **Task**: Active Milestone: Phase 0 — Industrial Bootstrap (`current_project_task.md`).
-- **Starting State**: Empty workspace with AI devkit documentation.
-- **Actions Taken**:
-  1. Initialized Git repository on `main` branch.
-  2. Setup complete project skeleton in accordance with `TECHNICAL_ARCHITECTURE.md`.
-  3. Configured Vite + React 18 + TypeScript in strict mode.
-  4. Integrated Three.js + React Three Fiber + Drei for 3D canvas rendering with procedural Jade Tile and Pedestal.
-  5. Configured Zustand domain state (`gameStore`) and accessibility settings (`settingsStore`).
-  6. Configured ESLint (flat config), Prettier, TypeScript strict checking, Vitest unit test suite, and Playwright e2e smoke tests.
-  7. Created GitHub Actions workflows: CI (`ci.yml`) and Pages deployment (`deploy.yml`).
-  8. Configured `base: './'` for seamless relative asset hosting on GitHub Pages.
-  9. Documented ADR 0001 status as Accepted.
-  10. Created remote GitHub repository `KidouNguyen25/through-the-jade-wall` via GitHub CLI (`gh repo create`).
-  11. Sent admin collaboration invitation to `kidouhayadev`.
-- **Quality Gates Results**:
-  - `npm run format:check`: PASSED (All matched files use Prettier code style)
-  - `npm run lint`: PASSED (0 errors, 0 warnings)
-  - `npm run typecheck`: PASSED (0 errors)
-  - `npm run test`: PASSED (5/5 unit tests passed)
-  - `npm run build`: PASSED (Production bundle built in `dist/`)
-  - `npm run test:e2e`: PASSED (Playwright smoke test passed in Chromium browser, 0 console errors)
-- **Commit**: `chore(bootstrap): initialize repository and Phase 0 industrial skeleton` (`263661f`)

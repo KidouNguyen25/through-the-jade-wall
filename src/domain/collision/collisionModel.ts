@@ -13,11 +13,11 @@ export const ALLEY_BOUNDS: BoundingBox = {
   maxZ: 9.0,
 };
 
-// East Arcade bounding box: wider courtyard and chasm promenade
+// East Arcade bounding box: extends from South Promenade across Balcony Bridge to Upper Terrace
 export const EAST_ARCADE_BOUNDS: BoundingBox = {
-  minX: -5.8,
-  maxX: 5.8,
-  minZ: -12.0,
+  minX: -6.5,
+  maxX: 6.5,
+  minZ: -20.0,
   maxZ: 9.5,
 };
 
@@ -37,7 +37,21 @@ export const EAST_ARCADE_OBSTACLES: BoundingBox[] = [
   { minX: 2.4, maxX: 3.6, minZ: 3.4, maxZ: 4.6 },
   // Sequence Gate Sockets Pedestal at [0, 0, 2.0]
   { minX: -2.8, maxX: 2.8, minZ: 1.5, maxZ: 2.5 },
+  // Upper Pavilion Central Shrine Altar at [0, 0, -12.0]
+  { minX: -0.7, maxX: 0.7, minZ: -12.7, maxZ: -11.3 },
+  // Left Observation Tower wall at [-5.0, 0, -15.0]
+  { minX: -6.0, maxX: -4.4, minZ: -16.0, maxZ: -14.0 },
+  // Right Pavilion Wall at [5.0, 0, -10.0]
+  { minX: 4.4, maxX: 6.0, minZ: -11.0, maxZ: -9.0 },
 ];
+
+// Chasm Void Obstacle (active when balconies are NOT aligned)
+export const CHASM_VOID_OBSTACLE: BoundingBox = {
+  minX: -6.5,
+  maxX: 6.5,
+  minZ: -1.8,
+  maxZ: 0.2,
+};
 
 export function clampPositionToBounds(
   x: number,
@@ -67,22 +81,22 @@ export function resolveBoxCollision(
   x: number,
   z: number,
   radius: number,
-  obstacle: BoundingBox,
+  box: BoundingBox,
 ): [number, number] {
-  if (!isCollidingWithBox(x, z, radius, obstacle)) {
+  if (!isCollidingWithBox(x, z, radius, box)) {
     return [x, z];
   }
 
-  // Push back out along shortest penetration axis
-  const overlapLeft = x + radius - obstacle.minX;
-  const overlapRight = obstacle.maxX - (x - radius);
-  const overlapFront = z + radius - obstacle.minZ;
-  const overlapBack = obstacle.maxZ - (z - radius);
+  // Determine closest edge to push player out
+  const overlapLeft = x + radius - box.minX;
+  const overlapRight = box.maxX - (x - radius);
+  const overlapBottom = z + radius - box.minZ;
+  const overlapTop = box.maxZ - (z - radius);
 
-  const minOverlap = Math.min(overlapLeft, overlapRight, overlapFront, overlapBack);
+  const minOverlap = Math.min(overlapLeft, overlapRight, overlapBottom, overlapTop);
 
-  if (minOverlap === overlapLeft) return [obstacle.minX - radius, z];
-  if (minOverlap === overlapRight) return [obstacle.maxX + radius, z];
-  if (minOverlap === overlapFront) return [x, obstacle.minZ - radius];
-  return [x, obstacle.maxZ + radius];
+  if (minOverlap === overlapLeft) return [box.minX - radius, z];
+  if (minOverlap === overlapRight) return [box.maxX + radius, z];
+  if (minOverlap === overlapBottom) return [x, box.minZ - radius];
+  return [x, box.maxZ + radius];
 }

@@ -103,7 +103,7 @@ export function evaluatePuzzle(
   };
 }
 
-// East Arcade Sequence Gate Specification
+// East Arcade Sequence Gate Specification (Phase 2)
 export const EAST_ARCADE_SEQUENCE_PUZZLE: PuzzleDefinition = {
   id: 'puzzle_east_arcade_sequence',
   name: 'Three Balcony Sequence Gate',
@@ -129,6 +129,29 @@ export const EAST_ARCADE_SEQUENCE_PUZZLE: PuzzleDefinition = {
       id: 'socket_balcony_3',
       name: 'Balcony 3 Socket (Missing)',
       position: [2.0, 1.0, 0],
+      isLocked: false,
+    },
+  ],
+};
+
+// East Arcade "Same Door" Pair Puzzle Specification (Phase 3)
+export const EAST_ARCADE_SAME_DOOR_PUZZLE: PuzzleDefinition = {
+  id: 'puzzle_east_arcade_same_door',
+  name: 'Twin Doorway Pair Gate (Same Door Puzzle)',
+  requiredMeldType: 'pair',
+  requiredSuit: 'dragon',
+  sockets: [
+    {
+      id: 'socket_door_alpha',
+      name: 'Door Alpha Plaque Socket',
+      position: [3.5, 1.2, -10.0],
+      defaultTileId: 'tile_dragon_red',
+      isLocked: true,
+    },
+    {
+      id: 'socket_door_beta',
+      name: 'Door Beta Plaque Socket (Missing)',
+      position: [-3.5, 3.2, -14.0],
       isLocked: false,
     },
   ],

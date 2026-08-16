@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useInput } from '../input/useInput';
@@ -8,6 +8,7 @@ import {
   ALLEY_OBSTACLES,
   EAST_ARCADE_BOUNDS,
   EAST_ARCADE_OBSTACLES,
+  CHASM_VOID_OBSTACLE,
   clampPositionToBounds,
   resolveBoxCollision,
 } from '../../domain/collision/collisionModel';
@@ -89,6 +90,7 @@ export function PlayerController() {
     playerRotation,
     isPaused,
     teaHouseUnlocked,
+    balconiesAligned,
   } = useGameStore();
 
   const currentPos = useRef(new THREE.Vector3(...playerPosition));
@@ -96,7 +98,12 @@ export function PlayerController() {
   const walkCycle = useRef(0);
   const prevScene = useRef(currentScene);
 
-  // Sync position on scene transition
+  // Sync position on scene transition or teleport
+  useEffect(() => {
+    currentPos.current.set(...playerPosition);
+    currentRotation.current = playerRotation;
+  }, [playerPosition, playerRotation, currentScene]);
+
   if (prevScene.current !== currentScene) {
     prevScene.current = currentScene;
     currentPos.current.set(...playerPosition);
@@ -135,8 +142,10 @@ export function PlayerController() {
 
       // Select scene-specific bounds and obstacles
       const activeBounds = currentScene === 'east_arcade' ? EAST_ARCADE_BOUNDS : ALLEY_BOUNDS;
-      const activeObstacles =
-        currentScene === 'east_arcade' ? EAST_ARCADE_OBSTACLES : ALLEY_OBSTACLES;
+      const activeObstacles = [
+        ...(currentScene === 'east_arcade' ? EAST_ARCADE_OBSTACLES : ALLEY_OBSTACLES),
+        ...(currentScene === 'east_arcade' && !balconiesAligned ? [CHASM_VOID_OBSTACLE] : []),
+      ];
 
       // Check bounds
       let [clampedX, clampedZ] = clampPositionToBounds(

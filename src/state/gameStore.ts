@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { InteractableObject } from '../domain/interaction/interactionModel';
 import { getTileById } from '../domain/mahjong/tileTypes';
-import { EAST_ARCADE_SEQUENCE_PUZZLE, evaluatePuzzle } from '../domain/puzzle/puzzleModel';
+import {
+  EAST_ARCADE_SEQUENCE_PUZZLE,
+  EAST_ARCADE_SAME_DOOR_PUZZLE,
+  evaluatePuzzle,
+} from '../domain/puzzle/puzzleModel';
 
 export interface InspectionData {
   title: string;
@@ -33,6 +37,13 @@ export interface GameState {
   placedTiles: Record<string, string | null>;
   balconiesAligned: boolean;
 
+  // Phase 3 Impossible Space & Same Door Pair State
+  hasRedDragon: boolean;
+  sameDoorPairActive: boolean;
+  portalWarping: boolean;
+  hintModalOpen: boolean;
+  activeHintLevel: number;
+
   // Actions
   setScene: (scene: GameState['currentScene']) => void;
   setPaused: (isPaused: boolean) => void;
@@ -48,11 +59,16 @@ export interface GameState {
   setActiveInspection: (inspection: InspectionData | null) => void;
   collectWhiteTile: () => void;
   collectBamboo4: () => void;
+  collectRedDragon: () => void;
   placeTileInSocket: (socketId: string, tileId: string) => boolean;
   removeTileFromSocket: (socketId: string) => void;
   unlockTeaHouse: () => void;
   enterTeaHouse: () => void;
   transitionToEastArcade: () => void;
+  traverseSameDoor: (fromDoor: 'alpha' | 'beta') => void;
+  teleportPlayer: (pos: [number, number, number], rot?: number) => void;
+  toggleHintModal: () => void;
+  requestNextHint: () => void;
   setBannerMessage: (message: string | null) => void;
   resetGame: () => void;
 }
@@ -82,8 +98,17 @@ const initialState = {
     socket_balcony_1: 'tile_bamboo_2',
     socket_balcony_2: 'tile_bamboo_3',
     socket_balcony_3: null,
+    socket_door_alpha: 'tile_dragon_red',
+    socket_door_beta: null,
   },
   balconiesAligned: false,
+
+  // Phase 3 Same Door Pair initial state
+  hasRedDragon: false,
+  sameDoorPairActive: false,
+  portalWarping: false,
+  hintModalOpen: false,
+  activeHintLevel: 1,
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -145,36 +170,71 @@ export const useGameStore = create<GameState>((set, get) => ({
       };
     }),
 
+  collectRedDragon: () =>
+    set((state) => {
+      if (state.hasRedDragon) return state;
+      return {
+        hasRedDragon: true,
+        inventoryTiles: [...state.inventoryTiles, 'tile_dragon_red'],
+        selectedInventoryTileId: 'tile_dragon_red',
+        narrativeFlags: { ...state.narrativeFlags, collected_red_dragon: true },
+        bannerMessage:
+          'Acquired Red Dragon Plaque! In Mahjong, a Pair establishes spatial identity.',
+      };
+    }),
+
   placeTileInSocket: (socketId, tileId) => {
     const state = get();
     const updatedPlaced = { ...state.placedTiles, [socketId]: tileId };
     const updatedInventory = state.inventoryTiles.filter((id) => id !== tileId);
 
-    // Evaluate puzzle with domain resolver
-    const placedTilesMap: Record<string, ReturnType<typeof getTileById>> = {
+    // Evaluate Sequence Gate
+    const seqPlacedMap: Record<string, ReturnType<typeof getTileById>> = {
       socket_balcony_1: getTileById(updatedPlaced['socket_balcony_1'] ?? ''),
       socket_balcony_2: getTileById(updatedPlaced['socket_balcony_2'] ?? ''),
       socket_balcony_3: getTileById(updatedPlaced['socket_balcony_3'] ?? ''),
     };
+    const seqEvaluation = evaluatePuzzle(EAST_ARCADE_SEQUENCE_PUZZLE, seqPlacedMap);
 
-    const evaluation = evaluatePuzzle(EAST_ARCADE_SEQUENCE_PUZZLE, placedTilesMap);
+    // Evaluate Same Door Pair Gate
+    const doorPlacedMap: Record<string, ReturnType<typeof getTileById>> = {
+      socket_door_alpha: getTileById(updatedPlaced['socket_door_alpha'] ?? ''),
+      socket_door_beta: getTileById(updatedPlaced['socket_door_beta'] ?? ''),
+    };
+    const doorEvaluation = evaluatePuzzle(EAST_ARCADE_SAME_DOOR_PUZZLE, doorPlacedMap);
+
+    const isSeqSolved = seqEvaluation.isSolved;
+    const isDoorSolved = doorEvaluation.isSolved;
+
+    let banner = state.bannerMessage;
+    let checkpoint = state.activeCheckpoint;
+
+    if (isSeqSolved && !state.balconiesAligned) {
+      banner =
+        'Sequence Bamboo (2-3-4) completed! The three balconies shift and align into a bridge.';
+      checkpoint = 'cp_balconies_aligned';
+    } else if (isDoorSolved && !state.sameDoorPairActive) {
+      banner =
+        'Pair of Red Dragons established! Doorway Alpha and Doorway Beta are now the same door in space.';
+      checkpoint = 'cp_same_door_paired';
+    }
 
     set({
       placedTiles: updatedPlaced,
       inventoryTiles: updatedInventory,
       selectedInventoryTileId: null,
-      balconiesAligned: evaluation.isSolved,
+      balconiesAligned: isSeqSolved,
+      sameDoorPairActive: isDoorSolved,
       solvedPuzzles: {
         ...state.solvedPuzzles,
-        [EAST_ARCADE_SEQUENCE_PUZZLE.id]: evaluation.isSolved,
+        [EAST_ARCADE_SEQUENCE_PUZZLE.id]: isSeqSolved,
+        [EAST_ARCADE_SAME_DOOR_PUZZLE.id]: isDoorSolved,
       },
-      bannerMessage: evaluation.isSolved
-        ? 'Sequence Bamboo (2-3-4) completed! The three balconies shift and align into a bridge.'
-        : state.bannerMessage,
-      activeCheckpoint: evaluation.isSolved ? 'cp_balconies_aligned' : state.activeCheckpoint,
+      bannerMessage: banner,
+      activeCheckpoint: checkpoint,
     });
 
-    return evaluation.isSolved;
+    return isSeqSolved || isDoorSolved;
   },
 
   removeTileFromSocket: (socketId) => {
@@ -185,13 +245,29 @@ export const useGameStore = create<GameState>((set, get) => ({
     const updatedPlaced = { ...state.placedTiles, [socketId]: null };
     const updatedInventory = [...state.inventoryTiles, tileId];
 
+    // Re-evaluate
+    const seqPlacedMap: Record<string, ReturnType<typeof getTileById>> = {
+      socket_balcony_1: getTileById(updatedPlaced['socket_balcony_1'] ?? ''),
+      socket_balcony_2: getTileById(updatedPlaced['socket_balcony_2'] ?? ''),
+      socket_balcony_3: getTileById(updatedPlaced['socket_balcony_3'] ?? ''),
+    };
+    const seqEvaluation = evaluatePuzzle(EAST_ARCADE_SEQUENCE_PUZZLE, seqPlacedMap);
+
+    const doorPlacedMap: Record<string, ReturnType<typeof getTileById>> = {
+      socket_door_alpha: getTileById(updatedPlaced['socket_door_alpha'] ?? ''),
+      socket_door_beta: getTileById(updatedPlaced['socket_door_beta'] ?? ''),
+    };
+    const doorEvaluation = evaluatePuzzle(EAST_ARCADE_SAME_DOOR_PUZZLE, doorPlacedMap);
+
     set({
       placedTiles: updatedPlaced,
       inventoryTiles: updatedInventory,
-      balconiesAligned: false,
+      balconiesAligned: seqEvaluation.isSolved,
+      sameDoorPairActive: doorEvaluation.isSolved,
       solvedPuzzles: {
         ...state.solvedPuzzles,
-        [EAST_ARCADE_SEQUENCE_PUZZLE.id]: false,
+        [EAST_ARCADE_SEQUENCE_PUZZLE.id]: seqEvaluation.isSolved,
+        [EAST_ARCADE_SAME_DOOR_PUZZLE.id]: doorEvaluation.isSolved,
       },
     });
   },
@@ -222,6 +298,49 @@ export const useGameStore = create<GameState>((set, get) => ({
       bannerMessage: 'East Arcade: Find the missing Bamboo 4 tile to align the balconies.',
     });
   },
+
+  traverseSameDoor: (fromDoor) => {
+    const { sameDoorPairActive } = get();
+    if (!sameDoorPairActive) return;
+
+    set({ portalWarping: true });
+
+    if (fromDoor === 'alpha') {
+      // Step into Alpha (East Wall [3.5, 0, -10.0]) -> Step OUT of Beta (Tower [-3.5, 0, -15.5]) facing South
+      set({
+        playerPosition: [-3.5, 0, -15.8],
+        playerRotation: 0,
+        bannerMessage:
+          'Impossible Traversal: Stepping through Door Alpha brought you out of Door Beta on the High Tower.',
+        activeCheckpoint: 'cp_upper_terrace_reached',
+      });
+    } else {
+      // Step into Beta -> Step OUT of Alpha ([3.5, 0, -8.5]) facing South
+      set({
+        playerPosition: [3.5, 0, -8.5],
+        playerRotation: 0,
+        bannerMessage:
+          'Impossible Traversal: Stepping through Door Beta returned you to the Lower Pavilion.',
+      });
+    }
+
+    setTimeout(() => {
+      set({ portalWarping: false });
+    }, 400);
+  },
+
+  teleportPlayer: (pos, rot) => {
+    set({
+      playerPosition: pos,
+      playerRotation: rot !== undefined ? rot : get().playerRotation,
+    });
+  },
+
+  toggleHintModal: () => set((state) => ({ hintModalOpen: !state.hintModalOpen })),
+  requestNextHint: () =>
+    set((state) => ({
+      activeHintLevel: Math.min(3, state.activeHintLevel + 1),
+    })),
 
   setBannerMessage: (bannerMessage) => set({ bannerMessage }),
   resetGame: () => set(initialState),

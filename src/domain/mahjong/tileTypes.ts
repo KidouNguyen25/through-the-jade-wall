@@ -83,6 +83,14 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     shortName: '2 WAN',
     narrativeFragment: 'Two witnesses required to validate an identity.',
   },
+  tile_character_3: {
+    id: 'tile_character_3',
+    suit: 'character',
+    rank: 3,
+    label: '3 Character',
+    shortName: '3 WAN',
+    narrativeFragment: 'Three covenants bound within the stone archives.',
+  },
 
   // Circle Suit
   tile_circle_1: {
@@ -101,6 +109,33 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     shortName: '2 PIN',
     narrativeFragment: 'Two bronze coins paid at the gates of Jade Court.',
   },
+  tile_circle_3: {
+    id: 'tile_circle_3',
+    suit: 'circle',
+    rank: 3,
+    label: '3 Circle',
+    shortName: '3 PIN',
+    narrativeFragment: 'Three glowing river stones marking the ford.',
+  },
+
+  // Dragons
+  tile_dragon_red: {
+    id: 'tile_dragon_red',
+    suit: 'dragon',
+    dragon: 'red',
+    label: 'Red Dragon (Chun)',
+    shortName: 'RED DRG',
+    narrativeFragment:
+      'A vermilion seal establishing identity. When two doors share this mark, they become the same passage in space.',
+  },
+  tile_dragon_green: {
+    id: 'tile_dragon_green',
+    suit: 'dragon',
+    dragon: 'green',
+    label: 'Green Dragon (Hatsu)',
+    shortName: 'GRN DRG',
+    narrativeFragment: 'A flourishing jade emblem of growth, renewal, and hidden passages.',
+  },
 
   // Winds
   tile_wind_east: {
@@ -118,6 +153,22 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     label: 'South Wind',
     shortName: 'SOUTH',
     narrativeFragment: 'The wind of preservation and healing.',
+  },
+  tile_wind_west: {
+    id: 'tile_wind_west',
+    suit: 'wind',
+    wind: 'west',
+    label: 'West Wind',
+    shortName: 'WEST',
+    narrativeFragment: 'The wind of fading memories and dusk.',
+  },
+  tile_wind_north: {
+    id: 'tile_wind_north',
+    suit: 'wind',
+    wind: 'north',
+    label: 'North Wind',
+    shortName: 'NORTH',
+    narrativeFragment: 'The cold stillness of the outer wall.',
   },
 };
 

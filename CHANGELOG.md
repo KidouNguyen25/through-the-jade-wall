@@ -5,6 +5,18 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-16
+
+### Added
+
+- **Impossible Space & Same Door Mechanics**: Non-Euclidean portal traversal connecting spatially distant archways (Doorway Alpha at `[3.5, 0, -10.0]` and Doorway Beta at `[-3.5, 0, -15.0]`) when paired with matching Red Dragon tiles.
+- **Portal Screen Effect & 3D Shimmer**: Radial screen flash warp shader in `App.css` and animated double-sided portal mist plane in `SameDoorGate.tsx`.
+- **Upper Terrace Level Extension**: Expanded East Arcade bounds to `z = -20.0`, high observation tower platform, and Central Shrine Altar pedestal.
+- **3-Tier Progressive Guidance System**: Layer 1 (Environmental Observation), Layer 2 (Mahjong Space Principle), and Layer 3 (Explicit Actionable Solution) accessible via `H` key or header HUD button.
+- **Expanded Mahjong Catalog**: Added Red Dragon (_Chun_), Green Dragon (_Hatsu_), White Dragon (_Haku_), and Wind suits.
+- **Domain Gate & Physics Sync**: Instant player position teleportation synchronization in `PlayerController.tsx` with dynamic chasm obstacle collision gating.
+- **Phase 3 Test Suites**: Unit tests for Pair resolution and portal traversal in `puzzle.test.ts` and `locomotion.test.ts` (30/30 tests passing); full-flow Playwright E2E test in `smoke.spec.ts`.
+
 ## [0.2.0] - 2026-08-16
 
 ### Added

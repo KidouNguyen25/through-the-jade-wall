@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { useGameStore } from '../../state/gameStore';
 import { Interactable } from '../../game/interaction/Interactable';
 import SequenceGate from '../puzzles/SequenceGate';
+import SameDoorGate from '../puzzles/SameDoorGate';
 
 export function Bamboo4Pickup() {
   const meshRef = useRef<THREE.Group>(null);
@@ -75,37 +76,47 @@ export function Bamboo4Pickup() {
 export function EastArcadeEnvironment() {
   return (
     <group>
-      {/* Promenade Floor */}
+      {/* South Promenade Floor */}
       <mesh position={[0, -0.05, 5.0]} receiveShadow>
-        <boxGeometry args={[12, 0.1, 10]} />
+        <boxGeometry args={[12.4, 0.1, 10]} />
         <meshStandardMaterial color="#0e1714" roughness={0.6} metalness={0.2} />
       </mesh>
 
       {/* Chasm Void Floor (Deep under balconies) */}
-      <mesh position={[0, -5.0, -4.0]} receiveShadow>
-        <boxGeometry args={[20, 0.1, 10]} />
+      <mesh position={[0, -5.0, -3.0]} receiveShadow>
+        <boxGeometry args={[20, 0.1, 8]} />
         <meshStandardMaterial color="#030605" roughness={0.9} />
       </mesh>
 
-      {/* Far North Terrace Platform */}
-      <mesh position={[0, -0.05, -11.0]} receiveShadow>
-        <boxGeometry args={[12, 0.1, 6]} />
+      {/* Far North Upper Terrace Platform */}
+      <mesh position={[0, -0.05, -13.5]} receiveShadow>
+        <boxGeometry args={[12.4, 0.1, 13]} />
         <meshStandardMaterial color="#0e1714" roughness={0.6} metalness={0.2} />
       </mesh>
 
+      {/* High Observation Tower Deck at [-3.5, 0.1, -15.0] */}
+      <mesh position={[-3.5, 0.05, -15.0]} receiveShadow castShadow>
+        <boxGeometry args={[4.2, 0.2, 5.0]} />
+        <meshStandardMaterial color="#16221c" roughness={0.5} />
+      </mesh>
+
       {/* Arcade Boundary Walls */}
-      <mesh position={[-6.2, 3.5, 0]} receiveShadow>
-        <boxGeometry args={[0.6, 7.0, 24]} />
+      <mesh position={[-6.2, 3.5, -5.0]} receiveShadow>
+        <boxGeometry args={[0.6, 7.0, 31]} />
         <meshStandardMaterial color="#0c1714" roughness={0.85} />
       </mesh>
-      <mesh position={[6.2, 3.5, 0]} receiveShadow>
-        <boxGeometry args={[0.6, 7.0, 24]} />
+      <mesh position={[6.2, 3.5, -5.0]} receiveShadow>
+        <boxGeometry args={[0.6, 7.0, 31]} />
+        <meshStandardMaterial color="#0c1714" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 3.5, -20.2]} receiveShadow>
+        <boxGeometry args={[13.0, 7.0, 0.6]} />
         <meshStandardMaterial color="#0c1714" roughness={0.85} />
       </mesh>
 
       {/* Decorative Arcade Pillars */}
-      {[-4, 4].map((x) =>
-        [2, 6, -8].map((z) => (
+      {[-4.5, 4.5].map((x) =>
+        [6, 2, -8, -12, -17].map((z) => (
           <mesh key={`${x}-${z}`} position={[x, 2.5, z]} castShadow receiveShadow>
             <cylinderGeometry args={[0.3, 0.35, 5.0, 16]} />
             <meshStandardMaterial color="#1a2b22" roughness={0.7} />
@@ -115,7 +126,9 @@ export function EastArcadeEnvironment() {
 
       {/* Ambient Jade Atmosphere Lights */}
       <pointLight position={[0, 4.0, 5.0]} intensity={1.5} color="#48bb78" distance={10} />
-      <pointLight position={[0, -2.0, -4.0]} intensity={2.0} color="#22543d" distance={12} />
+      <pointLight position={[0, -2.0, -3.0]} intensity={2.0} color="#22543d" distance={12} />
+      <pointLight position={[0, 4.5, -13.0]} intensity={1.8} color="#5eead4" distance={12} />
+      <pointLight position={[-3.5, 3.5, -15.0]} intensity={1.2} color="#f87171" distance={8} />
     </group>
   );
 }
@@ -126,6 +139,7 @@ export function EastArcadeScene() {
       <EastArcadeEnvironment />
       <Bamboo4Pickup />
       <SequenceGate />
+      <SameDoorGate />
     </group>
   );
 }
