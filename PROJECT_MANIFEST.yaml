@@ -1,0 +1,70 @@
+project:
+  name: 'Through the Jade Wall'
+  repo_slug: 'through-the-jade-wall'
+  genre:
+    - third-person 3D exploration
+    - environmental puzzle
+    - narrative mystery
+    - light systemic encounters
+  platform:
+    primary: web
+    deployment: GitHub Pages
+  release_target: vertical-slice
+
+creative_constraints:
+  alice_influence:
+    allowed:
+      - dream logic
+      - identity ambiguity
+      - paradox
+      - impossible architecture
+      - changing scale
+      - wordplay and logical traps
+      - curiosity-driven exploration
+    forbidden:
+      - copying Disney character designs
+      - copying scenes from modern film adaptations
+      - copyrighted soundtrack or commercial art
+  mahjong:
+    role: 'world law, memory grammar, puzzle language'
+    must_be_teachable_without_prior_mahjong_knowledge: true
+
+technical:
+  language: TypeScript
+  frontend: React
+  bundler: Vite
+  renderer: Three.js
+  react_3d: React Three Fiber
+  helpers: Drei
+  physics: Rapier
+  state: Zustand
+  audio: Web Audio abstraction
+  tests:
+    unit: Vitest
+    browser: Playwright
+  formatting: Prettier
+  linting: ESLint
+  package_manager: npm
+  persistence: IndexedDB
+  backend_required_for_vertical_slice: false
+
+required_context:
+  - GAME_BIBLE.md
+  - NARRATIVE_BIBLE.md
+  - GAMEPLAY_SYSTEMS.md
+  - WORLD_DESIGN.md
+  - TECHNICAL_ARCHITECTURE.md
+  - ENGINEERING_STANDARDS.md
+  - GIT_GITHUB_WORKFLOW.md
+  - QUALITY_GATES.md
+  - AUTONOMOUS_EXECUTION_PROTOCOL.md
+  - ROADMAP.md
+  - current_project_task.md
+
+quality:
+  main_branch_releasable: true
+  max_console_errors: 0
+  production_build_required: true
+  direct_feature_push_to_main: false
+  require_test_for_pure_logic: true
+  require_adr_for_architecture_change: true

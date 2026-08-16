@@ -1,0 +1,18 @@
+# CHANGELOG
+
+All notable changes to **Through the Jade Wall** will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.0.1] - 2026-08-16
+
+### Added
+
+- **Repository Bootstrap**: Vite + React 18 + TypeScript strict mode project scaffolding.
+- **3D Graphics Engine**: Three.js and React Three Fiber rendering pipeline with procedural jade tile model, pedestal, fog, and orbit controls.
+- **State Management**: Zustand stores for game state transitions (`gameStore`) and accessibility/audio configuration (`settingsStore`).
+- **UI Shell**: Minimalist dark tea-house aesthetic HUD, responsive controls hint bar, and system configuration modal.
+- **Quality Gates**: ESLint 9 flat configuration, Prettier, TypeScript strict check, Vitest unit test suite, and Playwright e2e smoke testing.
+- **CI/CD**: GitHub Actions CI workflow and GitHub Pages continuous deployment workflow.
+- **Documentation**: Comprehensive README, WORKLOG, ASSET_PROVENANCE, and Architecture Decision Records (ADR 0001).

@@ -1,0 +1,29 @@
+# REPOSITORY BOOTSTRAP CHECKLIST
+
+- [ ] Read all required context.
+- [ ] Inspect current filesystem and Git state.
+- [ ] Initialize Git if absent.
+- [ ] Scaffold Vite React TypeScript.
+- [ ] Enable strict TypeScript.
+- [ ] Add R3F/Three.js and render a minimal scene.
+- [ ] Add Rapier dependency only if Phase 0 scaffold needs it; otherwise defer actual physics code.
+- [ ] Add ESLint.
+- [ ] Add Prettier.
+- [ ] Add Vitest.
+- [ ] Add Playwright scaffold.
+- [ ] Add npm scripts for all quality gates.
+- [ ] Add `.gitignore`.
+- [ ] Add README.
+- [ ] Add `WORKLOG.md`.
+- [ ] Add `CHANGELOG.md`.
+- [ ] Add `ASSET_PROVENANCE.md`.
+- [ ] Add CI workflow.
+- [ ] Add Pages workflow.
+- [ ] Verify production base path.
+- [ ] Run all gates locally.
+- [ ] Commit bootstrap.
+- [ ] Create remote repository if authenticated capability exists.
+- [ ] Push.
+- [ ] Configure main ruleset if capability exists.
+- [ ] Verify Pages.
+- [ ] Record exact result in work log.
