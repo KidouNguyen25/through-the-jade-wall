@@ -123,8 +123,8 @@ describe('Progression State Machine', () => {
 
     const updated = useGameStore.getState();
     expect(updated.playerInsideTeaHouse).toBe(true);
-    expect(updated.currentScene).toBe('tea_house');
-    expect(updated.activeCheckpoint).toBe('cp_tea_house_entered');
+    expect(updated.currentScene).toBe('east_arcade');
+    expect(updated.activeCheckpoint).toBe('cp_east_arcade_start');
     expect(updated.narrativeFlags['entered_tea_house']).toBe(true);
   });
 });

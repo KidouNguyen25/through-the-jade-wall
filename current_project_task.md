@@ -2,36 +2,35 @@
 
 ## Active milestone
 
-**Phase 1 — Playable locomotion**
+**Phase 2 — Mahjong domain foundation**
 
 ## Objective
 
-Deliver third-person player locomotion, collision boundaries, follow camera, interaction system, Rain Alley graybox level, White Tile pickup, and Tea House entrance unlock.
+Implement deterministic Mahjong tile domain model, sequence/pair/triplet meld resolver, unit tests, interactive tile inventory HUD, socket placement system, and an East Arcade sequence gate where completing `Bamboo 2 + 3 + 4` aligns three disconnected balconies into a bridge.
 
 ## Required outcome
 
-- [x] Third-person player controller with WASD/arrow keys, sprint, and turning;
-- [x] Boundary and obstacle collision resolution;
-- [x] Smooth following camera with reduced motion accessibility support;
-- [x] In-world interaction system and HUD prompt overlay;
-- [x] Rain Alley 3D graybox level with rain particle system;
-- [x] Hovering White Tile prop on stone pedestal;
-- [x] Tea House gate with animated sliding lattice doors and interior table preview;
-- [x] Unit tests for collision, interaction distance, and progression state;
-- [x] Playwright e2e locomotion test verifying alley traversal, pickup, and entry.
+- [x] Mahjong tile domain types & catalog (`src/domain/mahjong/tileTypes.ts`);
+- [x] Deterministic pure meld resolver (`src/domain/mahjong/meldResolver.ts`);
+- [x] Comprehensive unit tests for all meld types and edge cases (`src/test/mahjong.test.ts`);
+- [x] Puzzle socket model and evaluation logic (`src/domain/puzzle/puzzleModel.ts`);
+- [x] Interactive tile inventory tray in HUD with selection and placement (`src/app/App.tsx`, `src/app/App.css`);
+- [x] East Arcade 3D scene with Three Balconies and Sequence Gate sockets (`src/world/scenes/EastArcadeScene.tsx`, `src/world/puzzles/SequenceGate.tsx`);
+- [x] Dynamic spatial alignment animation when sequence condition is met;
+- [x] Automated Playwright e2e test verifying Mahjong sequence resolution and balcony bridge alignment.
 
 ## Acceptance criteria
 
-- [x] Player can move smoothly through Rain Alley without jitter;
-- [x] Collision prevents player from walking through walls and obstacles;
-- [x] Proximity trigger reveals `[E] Pick up White Tile`;
-- [x] Picking up White Tile updates inventory and triggers Tea House door unlock;
-- [x] Passing through Tea House doorway triggers entrance progression;
-- [x] 0 console errors during runtime and tests;
-- [x] All unit and e2e tests pass;
-- [x] Production build compiles with zero errors.
+- [x] `resolveMeld` correctly identifies sequences, pairs, triplets, and rejects invalid combinations;
+- [x] Unit test coverage for pure domain logic is 100%;
+- [x] Player can collect Bamboo 4 tile in East Arcade;
+- [x] Player can inspect inventory and select tiles to place into puzzle sockets;
+- [x] Placing Bamboo 4 into the third socket completes `Sequence(Bamboo 2, 3, 4)`;
+- [x] Balcony sections align smoothly upon puzzle resolution;
+- [x] 0 console errors during runtime, build, and tests;
+- [x] All quality gates pass (`format`, `lint`, `typecheck`, `test`, `build`, `test:e2e`).
 
 ## Next task after completion
 
-Phase 2 — Mahjong domain foundation:
-`Tile types → sequence/pair/triplet deterministic resolver → unit tests → tile inventory HUD → East Arcade sequence gate`.
+Phase 3 — First impossible-space puzzle:
+`Balcony traversal → "same door" pair traversal → visual feedback → hint layers`.

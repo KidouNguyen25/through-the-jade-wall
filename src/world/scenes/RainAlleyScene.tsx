@@ -80,14 +80,14 @@ export function WhiteTileProp() {
     <Interactable
       id="white_tile_pickup"
       name="The White Tile"
-      position={[0, 0, -3.5]}
-      radius={2.4}
+      position={[1.6, 0, -3.5]}
+      radius={2.8}
       promptText="Pick up White Tile"
       onInteract={collectWhiteTile}
     >
       {/* Stone Pedestal */}
       <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.5, 0.65, 0.8, 16]} />
+        <cylinderGeometry args={[0.45, 0.55, 0.8, 16]} />
         <meshStandardMaterial color="#16201b" roughness={0.8} />
       </mesh>
 
@@ -122,7 +122,7 @@ export function TeaHouseEntrance() {
   const leftDoorRef = useRef<THREE.Mesh>(null);
   const rightDoorRef = useRef<THREE.Mesh>(null);
 
-  const { teaHouseUnlocked, enterTeaHouse, playerInsideTeaHouse } = useGameStore();
+  const { teaHouseUnlocked } = useGameStore();
 
   useFrame((_, delta) => {
     const targetLeftX = teaHouseUnlocked ? -1.8 : -0.65;
@@ -231,18 +231,6 @@ export function TeaHouseEntrance() {
         {/* Warm Tea House Lantern Light */}
         <pointLight position={[0, 2.6, 0]} intensity={2.5} color="#fbd38d" distance={8} />
       </group>
-
-      {/* Doorway Entrance Trigger */}
-      {teaHouseUnlocked && !playerInsideTeaHouse && (
-        <Interactable
-          id="enter_tea_house_trigger"
-          name="Tea House Doorway"
-          position={[0, 0, 0]}
-          radius={2.2}
-          promptText="Enter Tea House"
-          onInteract={enterTeaHouse}
-        />
-      )}
     </group>
   );
 }
@@ -303,12 +291,26 @@ export function AlleyEnvironment() {
 }
 
 export function RainAlleyScene() {
+  const { teaHouseUnlocked, enterTeaHouse, playerInsideTeaHouse } = useGameStore();
+
   return (
     <group>
       <AlleyEnvironment />
       <RainParticles count={250} />
       <WhiteTileProp />
       <TeaHouseEntrance />
+
+      {/* Direct Top-Level Doorway Trigger at [0, 0, -10.0] */}
+      {teaHouseUnlocked && !playerInsideTeaHouse && (
+        <Interactable
+          id="enter_tea_house_trigger"
+          name="Tea House Doorway"
+          position={[0, 0, -10.0]}
+          radius={3.0}
+          promptText="Enter Tea House"
+          onInteract={enterTeaHouse}
+        />
+      )}
     </group>
   );
 }

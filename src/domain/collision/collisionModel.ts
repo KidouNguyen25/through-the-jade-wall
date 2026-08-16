@@ -13,14 +13,30 @@ export const ALLEY_BOUNDS: BoundingBox = {
   maxZ: 9.0,
 };
 
-// Obstacles in the alley (pedestals, crates, lantern posts)
+// East Arcade bounding box: wider courtyard and chasm promenade
+export const EAST_ARCADE_BOUNDS: BoundingBox = {
+  minX: -5.8,
+  maxX: 5.8,
+  minZ: -12.0,
+  maxZ: 9.5,
+};
+
+// Obstacles in Rain Alley
 export const ALLEY_OBSTACLES: BoundingBox[] = [
-  // White Tile Pedestal at z = -3.5
-  { minX: -0.8, maxX: 0.8, minZ: -4.2, maxZ: -2.8 },
+  // White Tile Pedestal against right wall at [1.6, 0, -3.5]
+  { minX: 1.0, maxX: 2.2, minZ: -4.2, maxZ: -2.8 },
   // Tea House Left Gate Column at z = -10.0
   { minX: -3.0, maxX: -1.4, minZ: -10.5, maxZ: -9.5 },
   // Tea House Right Gate Column at z = -10.0
   { minX: 1.4, maxX: 3.0, minZ: -10.5, maxZ: -9.5 },
+];
+
+// Obstacles in East Arcade
+export const EAST_ARCADE_OBSTACLES: BoundingBox[] = [
+  // Merchant Table at [3.0, 0, 4.0]
+  { minX: 2.4, maxX: 3.6, minZ: 3.4, maxZ: 4.6 },
+  // Sequence Gate Sockets Pedestal at [0, 0, 2.0]
+  { minX: -2.8, maxX: 2.8, minZ: 1.5, maxZ: 2.5 },
 ];
 
 export function clampPositionToBounds(
