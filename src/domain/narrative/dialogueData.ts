@@ -134,3 +134,83 @@ export const MEMORY_RECONSTRUCTED_TREE: DialogueTree = {
     },
   },
 };
+
+export const DISCARD_PASSAGE_ENTRY_TREE: DialogueTree = {
+  id: 'discard_passage_entry',
+  initialNodeId: 'node_dp_1',
+  nodes: {
+    node_dp_1: {
+      id: 'node_dp_1',
+      speaker: 'Alice',
+      text: 'The air is thick with ash and calcified jade. Two monumental altars overlook the chasm ahead.',
+      nextNodeId: 'node_dp_2',
+    },
+    node_dp_2: {
+      id: 'node_dp_2',
+      speaker: 'Inscription of the Bifurcation',
+      text: '“Every discarded tile reshapes the river forever. Sacrifice to the West Stone Furnace, or the East Brazen Brazier.”',
+      nextNodeId: 'node_dp_3',
+    },
+    node_dp_3: {
+      id: 'node_dp_3',
+      speaker: 'Alice',
+      text: 'Whichever path I unlock will permanently collapse the other. There is no turning back.',
+    },
+  },
+};
+
+export const DISCARD_ARCHIVIST_CONSEQUENCE_TREE: DialogueTree = {
+  id: 'discard_archivist_consequence',
+  initialNodeId: 'node_arc_1',
+  nodes: {
+    node_arc_1: {
+      id: 'node_arc_1',
+      speaker: 'Archivist Stone Furnace',
+      text: 'Emerald flame consumes the offered tile. The massive West Portcullis grinds open, as the East Gate collapses into rubble!',
+      nextNodeId: 'node_arc_2',
+    },
+    node_arc_2: {
+      id: 'node_arc_2',
+      speaker: 'Archivist Echo',
+      speakerRole: 'Scholar of the Inner Library',
+      text: 'You have chosen the Scholar’s Ascent. The mortal structures crumble behind you, yet the path of hidden knowledge is clear.',
+    },
+  },
+};
+
+export const DISCARD_REGENT_CONSEQUENCE_TREE: DialogueTree = {
+  id: 'discard_regent_consequence',
+  initialNodeId: 'node_reg_1',
+  nodes: {
+    node_reg_1: {
+      id: 'node_reg_1',
+      speaker: 'Regent Brazen Brazier',
+      text: 'Crimson fire roars through the altar. The East Iron Gate ascends with thunderous resonance, while the West Archway seals forever!',
+      nextNodeId: 'node_reg_2',
+    },
+    node_reg_2: {
+      id: 'node_reg_2',
+      speaker: 'Vermilion Regent Echo',
+      speakerRole: 'Commander of the North Bastion',
+      text: 'A martial discard! You cast away hesitation. Walk the Grand Promenade toward the Watcher’s Courtyard.',
+    },
+  },
+};
+
+export const DISCARD_WHITE_TILE_REJECTED_TREE: DialogueTree = {
+  id: 'discard_white_tile_rejected',
+  initialNodeId: 'node_wtr_1',
+  nodes: {
+    node_wtr_1: {
+      id: 'node_wtr_1',
+      speaker: 'Altar of Discard',
+      text: 'The flames extinguish upon touching the White Tile. The Blank tile refuses to be categorized or destroyed.',
+      nextNodeId: 'node_wtr_2',
+    },
+    node_wtr_2: {
+      id: 'node_wtr_2',
+      speaker: 'Alice',
+      text: 'The White Tile is immune to the law of sacrifice. It must remain in my hand until the final court.',
+    },
+  },
+};

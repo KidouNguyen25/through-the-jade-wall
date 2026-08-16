@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Through the Jade Wall - Phase 4 Narrative & Memory Room E2E', () => {
-  test('progresses through Rain Alley, Balcony Bridge, Portal Gate, into Memory Sanctuary Reconstruction', async ({
+test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
+  test('progresses through Rain Alley, Balcony Bridge, Portal Gate, Memory Sanctuary, and Discard Passage', async ({
     page,
   }) => {
-    test.setTimeout(180000);
+    test.setTimeout(240000);
 
     const consoleErrors: string[] = [];
     page.on('console', (msg) => {
@@ -175,7 +175,7 @@ test.describe('Through the Jade Wall - Phase 4 Narrative & Memory Room E2E', () 
     await page.keyboard.up('KeyA');
 
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1400);
+    await page.waitForTimeout(1000);
     await page.keyboard.up('KeyW');
 
     // 17. Place Red Dragon Plaque into Doorway Beta
@@ -313,11 +313,134 @@ test.describe('Through the Jade Wall - Phase 4 Narrative & Memory Room E2E', () 
     await expect(readyChoice).toBeVisible();
     await readyChoice.click();
     await continueBtn.click();
-
-    // Verify dialogue completed and closed
     await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
 
-    // 30. Verify 0 console errors across entire multi-phase journey!
+    // 30. Step forward to Discard Passage Gateway (at [0, 0, -8.0] from [0, 0, -6.5])
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(400);
+    await page.keyboard.up('KeyW');
+
+    // 31. Enter Discard Passage
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Enter Discard Passage');
+    await page.keyboard.press('KeyE');
+
+    // 32. Verify Discard Passage Transition & Advance Entry Inscription Monologue
+    await expect(page.locator('.status-badge')).toContainText('Phase 5: Discard Consequence');
+    await expect(page.locator('.game-subtitle')).toContainText('Passage of Broken Tiles');
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('Alice');
+
+    // Advance through 3 entry dialogue nodes
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 33. Walk forward to Reliquary Table (at [0, 0, 3.0] from spawn [0, 0, 6.0])
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(900);
+    await page.keyboard.up('KeyW');
+
+    // 34. Draw offering tiles from Reliquary
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Draw Offering Tiles from Reliquary');
+    await page.keyboard.press('KeyE');
+
+    // Verify Bamboo 4 and Red Dragon in slots 1 and 2
+    await expect(slot1).toHaveClass(/occupied/);
+    await expect(slot1).toContainText('4 BAM');
+    const slot2 = page.locator('[data-testid="inventory-slot-2"]');
+    await expect(slot2).toHaveClass(/occupied/);
+    await expect(slot2).toContainText('RED DRG');
+
+    // 35. Walk to West Archivist Stone Furnace (at [-3.0, 0, -5.0] from [0, 0, 3.0])
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('ShiftLeft');
+    await page.keyboard.down('KeyA');
+    await page.waitForTimeout(600);
+    await page.keyboard.up('KeyA');
+
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(1600);
+    await page.keyboard.up('KeyW');
+    await page.keyboard.up('ShiftLeft');
+
+    // 36. Test White Tile Protection: Select slot 0 (Digit1) and attempt sacrifice
+    await page.waitForTimeout(200);
+    await page.locator('body').focus();
+    await page.keyboard.press('Digit1');
+    await page.waitForTimeout(200);
+
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Sacrifice Selected Tile to Archivist Furnace');
+    await page.keyboard.press('KeyE');
+
+    // Verify rejection dialogue
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('Blank tile refuses to be categorized');
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 37. Select Bamboo 4 in Slot 1 and perform Scholar's Sacrifice
+    await page.waitForTimeout(200);
+    await page.locator('body').focus();
+    await page.keyboard.press('Digit2');
+    await page.waitForTimeout(200);
+
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await page.keyboard.press('KeyE');
+
+    // Verify consequence dialogue and status badge
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('Emerald flame consumes the offered tile');
+    await expect(page.locator('.status-badge')).toContainText(
+      'Phase 5: Scholar’s Ascent (West Unlocked)',
+    );
+
+    // Advance consequence dialogue
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 38. Walk through opened West Portcullis to North Threshold (from [-3.0, 0, -5.0] to [0, 0, -20.5])
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('ShiftLeft');
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(2800);
+    await page.keyboard.up('KeyW');
+
+    await page.keyboard.down('KeyD');
+    await page.waitForTimeout(600);
+    await page.keyboard.up('KeyD');
+    await page.keyboard.up('ShiftLeft');
+
+    // 39. Interact with North Threshold
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText("Cross Threshold into Watcher's Courtyard");
+    await page.keyboard.press('KeyE');
+
+    // Verify narrative message update
+    await expect(page.locator('.narrative-banner')).toContainText(
+      'Approaching the Courtyard of the Watchers. The Dead Hand awaits.',
+    );
+
+    // 40. Verify 0 console errors across entire multi-phase journey!
     expect(consoleErrors).toEqual([]);
   });
 });

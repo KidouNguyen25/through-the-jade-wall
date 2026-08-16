@@ -18,7 +18,12 @@ import {
   FRAGMENT_MIDNIGHT_BELL_TREE,
   FRAGMENT_CAPTAIN_SEAL_TREE,
   MEMORY_RECONSTRUCTED_TREE,
+  DISCARD_PASSAGE_ENTRY_TREE,
+  DISCARD_ARCHIVIST_CONSEQUENCE_TREE,
+  DISCARD_REGENT_CONSEQUENCE_TREE,
+  DISCARD_WHITE_TILE_REJECTED_TREE,
 } from '../domain/narrative/dialogueData';
+import { DiscardAltarType, evaluateSacrifice } from '../domain/discard/discardModel';
 
 export type SceneId =
   'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'boss_court';
@@ -73,6 +78,13 @@ export interface GameState {
   activeDialogueNode: DialogueNode | null;
   dialogueHistory: DialogueNode[];
 
+  // Phase 5: Discard Consequence State
+  sacrificedTile: string | null;
+  discardPassageChoice: 'archivist' | 'regent' | null;
+  discardPassageResolved: boolean;
+  westPathOpen: boolean;
+  eastPathOpen: boolean;
+
   // Actions
   setPlayerPosition: (position: [number, number, number]) => void;
   setCurrentScene: (scene: SceneId) => void;
@@ -86,6 +98,8 @@ export interface GameState {
   collectRedDragon: () => void;
   enterTeaHouse: () => void;
   enterMemoryRoom: () => void;
+  enterDiscardPassage: () => void;
+  performSacrifice: (altar: DiscardAltarType) => boolean;
   placeTileInSocket: (socketId: string, tileId: TileId) => void;
   traverseSameDoor: (fromDoor: 'alpha' | 'beta') => void;
   setActiveInteractable: (interactable: ActiveInteractable | null) => void;
@@ -149,6 +163,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   activeDialogueTree: null,
   activeDialogueNode: null,
   dialogueHistory: [],
+
+  // Phase 5 state
+  sacrificedTile: null,
+  discardPassageChoice: null,
+  discardPassageResolved: false,
+  westPathOpen: false,
+  eastPathOpen: false,
 
   setPlayerPosition: (position) => set({ playerPosition: position }),
   setCurrentScene: (scene) => set({ currentScene: scene }),
@@ -261,6 +282,69 @@ export const useGameStore = create<GameState>((set, get) => ({
     }));
     get().startDialogue(MEMORY_ROOM_ENTRY_TREE);
     get().saveGame();
+  },
+
+  enterDiscardPassage: () => {
+    set({
+      currentScene: 'discard_passage',
+      playerPosition: [0, 0, 6.0],
+      checkpoint: 'cp_discard_passage_entered',
+      narrativeMessage:
+        'Passage of Broken Tiles — Two colossal sacrificial altars stand above the abyss.',
+      activeInteractable: null,
+      activeInspection: null,
+      activeHintLevel: 1,
+    });
+    get().startDialogue(DISCARD_PASSAGE_ENTRY_TREE);
+    get().saveGame();
+  },
+
+  performSacrifice: (altar: DiscardAltarType) => {
+    const state = get();
+    if (state.discardPassageResolved) return false;
+
+    const selectedTileId = state.inventoryTiles[state.selectedSlot] ?? null;
+    const result = evaluateSacrifice(altar, selectedTileId);
+
+    if (!result.success) {
+      if (result.narrativeKey === 'WHITE_TILE_PROTECTED') {
+        get().startDialogue(DISCARD_WHITE_TILE_REJECTED_TREE);
+      } else {
+        set({
+          narrativeMessage: result.rejectionReason ?? 'The altar rejected this offering.',
+        });
+      }
+      return false;
+    }
+
+    // Successful sacrifice
+    const remainingTiles = state.inventoryTiles.filter((_, index) => index !== state.selectedSlot);
+
+    const isWest = result.openedPath === 'west';
+
+    set({
+      inventoryTiles: remainingTiles,
+      selectedSlot: Math.max(0, Math.min(state.selectedSlot, remainingTiles.length - 1)),
+      sacrificedTile: result.sacrificedTileId,
+      discardPassageChoice: isWest ? 'archivist' : 'regent',
+      discardPassageResolved: true,
+      westPathOpen: isWest,
+      eastPathOpen: !isWest,
+      checkpoint: isWest ? 'cp_discard_archivist_chosen' : 'cp_discard_regent_chosen',
+      narrativeMessage: isWest
+        ? 'Scholar’s sacrifice accepted! West portcullis rises as East passage collapses.'
+        : 'Martial sacrifice accepted! East iron gate ascends as West archway collapses.',
+      activeInteractable: null,
+    });
+
+    if (isWest) {
+      get().startDialogue(DISCARD_ARCHIVIST_CONSEQUENCE_TREE);
+    } else {
+      get().startDialogue(DISCARD_REGENT_CONSEQUENCE_TREE);
+    }
+
+    get().saveGame();
+    return true;
   },
 
   placeTileInSocket: (socketId, tileId) =>
@@ -485,6 +569,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       narrativeFlags: state.narrativeFlags,
       memoryFragments: state.memoryFragments,
       memoryReconstructed: state.memoryReconstructed,
+      sacrificedTile: state.sacrificedTile,
+      discardPassageChoice: state.discardPassageChoice,
+      discardPassageResolved: state.discardPassageResolved,
+      westPathOpen: state.westPathOpen,
+      eastPathOpen: state.eastPathOpen,
     };
     return saveToLocalStorage(saveState);
   },
@@ -509,6 +598,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       narrativeFlags: loaded.narrativeFlags,
       memoryFragments: loaded.memoryFragments,
       memoryReconstructed: loaded.memoryReconstructed,
+      sacrificedTile: loaded.sacrificedTile ?? null,
+      discardPassageChoice: loaded.discardPassageChoice ?? null,
+      discardPassageResolved: loaded.discardPassageResolved ?? false,
+      westPathOpen: loaded.westPathOpen ?? false,
+      eastPathOpen: loaded.eastPathOpen ?? false,
     });
     return true;
   },
@@ -531,6 +625,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       narrativeFlags: initial.narrativeFlags,
       memoryFragments: initial.memoryFragments,
       memoryReconstructed: initial.memoryReconstructed,
+      sacrificedTile: initial.sacrificedTile,
+      discardPassageChoice: initial.discardPassageChoice,
+      discardPassageResolved: initial.discardPassageResolved,
+      westPathOpen: initial.westPathOpen,
+      eastPathOpen: initial.eastPathOpen,
       activeInteractable: null,
       activeInspection: null,
       activeDialogueTree: null,

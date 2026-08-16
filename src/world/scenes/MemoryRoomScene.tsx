@@ -251,6 +251,38 @@ export function MemoryRoomScene() {
         crystalColor="#f87171"
         emissiveColor="#dc2626"
       />
+
+      {/* Exit Gateway to Discard Passage (unlocked after reconstruction) */}
+      <ExitGatewayToDiscardPassage />
+    </group>
+  );
+}
+
+function ExitGatewayToDiscardPassage() {
+  const { memoryReconstructed, enterDiscardPassage } = useGameStore();
+
+  if (!memoryReconstructed) return null;
+
+  return (
+    <group position={[0, 0, -9.0]}>
+      <mesh position={[0, 2.5, 0]}>
+        <planeGeometry args={[3.2, 5.0]} />
+        <meshStandardMaterial
+          color="#064e3b"
+          emissive="#10b981"
+          emissiveIntensity={1.2}
+          roughness={0.2}
+        />
+      </mesh>
+      <pointLight position={[0, 2.5, 0.5]} intensity={2.0} color="#34d399" distance={6} />
+      <Interactable
+        id="door_discard_passage"
+        name="Discard Passage Gateway"
+        position={[0, 0, -8.0]}
+        radius={3.5}
+        promptText="Enter Discard Passage"
+        onInteract={enterDiscardPassage}
+      />
     </group>
   );
 }

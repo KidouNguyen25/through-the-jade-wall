@@ -67,6 +67,40 @@ export const MEMORY_ROOM_OBSTACLES: BoundingBox[] = [
   { minX: -4.2, maxX: -2.8, minZ: -3.7, maxZ: -2.3 },
 ];
 
+// Bounds for Discard Passage
+export const DISCARD_PASSAGE_BOUNDS: BoundingBox = {
+  minX: -8.0,
+  maxX: 8.0,
+  minZ: -24.0,
+  maxZ: 8.0,
+};
+
+// Obstacles in Discard Passage
+export const DISCARD_PASSAGE_BASE_OBSTACLES: BoundingBox[] = [
+  // Central Chasm Abyss Divider
+  { minX: -0.8, maxX: 0.8, minZ: -18.0, maxZ: -1.0 },
+  // West Archivist Stone Furnace at [-3.0, 0, -5.0]
+  { minX: -3.7, maxX: -2.3, minZ: -5.7, maxZ: -4.3 },
+  // East Regent Brazen Brazier at [3.0, 0, -5.0]
+  { minX: 2.3, maxX: 3.7, minZ: -5.7, maxZ: -4.3 },
+  // North Threshold Wall at [0, 0, -22.5]
+  { minX: -2.0, maxX: 2.0, minZ: -23.5, maxZ: -22.0 },
+];
+
+export const WEST_GATE_BARRIER: BoundingBox = {
+  minX: -7.5,
+  maxX: -0.8,
+  minZ: -9.5,
+  maxZ: -8.5,
+};
+
+export const EAST_GATE_BARRIER: BoundingBox = {
+  minX: 0.8,
+  maxX: 7.5,
+  minZ: -9.5,
+  maxZ: -8.5,
+};
+
 // Chasm Void Obstacle (active when balconies are NOT aligned)
 export const CHASM_VOID_OBSTACLE: BoundingBox = {
   minX: -6.5,

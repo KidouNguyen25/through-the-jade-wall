@@ -5,6 +5,7 @@ import ThirdPersonCamera from './camera/ThirdPersonCamera';
 import RainAlleyScene from '../world/scenes/RainAlleyScene';
 import EastArcadeScene from '../world/scenes/EastArcadeScene';
 import MemoryRoomScene from '../world/scenes/MemoryRoomScene';
+import DiscardPassageScene from '../world/scenes/DiscardPassageScene';
 import { useGameStore } from '../state/gameStore';
 
 export function SceneLighting() {
@@ -38,7 +39,9 @@ export function GameRoot() {
         <SceneLighting />
 
         {/* Scene Switcher based on Progression */}
-        {currentScene === 'memory_room' ? (
+        {currentScene === 'discard_passage' ? (
+          <DiscardPassageScene />
+        ) : currentScene === 'memory_room' ? (
           <MemoryRoomScene />
         ) : currentScene === 'east_arcade' ? (
           <EastArcadeScene />

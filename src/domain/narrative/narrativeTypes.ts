@@ -1,4 +1,14 @@
-export type SpeakerId = 'Alice' | 'Keeper Echo' | 'Observation Log' | 'The Dealer';
+export type SpeakerId =
+  | 'Alice'
+  | 'Keeper Echo'
+  | 'Observation Log'
+  | 'The Dealer'
+  | 'Inscription of the Bifurcation'
+  | 'Archivist Stone Furnace'
+  | 'Archivist Echo'
+  | 'Regent Brazen Brazier'
+  | 'Vermilion Regent Echo'
+  | 'Altar of Discard';
 
 export interface DialogueChoice {
   label: string;

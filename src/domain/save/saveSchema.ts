@@ -22,6 +22,11 @@ export interface SaveStateV1 {
   narrativeFlags: Record<string, boolean>;
   memoryFragments: MemoryFragmentState;
   memoryReconstructed: boolean;
+  sacrificedTile: string | null;
+  discardPassageChoice: 'archivist' | 'regent' | null;
+  discardPassageResolved: boolean;
+  westPathOpen: boolean;
+  eastPathOpen: boolean;
 }
 
 export const SAVE_STORAGE_KEY = 'ttjw_save_slot_0';
@@ -60,6 +65,11 @@ export function createInitialSave(overrides?: Partial<SaveStateV1>): SaveStateV1
       captainSeal: false,
     },
     memoryReconstructed: false,
+    sacrificedTile: null,
+    discardPassageChoice: null,
+    discardPassageResolved: false,
+    westPathOpen: false,
+    eastPathOpen: false,
     ...overrides,
   };
 }

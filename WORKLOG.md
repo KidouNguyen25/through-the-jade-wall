@@ -1,5 +1,29 @@
 # WORKLOG
 
+## 2026-08-16 — Phase 5: Discard Consequence & Passage of Broken Tiles
+
+- **Task**: Active Milestone: Phase 5 — Discard Consequence (`current_project_task.md`).
+- **Branch**: `feat/discard-consequence` (Merged to `main`)
+- **Actions Taken**:
+  1. Created feature branch `feat/discard-consequence`.
+  2. Implemented pure deterministic discard evaluation model (`evaluateSacrifice`) in `src/domain/discard/discardModel.ts` with White Dragon protection and path opening/collapsing logic.
+  3. Extended `SaveStateV1` schema in `src/domain/save/saveSchema.ts` with `sacrificedTile`, `discardPassageChoice`, `discardPassageResolved`, `westPathOpen`, and `eastPathOpen`.
+  4. Created rich branching dialogue trees in `src/domain/narrative/dialogueData.ts` (`DISCARD_PASSAGE_ENTRY_TREE`, `DISCARD_ARCHIVIST_CONSEQUENCE_TREE`, `DISCARD_REGENT_CONSEQUENCE_TREE`, `DISCARD_WHITE_TILE_REJECTED_TREE`) and updated `SpeakerId` in `src/domain/narrative/narrativeTypes.ts`.
+  5. Updated collision model in `src/domain/collision/collisionModel.ts` and `src/game/player/PlayerController.tsx` with Discard Passage bounds, central chasm divider, and dynamic portcullis barriers.
+  6. Built 3D Discard Passage level in `src/world/scenes/DiscardPassageScene.tsx` featuring the Reliquary offering table, West Archivist Stone Furnace, East Regent Brazen Brazier, dynamic animated gates, and North Threshold archway.
+  7. Added exit portal to Discard Passage in `src/world/scenes/MemoryRoomScene.tsx` and scene mounting in `src/game/GameRoot.tsx`.
+  8. Created comprehensive unit test suite in `src/test/discard.test.ts` (47/47 unit tests passing across 7 suites).
+  9. Created and verified comprehensive Playwright E2E test in `tests/e2e/smoke.spec.ts` testing the complete player journey: Rain Alley → White Tile → Tea House → East Arcade → Bamboo 4 → Sequence Gate → Balcony Bridge → Altar Red Dragon → Same Door Portal Gate → Memory Sanctuary → 3 Memory Pedestals → Reconstruction Climax → Discard Passage Gateway → Entry Inscription → Reliquary Table → White Tile Protection Rejection → Scholar's Sacrifice (Bamboo 4) → West Portcullis Open / East Gate Collapse → North Threshold crossing with 0 console errors.
+- **Quality Gates Results**:
+  - `npm run format:check`: PASSED (100% Prettier compliance)
+  - `npm run lint`: PASSED (0 errors, 0 warnings)
+  - `npm run typecheck`: PASSED (0 errors)
+  - `npm run test`: PASSED (47 / 47 unit tests passed in 2.78s)
+  - `npm run build`: PASSED (Production bundle in `dist/`)
+  - `npm run test:e2e`: PASSED (Playwright e2e test in Chromium, 2.5m, 0 console errors)
+
+---
+
 ## 2026-08-16 — Phase 4: Narrative State & Memory Room Reconstruction
 
 - **Task**: Active Milestone: Phase 4 — Narrative State & Memory Room Reconstruction (`current_project_task.md`).

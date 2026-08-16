@@ -2,35 +2,33 @@
 
 ## Active milestone
 
-**Phase 2 — Mahjong domain foundation**
+**Phase 5 — Discard Consequence (Discard Passage & Permanent Sacrifice Mechanic)**
 
 ## Objective
 
-Implement deterministic Mahjong tile domain model, sequence/pair/triplet meld resolver, unit tests, interactive tile inventory HUD, socket placement system, and an East Arcade sequence gate where completing `Bamboo 2 + 3 + 4` aligns three disconnected balconies into a bridge.
+Implement the Discard Passage level (`discard_passage`), irreversible current-run discard domain mechanics, sacrificial altar sockets (Archivist Furnace vs. Regent Brazier), spatial gate collapse/opening propagation, branching narrative consequences based on sacrificed tile, and save state persistence.
 
 ## Required outcome
 
-- [x] Mahjong tile domain types & catalog (`src/domain/mahjong/tileTypes.ts`);
-- [x] Deterministic pure meld resolver (`src/domain/mahjong/meldResolver.ts`);
-- [x] Comprehensive unit tests for all meld types and edge cases (`src/test/mahjong.test.ts`);
-- [x] Puzzle socket model and evaluation logic (`src/domain/puzzle/puzzleModel.ts`);
-- [x] Interactive tile inventory tray in HUD with selection and placement (`src/app/App.tsx`, `src/app/App.css`);
-- [x] East Arcade 3D scene with Three Balconies and Sequence Gate sockets (`src/world/scenes/EastArcadeScene.tsx`, `src/world/puzzles/SequenceGate.tsx`);
-- [x] Dynamic spatial alignment animation when sequence condition is met;
-- [x] Automated Playwright e2e test verifying Mahjong sequence resolution and balcony bridge alignment.
+- [ ] Discard domain logic & consequence model (`src/domain/discard/discardModel.ts`);
+- [ ] Save schema v1 update for sacrificed tile history and passage state (`src/domain/save/saveSchema.ts`);
+- [ ] Branching discard dialogue trees in `src/domain/narrative/dialogueData.ts`;
+- [ ] 3D Discard Passage scene (`src/world/scenes/DiscardPassageScene.tsx`) with obsidian canyon, central bifurcation dais, West Archivist Furnace, and East Regent Brazier;
+- [ ] Dynamic physical gate animations (unlocked path drops its portcullis while the other path collapses into permanent rubble);
+- [ ] HUD discard confirmation modal and feedback;
+- [ ] Unit tests for discard mechanics and consequence propagation in `src/test/discard.test.ts`;
+- [ ] Playwright E2E test verifying end-to-end traversal from Memory Sanctuary to Discard Passage, sacrificing a tile, observing irreversible spatial consequence, and unlocking the path to Phase 6.
 
 ## Acceptance criteria
 
-- [x] `resolveMeld` correctly identifies sequences, pairs, triplets, and rejects invalid combinations;
-- [x] Unit test coverage for pure domain logic is 100%;
-- [x] Player can collect Bamboo 4 tile in East Arcade;
-- [x] Player can inspect inventory and select tiles to place into puzzle sockets;
-- [x] Placing Bamboo 4 into the third socket completes `Sequence(Bamboo 2, 3, 4)`;
-- [x] Balcony sections align smoothly upon puzzle resolution;
-- [x] 0 console errors during runtime, build, and tests;
-- [x] All quality gates pass (`format`, `lint`, `typecheck`, `test`, `build`, `test:e2e`).
+- [ ] Player can carry tiles from previous phases and inspect discard mechanics;
+- [ ] White Tile is protected from sacrificial discard with unique lore feedback;
+- [ ] Discarding a tile permanently removes it from inventory and opens the corresponding path while collapsing the alternate path;
+- [ ] Narrative flags and save state accurately reflect the chosen sacrifice;
+- [ ] 100% unit test pass rate;
+- [ ] 0 console errors during runtime, build, and tests;
+- [ ] All quality gates pass (`format`, `lint`, `typecheck`, `test`, `build`, `test:e2e`).
 
 ## Next task after completion
 
-Phase 3 — First impossible-space puzzle:
-`Balcony traversal → "same door" pair traversal → visual feedback → hint layers`.
+Phase 6 — Dead Hand (Watcher Pair Encounter & Detection System).

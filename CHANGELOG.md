@@ -5,6 +5,17 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-08-16
+
+### Added
+
+- **Discard Domain Model & Sacrifice Mechanics**: Pure deterministic discard evaluation in `src/domain/discard/discardModel.ts` validating permanent tile sacrifices (*Tedashi*) with permanent White Dragon immunity/protection.
+- **Passage of Broken Tiles 3D Scene**: Obsidian canyon level in `src/world/scenes/DiscardPassageScene.tsx` featuring the Reliquary of Lost Discards offering table, West Archivist Stone Furnace, East Regent Brazen Brazier, and North Threshold archway.
+- **Dynamic Spatial Gate Collapse**: Real-time physical portcullis animations and barrier state transitions where unlocking one path permanently collapses the opposite route into impassable rubble.
+- **Narrative Consequence Branching**: Rich branching lore dialogue trees (`DISCARD_PASSAGE_ENTRY_TREE`, `DISCARD_ARCHIVIST_CONSEQUENCE_TREE`, `DISCARD_REGENT_CONSEQUENCE_TREE`, `DISCARD_WHITE_TILE_REJECTED_TREE`) in `src/domain/narrative/dialogueData.ts`.
+- **SaveSchema v1 Discard Tracking**: Extended `SaveStateV1` schema with `sacrificedTile`, `discardPassageChoice`, `discardPassageResolved`, `westPathOpen`, and `eastPathOpen` persistence.
+- **Unit & End-to-End Test Verification**: 47/47 unit tests passing across 7 test suites; Playwright E2E test verifying complete multi-phase player journey from Rain Alley through East Arcade, Memory Sanctuary, and Discard Passage with 0 console errors.
+
 ## [0.4.0] - 2026-08-16
 
 ### Added
@@ -15,8 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Holographic Reconstruction Climax**: 3D wireframe rotating city hologram projection, Keeper Echo silhouette, and light beams appearing upon recovering all 3 memory fragments.
 - **Narrative HUD Overlay & Choice Picker**: Interactive dialogue presentation modal with keyboard and click choice selection, typewriter speaker tags, and dynamic Memory Fragment collection counters.
 - **Quality Gates & Test Coverage**: 38/38 unit tests passing across 6 test suites; Playwright E2E test verifying complete multi-phase player journey from Rain Alley through Balcony Bridge, Portal Gate, and Memory Sanctuary Hologram Reconstruction.
-
-
 
 ### Added
 
