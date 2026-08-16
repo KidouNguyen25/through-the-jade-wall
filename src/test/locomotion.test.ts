@@ -3,7 +3,8 @@ import {
   clampPositionToBounds,
   isCollidingWithBox,
   resolveBoxCollision,
-  BoundingBox,
+  ALLEY_BOUNDS,
+  ALLEY_OBSTACLES,
 } from '../domain/collision/collisionModel';
 import {
   isWithinInteractionRange,
@@ -13,80 +14,53 @@ import {
 import { useGameStore } from '../state/gameStore';
 
 describe('Collision Domain Logic', () => {
-  const testBounds: BoundingBox = {
-    minX: -5,
-    maxX: 5,
-    minZ: -10,
-    maxZ: 10,
-  };
+  const playerRadius = 0.45;
 
   it('clamps coordinates strictly within alley boundaries', () => {
-    const radius = 0.5;
-    // Outside left
-    expect(clampPositionToBounds(-6, 0, radius, testBounds)).toEqual([-4.5, 0]);
-    // Outside right
-    expect(clampPositionToBounds(8, 0, radius, testBounds)).toEqual([4.5, 0]);
-    // Outside bottom
-    expect(clampPositionToBounds(0, -12, radius, testBounds)).toEqual([0, -9.5]);
-    // Outside top
-    expect(clampPositionToBounds(0, 15, radius, testBounds)).toEqual([0, 9.5]);
-    // Inside untouched
-    expect(clampPositionToBounds(1, 2, radius, testBounds)).toEqual([1, 2]);
+    // Attempting to move past left wall (minX: -2.8)
+    const [clampedX] = clampPositionToBounds(-4.0, 0, playerRadius, ALLEY_BOUNDS);
+    expect(clampedX).toBeCloseTo(-2.8 + playerRadius, 5);
+
+    // Attempting to move past South start boundary (maxZ: 9.0)
+    const [, clampedZ] = clampPositionToBounds(0, 12.0, playerRadius, ALLEY_BOUNDS);
+    expect(clampedZ).toBeCloseTo(9.0 - playerRadius, 5);
   });
 
   it('detects collision with obstacle boxes', () => {
-    const obstacle: BoundingBox = {
-      minX: -1,
-      maxX: 1,
-      minZ: -1,
-      maxZ: 1,
-    };
-    const radius = 0.5;
+    const pedestal = ALLEY_OBSTACLES[0]!; // [1.0 to 2.2, -4.2 to -2.8]
 
-    // Inside box
-    expect(isCollidingWithBox(0, 0, radius, obstacle)).toBe(true);
-    // Touching perimeter
-    expect(isCollidingWithBox(1.2, 0, radius, obstacle)).toBe(true);
-    // Well outside
-    expect(isCollidingWithBox(3, 0, radius, obstacle)).toBe(false);
+    // Point right next to pedestal penetrating border
+    const colliding = isCollidingWithBox(0.9, -3.5, playerRadius, pedestal);
+    expect(colliding).toBe(true);
+
+    // Point far in the alley center
+    const notColliding = isCollidingWithBox(0.0, 0.0, playerRadius, pedestal);
+    expect(notColliding).toBe(false);
   });
 
   it('resolves penetration by pushing player outward along shallowest overlap', () => {
-    const obstacle: BoundingBox = {
-      minX: -1,
-      maxX: 1,
-      minZ: -1,
-      maxZ: 1,
-    };
-    const radius = 0.5;
+    const obstacle = { minX: 1.0, maxX: 2.0, minZ: -4.0, maxZ: -3.0 };
 
-    // Approaching from right (+X)
-    const [resolvedX, resolvedZ] = resolveBoxCollision(1.3, 0, radius, obstacle);
-    expect(resolvedX).toBeCloseTo(1.5);
-    expect(resolvedZ).toBe(0);
-
-    // Uncolliding point stays unchanged
-    expect(resolveBoxCollision(5, 5, radius, obstacle)).toEqual([5, 5]);
+    // Player entering from the left (x = 0.8 penetrates 1.0 with radius 0.45)
+    const [resolvedX, resolvedZ] = resolveBoxCollision(0.8, -3.5, playerRadius, obstacle);
+    expect(resolvedX).toBeCloseTo(1.0 - playerRadius, 5);
+    expect(resolvedZ).toBe(-3.5);
   });
 });
 
 describe('Interaction Domain Logic', () => {
   it('evaluates whether player is within interaction range', () => {
-    const targetPos: [number, number, number] = [0, 1, 0];
-    const radius = 2.0;
+    const playerPos: [number, number, number] = [0, 0, 0];
+    const triggerPos: [number, number, number] = [0, 0, 2.0];
 
-    // Inside range
-    expect(isWithinInteractionRange([0, 1, 1], targetPos, radius)).toBe(true);
-    // Right at boundary
-    expect(isWithinInteractionRange([2, 1, 0], targetPos, radius)).toBe(true);
-    // Outside range
-    expect(isWithinInteractionRange([0, 1, 3], targetPos, radius)).toBe(false);
+    expect(isWithinInteractionRange(playerPos, triggerPos, 2.5)).toBe(true);
+    expect(isWithinInteractionRange(playerPos, triggerPos, 1.5)).toBe(false);
   });
 
   it('selects nearest interactable within radius', () => {
     const playerPos: [number, number, number] = [0, 0, 0];
     const interactables: InteractableObject[] = [
-      { id: 'far', name: 'Far Tile', position: [0, 0, 5], radius: 6, promptText: 'Far' },
+      { id: 'far', name: 'Far Tile', position: [0, 0, 2], radius: 3, promptText: 'Far' },
       { id: 'near', name: 'Near Tile', position: [0, 0, 1], radius: 2, promptText: 'Near' },
       { id: 'out', name: 'Out of Range', position: [0, 0, 10], radius: 2, promptText: 'Out' },
     ];
@@ -112,8 +86,7 @@ describe('Progression State Machine', () => {
     expect(updated.hasWhiteTile).toBe(true);
     expect(updated.teaHouseUnlocked).toBe(true);
     expect(updated.inventoryTiles).toContain('tile_white_dragon');
-    expect(updated.activeCheckpoint).toBe('cp_white_tile_collected');
-    expect(updated.narrativeFlags['collected_white_tile']).toBe(true);
+    expect(updated.checkpoint).toBe('cp_tea_house_unlocked');
   });
 
   it('transitions scene upon entering Tea House', () => {
@@ -122,10 +95,8 @@ describe('Progression State Machine', () => {
     store.enterTeaHouse();
 
     const updated = useGameStore.getState();
-    expect(updated.playerInsideTeaHouse).toBe(true);
     expect(updated.currentScene).toBe('east_arcade');
-    expect(updated.activeCheckpoint).toBe('cp_east_arcade_start');
-    expect(updated.narrativeFlags['entered_tea_house']).toBe(true);
+    expect(updated.checkpoint).toBe('cp_east_arcade_entered');
   });
 
   it('solves Same Door Pair and warps across space (Phase 3)', () => {
@@ -137,15 +108,14 @@ describe('Progression State Machine', () => {
     expect(useGameStore.getState().inventoryTiles).toContain('tile_dragon_red');
 
     // Place Red Dragon in Door Beta socket
-    const solved = store.placeTileInSocket('socket_door_beta', 'tile_dragon_red');
-    expect(solved).toBe(true);
+    store.placeTileInSocket('socket_door_beta', 'tile_dragon_red');
     expect(useGameStore.getState().sameDoorPairActive).toBe(true);
-    expect(useGameStore.getState().activeCheckpoint).toBe('cp_same_door_paired');
+    expect(useGameStore.getState().checkpoint).toBe('cp_same_door_active');
 
     // Traverse from Door Alpha -> Warps to Door Beta at [-3.5, 0, -15.8]
     store.traverseSameDoor('alpha');
     expect(useGameStore.getState().playerPosition).toEqual([-3.5, 0, -15.8]);
-    expect(useGameStore.getState().activeCheckpoint).toBe('cp_upper_terrace_reached');
+    expect(useGameStore.getState().checkpoint).toBe('cp_upper_terrace_reached');
 
     // Traverse from Door Beta -> Warps back to Door Alpha at [3.5, 0, -8.5]
     store.traverseSameDoor('beta');

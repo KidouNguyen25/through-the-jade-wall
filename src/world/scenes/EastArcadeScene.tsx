@@ -74,6 +74,8 @@ export function Bamboo4Pickup() {
 }
 
 export function EastArcadeEnvironment() {
+  const { enterMemoryRoom } = useGameStore();
+
   return (
     <group>
       {/* South Promenade Floor */}
@@ -99,6 +101,27 @@ export function EastArcadeEnvironment() {
         <boxGeometry args={[4.2, 0.2, 5.0]} />
         <meshStandardMaterial color="#16221c" roughness={0.5} />
       </mesh>
+
+      {/* Memory Sanctuary Gateway Door on High Deck */}
+      <Interactable
+        id="memory_sanctuary_door"
+        name="Memory Sanctuary Door"
+        position={[-3.5, 0, -18.0]}
+        radius={2.8}
+        promptText="Enter Memory Sanctuary"
+        onInteract={enterMemoryRoom}
+      >
+        <mesh position={[0, 1.8, 0]} castShadow>
+          <boxGeometry args={[2.0, 3.4, 0.3]} />
+          <meshStandardMaterial
+            color="#142c22"
+            emissive="#0d4a38"
+            emissiveIntensity={0.6}
+            roughness={0.3}
+          />
+        </mesh>
+        <pointLight position={[0, 1.8, 0.4]} intensity={1.5} color="#5eead4" distance={5} />
+      </Interactable>
 
       {/* Arcade Boundary Walls */}
       <mesh position={[-6.2, 3.5, -5.0]} receiveShadow>

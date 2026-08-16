@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useInput } from '../input/useInput';
@@ -8,6 +8,8 @@ import {
   ALLEY_OBSTACLES,
   EAST_ARCADE_BOUNDS,
   EAST_ARCADE_OBSTACLES,
+  MEMORY_ROOM_BOUNDS,
+  MEMORY_ROOM_OBSTACLES,
   CHASM_VOID_OBSTACLE,
   clampPositionToBounds,
   resolveBoxCollision,
@@ -58,23 +60,26 @@ export function AliceMesh() {
       {/* Lower Coat / Skirt */}
       <mesh position={[0, 0.62, 0]} castShadow>
         <cylinderGeometry args={[0.3, 0.44, 0.45, 12]} />
-        <meshStandardMaterial color="#0b1e16" roughness={0.5} />
+        <meshStandardMaterial color="#0b2219" roughness={0.4} />
       </mesh>
 
       {/* Left Leg */}
-      <mesh ref={leftLegRef} position={[-0.15, 0.25, 0]} castShadow>
-        <cylinderGeometry args={[0.08, 0.07, 0.5, 8]} />
-        <meshStandardMaterial color="#111815" roughness={0.7} />
+      <mesh ref={leftLegRef} position={[-0.14, 0.22, 0]} castShadow>
+        <capsuleGeometry args={[0.07, 0.32, 4, 8]} />
+        <meshStandardMaterial color="#1f2923" roughness={0.7} />
       </mesh>
 
       {/* Right Leg */}
-      <mesh ref={rightLegRef} position={[0.15, 0.25, 0]} castShadow>
-        <cylinderGeometry args={[0.08, 0.07, 0.5, 8]} />
-        <meshStandardMaterial color="#111815" roughness={0.7} />
+      <mesh ref={rightLegRef} position={[0.14, 0.22, 0]} castShadow>
+        <capsuleGeometry args={[0.07, 0.32, 4, 8]} />
+        <meshStandardMaterial color="#1f2923" roughness={0.7} />
       </mesh>
 
-      {/* Small Jade Pendant Glow */}
-      <pointLight position={[0, 0.9, 0.25]} intensity={0.4} color="#68d391" distance={2} />
+      {/* Soft Ground Shadow Contact Disc */}
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.35, 16]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.35} />
+      </mesh>
     </group>
   );
 }
@@ -84,28 +89,26 @@ export function PlayerController() {
   const inputRef = useInput();
 
   const {
-    currentScene,
     playerPosition,
     setPlayerPosition,
-    playerRotation,
+    currentScene,
     isPaused,
     teaHouseUnlocked,
     balconiesAligned,
   } = useGameStore();
 
   const currentPos = useRef(new THREE.Vector3(...playerPosition));
-  const currentRotation = useRef(playerRotation);
+  const currentRotation = useRef(0);
   const walkCycle = useRef(0);
-  const prevScene = useRef(currentScene);
+  const lastKnownStorePos = useRef<[number, number, number]>(playerPosition);
 
-  // Sync position on scene transition or teleport
-  useEffect(() => {
-    currentPos.current.set(...playerPosition);
-    currentRotation.current = playerRotation;
-  }, [playerPosition, playerRotation, currentScene]);
-
-  if (prevScene.current !== currentScene) {
-    prevScene.current = currentScene;
+  // Sync position if external code changed playerPosition (e.g. portal warp or scene entry)
+  if (
+    lastKnownStorePos.current[0] !== playerPosition[0] ||
+    lastKnownStorePos.current[1] !== playerPosition[1] ||
+    lastKnownStorePos.current[2] !== playerPosition[2]
+  ) {
+    lastKnownStorePos.current = playerPosition;
     currentPos.current.set(...playerPosition);
   }
 
@@ -141,9 +144,19 @@ export function PlayerController() {
       targetPosition.z += moveDirection.z * speed * delta;
 
       // Select scene-specific bounds and obstacles
-      const activeBounds = currentScene === 'east_arcade' ? EAST_ARCADE_BOUNDS : ALLEY_BOUNDS;
+      const activeBounds =
+        currentScene === 'memory_room'
+          ? MEMORY_ROOM_BOUNDS
+          : currentScene === 'east_arcade'
+            ? EAST_ARCADE_BOUNDS
+            : ALLEY_BOUNDS;
+
       const activeObstacles = [
-        ...(currentScene === 'east_arcade' ? EAST_ARCADE_OBSTACLES : ALLEY_OBSTACLES),
+        ...(currentScene === 'memory_room'
+          ? MEMORY_ROOM_OBSTACLES
+          : currentScene === 'east_arcade'
+            ? EAST_ARCADE_OBSTACLES
+            : ALLEY_OBSTACLES),
         ...(currentScene === 'east_arcade' && !balconiesAligned ? [CHASM_VOID_OBSTACLE] : []),
       ];
 
@@ -176,8 +189,14 @@ export function PlayerController() {
       walkCycle.current += delta * speed * 3.5;
       groupRef.current.position.y = Math.sin(walkCycle.current * 2) * 0.04;
 
-      // Sync to game store for camera and interaction logic only when moving
-      setPlayerPosition([currentPos.current.x, currentPos.current.y, currentPos.current.z]);
+      // Sync to game store for camera and interaction logic
+      const newPos: [number, number, number] = [
+        currentPos.current.x,
+        currentPos.current.y,
+        currentPos.current.z,
+      ];
+      lastKnownStorePos.current = newPos;
+      setPlayerPosition(newPos);
     } else {
       groupRef.current.position.y = 0;
     }

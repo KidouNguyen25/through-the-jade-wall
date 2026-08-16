@@ -4,139 +4,135 @@ import * as THREE from 'three';
 import { useGameStore } from '../../state/gameStore';
 import { Interactable } from '../../game/interaction/Interactable';
 
-// Rain Particle System
-export function RainParticles({ count = 300 }: { count?: number }) {
+export function RainParticles({ count = 200 }: { count?: number }) {
   const pointsRef = useRef<THREE.Points>(null);
 
-  const [positions, speeds] = useMemo(() => {
+  const [positions, velocities] = useMemo(() => {
     const pos = new Float32Array(count * 3);
-    const spd = new Float32Array(count);
+    const vel = new Float32Array(count);
+
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 8; // x in [-4, 4]
-      pos[i * 3 + 1] = Math.random() * 10; // y in [0, 10]
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 30; // z in [-15, 15]
-      spd[i] = 12 + Math.random() * 8;
+      // Scatter within alley width and length
+      pos[i * 3] = (Math.random() - 0.5) * 6; // X: -3 to 3
+      pos[i * 3 + 1] = Math.random() * 8; // Y: 0 to 8
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 24; // Z: -12 to 12
+      vel[i] = 9 + Math.random() * 6; // Fall speed
     }
-    return [pos, spd];
+
+    return [pos, vel];
   }, [count]);
 
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
-    const positionAttr = pointsRef.current.geometry.getAttribute(
-      'position',
-    ) as THREE.BufferAttribute | null;
-    if (!positionAttr) return;
+    const posAttr = pointsRef.current.geometry.attributes.position;
+    if (!posAttr) return;
 
-    const posArray = positionAttr.array as Float32Array;
+    const array = posAttr.array as Float32Array;
 
     for (let i = 0; i < count; i++) {
-      const idx = i * 3 + 1;
-      const currentY = posArray[idx];
-      const speed = speeds[i] ?? 14;
-      if (currentY !== undefined) {
-        const newY = currentY - speed * delta;
-        posArray[idx] = newY < 0 ? 10 : newY;
+      const vel = velocities[i] ?? 10;
+      const currentY = array[i * 3 + 1] ?? 0;
+      const nextY = currentY - vel * delta;
+      array[i * 3 + 1] = nextY;
+
+      // Reset when particle hits ground
+      if (nextY < 0) {
+        array[i * 3 + 1] = 8;
+        array[i * 3] = (Math.random() - 0.5) * 6;
+        array[i * 3 + 2] = (Math.random() - 0.5) * 24;
       }
     }
-    positionAttr.needsUpdate = true;
+
+    posAttr.needsUpdate = true;
   });
 
   return (
     <points ref={pointsRef}>
       <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color="#a5f3fc"
+        color="#a7f3d0"
         size={0.06}
         transparent
-        opacity={0.5}
+        opacity={0.6}
         blending={THREE.AdditiveBlending}
       />
     </points>
   );
 }
 
-// Hovering White Tile Prop
 export function WhiteTileProp() {
-  const tileGroupRef = useRef<THREE.Group>(null);
+  const meshRef = useRef<THREE.Group>(null);
   const { hasWhiteTile, collectWhiteTile } = useGameStore();
 
   useFrame(({ clock }) => {
-    if (!tileGroupRef.current || hasWhiteTile) return;
+    if (!meshRef.current || hasWhiteTile) return;
     const t = clock.getElapsedTime();
-    tileGroupRef.current.rotation.y = t * 0.8;
-    tileGroupRef.current.position.y = 1.2 + Math.sin(t * 2) * 0.08;
+    // Hovering sinusoidal animation
+    meshRef.current.position.y = 1.0 + Math.sin(t * 2) * 0.06;
+    meshRef.current.rotation.y = t * 0.8;
   });
 
   if (hasWhiteTile) return null;
 
   return (
     <Interactable
-      id="white_tile_pickup"
-      name="The White Tile"
+      id="white_tile_pedestal"
+      name="White Tile Pedestal"
       position={[1.6, 0, -3.5]}
-      radius={2.8}
+      radius={3.5}
       promptText="Pick up White Tile"
       onInteract={collectWhiteTile}
     >
       {/* Stone Pedestal */}
-      <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.45, 0.55, 0.8, 16]} />
-        <meshStandardMaterial color="#16201b" roughness={0.8} />
+      <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.35, 0.45, 0.9, 16]} />
+        <meshStandardMaterial color="#1a2520" roughness={0.7} />
       </mesh>
 
-      {/* Hovering Tile Group */}
-      <group ref={tileGroupRef} position={[0, 1.2, 0]}>
+      {/* Floating White Tile (Haku) */}
+      <group ref={meshRef} position={[0, 1.0, 0]}>
         <mesh castShadow>
-          <boxGeometry args={[0.8, 1.1, 0.28]} />
+          <boxGeometry args={[0.5, 0.7, 0.18]} />
           <meshStandardMaterial
-            color="#faf8f2"
-            roughness={0.15}
-            metalness={0.05}
-            emissive="#e6fffa"
-            emissiveIntensity={0.6}
+            color="#f7f4ea"
+            roughness={0.2}
+            metalness={0.1}
+            emissive="#5eead4"
+            emissiveIntensity={0.25}
           />
         </mesh>
-
-        {/* Jade Halo Ring */}
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.65, 0.72, 32]} />
-          <meshBasicMaterial color="#5eead4" side={THREE.DoubleSide} />
+        {/* Subtle jade bevel inlay */}
+        <mesh position={[0, 0, 0.095]}>
+          <planeGeometry args={[0.4, 0.6]} />
+          <meshBasicMaterial color="#ecfdf5" wireframe />
         </mesh>
       </group>
 
-      {/* Atmospheric Pillar Light */}
-      <pointLight position={[0, 1.5, 0]} intensity={1.5} color="#5eead4" distance={5} />
+      {/* Local spotlight glowing on the tile */}
+      <pointLight position={[0, 1.2, 0]} intensity={1.5} color="#5eead4" distance={3.5} />
     </Interactable>
   );
 }
 
-// Tea House Building & Sliding Door
 export function TeaHouseEntrance() {
   const leftDoorRef = useRef<THREE.Mesh>(null);
   const rightDoorRef = useRef<THREE.Mesh>(null);
-
   const { teaHouseUnlocked } = useGameStore();
 
   useFrame((_, delta) => {
-    const targetLeftX = teaHouseUnlocked ? -1.8 : -0.65;
-    const targetRightX = teaHouseUnlocked ? 1.8 : 0.65;
+    // Animate doors opening sideways when unlocked
+    if (leftDoorRef.current && rightDoorRef.current) {
+      const targetLeftX = teaHouseUnlocked ? -1.8 : -0.7;
+      const targetRightX = teaHouseUnlocked ? 1.8 : 0.7;
 
-    if (leftDoorRef.current) {
       leftDoorRef.current.position.x = THREE.MathUtils.damp(
         leftDoorRef.current.position.x,
         targetLeftX,
         4,
         delta,
       );
-    }
-    if (rightDoorRef.current) {
       rightDoorRef.current.position.x = THREE.MathUtils.damp(
         rightDoorRef.current.position.x,
         targetRightX,
@@ -148,140 +144,110 @@ export function TeaHouseEntrance() {
 
   return (
     <group position={[0, 0, -10.0]}>
-      {/* Gate Frame Columns */}
-      <mesh position={[-1.6, 2.0, 0]} castShadow receiveShadow>
+      {/* Archway Frame */}
+      <mesh position={[-1.5, 2.0, 0]} castShadow>
         <boxGeometry args={[0.5, 4.0, 0.6]} />
-        <meshStandardMaterial color="#2d1e16" roughness={0.7} />
+        <meshStandardMaterial color="#1a201c" roughness={0.7} />
       </mesh>
-      <mesh position={[1.6, 2.0, 0]} castShadow receiveShadow>
+      <mesh position={[1.5, 2.0, 0]} castShadow>
         <boxGeometry args={[0.5, 4.0, 0.6]} />
-        <meshStandardMaterial color="#2d1e16" roughness={0.7} />
+        <meshStandardMaterial color="#1a201c" roughness={0.7} />
       </mesh>
-
-      {/* Lintel Beam */}
-      <mesh position={[0, 3.8, 0]} castShadow>
-        <boxGeometry args={[3.8, 0.5, 0.8]} />
-        <meshStandardMaterial color="#3b271d" roughness={0.7} />
-      </mesh>
-
-      {/* Traditional Tiled Roof Overhang */}
-      <mesh position={[0, 4.2, 0.2]} rotation={[0.2, 0, 0]} castShadow>
-        <boxGeometry args={[4.2, 0.25, 1.6]} />
-        <meshStandardMaterial color="#0c1613" roughness={0.5} />
+      <mesh position={[0, 4.0, 0]} castShadow>
+        <boxGeometry args={[3.5, 0.5, 0.7]} />
+        <meshStandardMaterial color="#1a201c" roughness={0.7} />
       </mesh>
 
       {/* Left Sliding Door */}
-      <mesh ref={leftDoorRef} position={[-0.65, 1.6, 0]} castShadow>
-        <boxGeometry args={[1.2, 3.2, 0.1]} />
-        <meshStandardMaterial color="#4a3325" roughness={0.6} />
+      <mesh ref={leftDoorRef} position={[-0.7, 1.8, 0]} castShadow>
+        <boxGeometry args={[1.35, 3.5, 0.1]} />
+        <meshStandardMaterial
+          color="#2a1e16"
+          roughness={0.4}
+          emissive={teaHouseUnlocked ? '#064e3b' : '#000000'}
+          emissiveIntensity={0.3}
+        />
       </mesh>
 
       {/* Right Sliding Door */}
-      <mesh ref={rightDoorRef} position={[0.65, 1.6, 0]} castShadow>
-        <boxGeometry args={[1.2, 3.2, 0.1]} />
-        <meshStandardMaterial color="#4a3325" roughness={0.6} />
+      <mesh ref={rightDoorRef} position={[0.7, 1.8, 0]} castShadow>
+        <boxGeometry args={[1.35, 3.5, 0.1]} />
+        <meshStandardMaterial
+          color="#2a1e16"
+          roughness={0.4}
+          emissive={teaHouseUnlocked ? '#064e3b' : '#000000'}
+          emissiveIntensity={0.3}
+        />
       </mesh>
 
-      {/* Tea House Interior (Behind Gate) */}
-      <group position={[0, 0, -3.5]}>
-        {/* Interior Floor */}
-        <mesh position={[0, 0.05, 0]} receiveShadow>
-          <boxGeometry args={[6.0, 0.1, 6.0]} />
-          <meshStandardMaterial color="#301f16" roughness={0.4} />
-        </mesh>
+      {/* Warm Interior Lantern Glow revealed when opening */}
+      <pointLight
+        position={[0, 2.0, -2.0]}
+        intensity={teaHouseUnlocked ? 2.5 : 0.4}
+        color="#fbbf24"
+        distance={8}
+      />
 
-        {/* Interior Walls */}
-        <mesh position={[0, 2.0, -3.0]} receiveShadow>
-          <boxGeometry args={[6.0, 4.0, 0.2]} />
-          <meshStandardMaterial color="#1a2520" roughness={0.8} />
-        </mesh>
-        <mesh position={[-3.0, 2.0, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 4.0, 6.0]} />
-          <meshStandardMaterial color="#1a2520" roughness={0.8} />
-        </mesh>
-        <mesh position={[3.0, 2.0, 0]} receiveShadow>
-          <boxGeometry args={[0.2, 4.0, 6.0]} />
-          <meshStandardMaterial color="#1a2520" roughness={0.8} />
-        </mesh>
-
-        {/* Central Tea Table */}
-        <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
-          <cylinderGeometry args={[1.2, 1.2, 0.4, 24]} />
-          <meshStandardMaterial color="#42291d" roughness={0.3} metalness={0.1} />
-        </mesh>
-
-        {/* Four Stools */}
-        <mesh position={[0, 0.3, 1.6]} castShadow>
-          <cylinderGeometry args={[0.3, 0.3, 0.4, 16]} />
-          <meshStandardMaterial color="#2d1e16" roughness={0.6} />
-        </mesh>
-        <mesh position={[0, 0.3, -1.6]} castShadow>
-          <cylinderGeometry args={[0.3, 0.3, 0.4, 16]} />
-          <meshStandardMaterial color="#2d1e16" roughness={0.6} />
-        </mesh>
-        <mesh position={[1.6, 0.3, 0]} castShadow>
-          <cylinderGeometry args={[0.3, 0.3, 0.4, 16]} />
-          <meshStandardMaterial color="#2d1e16" roughness={0.6} />
-        </mesh>
-        <mesh position={[-1.6, 0.3, 0]} castShadow>
-          <cylinderGeometry args={[0.3, 0.3, 0.4, 16]} />
-          <meshStandardMaterial color="#2d1e16" roughness={0.6} />
-        </mesh>
-
-        {/* Warm Tea House Lantern Light */}
-        <pointLight position={[0, 2.6, 0]} intensity={2.5} color="#fbd38d" distance={8} />
-      </group>
+      {/* Tea House Signboard */}
+      <mesh position={[0, 3.4, 0.4]}>
+        <boxGeometry args={[1.8, 0.6, 0.1]} />
+        <meshStandardMaterial color="#0f2b20" roughness={0.5} />
+      </mesh>
     </group>
   );
 }
 
-// Street Architecture & Lanterns
 export function AlleyEnvironment() {
   return (
     <group>
-      {/* Wet Cobblestone Ground */}
-      <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[7.0, 32]} />
-        <meshStandardMaterial
-          color="#080e0c"
-          roughness={0.25}
-          metalness={0.3}
-          envMapIntensity={0.8}
-        />
+      {/* Wet Cobblestone Floor */}
+      <mesh position={[0, -0.05, -3.0]} receiveShadow>
+        <boxGeometry args={[5.6, 0.1, 24]} />
+        <meshStandardMaterial color="#0d1411" roughness={0.3} metalness={0.3} />
       </mesh>
 
       {/* Left Alley Wall */}
-      <mesh position={[-3.2, 3.5, 0]} receiveShadow>
-        <boxGeometry args={[0.6, 7.0, 32]} />
-        <meshStandardMaterial color="#0c1714" roughness={0.85} />
+      <mesh position={[-2.8, 3.0, -3.0]} receiveShadow>
+        <boxGeometry args={[0.5, 6.0, 24]} />
+        <meshStandardMaterial color="#09100d" roughness={0.8} />
       </mesh>
 
       {/* Right Alley Wall */}
-      <mesh position={[3.2, 3.5, 0]} receiveShadow>
-        <boxGeometry args={[0.6, 7.0, 32]} />
-        <meshStandardMaterial color="#0c1714" roughness={0.85} />
+      <mesh position={[2.8, 3.0, -3.0]} receiveShadow>
+        <boxGeometry args={[0.5, 6.0, 24]} />
+        <meshStandardMaterial color="#09100d" roughness={0.8} />
       </mesh>
 
-      {/* Street Lanterns */}
-      <group position={[-2.6, 3.0, 6.0]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.2, 0.25, 0.6, 8]} />
+      {/* South Back Wall (Starting Boundary) */}
+      <mesh position={[0, 3.0, 9.0]} receiveShadow>
+        <boxGeometry args={[5.6, 6.0, 0.5]} />
+        <meshStandardMaterial color="#09100d" roughness={0.8} />
+      </mesh>
+
+      {/* Distant Tea House Back Wall */}
+      <mesh position={[0, 3.0, -14.5]} receiveShadow>
+        <boxGeometry args={[5.6, 6.0, 0.5]} />
+        <meshStandardMaterial color="#09100d" roughness={0.8} />
+      </mesh>
+
+      {/* Street Lanterns along Alley */}
+      <group position={[-2.4, 2.5, 4.0]}>
+        <mesh>
+          <boxGeometry args={[0.3, 0.45, 0.3]} />
           <meshStandardMaterial color="#b7791f" emissive="#d69e2e" emissiveIntensity={0.8} />
         </mesh>
         <pointLight intensity={1.2} color="#f6ad55" distance={6} />
       </group>
-
-      <group position={[2.6, 3.0, 0.0]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.2, 0.25, 0.6, 8]} />
+      <group position={[2.4, 2.5, 0.0]}>
+        <mesh>
+          <boxGeometry args={[0.3, 0.45, 0.3]} />
           <meshStandardMaterial color="#b7791f" emissive="#d69e2e" emissiveIntensity={0.8} />
         </mesh>
         <pointLight intensity={1.2} color="#f6ad55" distance={6} />
       </group>
-
-      <group position={[-2.6, 3.0, -6.0]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.2, 0.25, 0.6, 8]} />
+      <group position={[-2.4, 2.5, -4.0]}>
+        <mesh>
+          <boxGeometry args={[0.3, 0.45, 0.3]} />
           <meshStandardMaterial color="#b7791f" emissive="#d69e2e" emissiveIntensity={0.8} />
         </mesh>
         <pointLight intensity={1.2} color="#f6ad55" distance={6} />
@@ -291,7 +257,7 @@ export function AlleyEnvironment() {
 }
 
 export function RainAlleyScene() {
-  const { teaHouseUnlocked, enterTeaHouse, playerInsideTeaHouse } = useGameStore();
+  const { teaHouseUnlocked, enterTeaHouse } = useGameStore();
 
   return (
     <group>
@@ -301,12 +267,12 @@ export function RainAlleyScene() {
       <TeaHouseEntrance />
 
       {/* Direct Top-Level Doorway Trigger at [0, 0, -10.0] */}
-      {teaHouseUnlocked && !playerInsideTeaHouse && (
+      {teaHouseUnlocked && (
         <Interactable
           id="enter_tea_house_trigger"
           name="Tea House Doorway"
           position={[0, 0, -10.0]}
-          radius={3.0}
+          radius={3.5}
           promptText="Enter Tea House"
           onInteract={enterTeaHouse}
         />

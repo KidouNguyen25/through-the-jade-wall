@@ -2,8 +2,10 @@ export type Suit = 'bamboo' | 'character' | 'circle' | 'wind' | 'dragon' | 'blan
 export type Wind = 'east' | 'south' | 'west' | 'north';
 export type Dragon = 'red' | 'green' | 'white';
 
+export type TileId = string;
+
 export interface TileDefinition {
-  id: string;
+  id: TileId;
   suit: Suit;
   rank?: number; // 1..9 for suited tiles
   wind?: Wind;
@@ -63,43 +65,17 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     rank: 5,
     label: '5 Bamboo',
     shortName: '5 BAM',
-    narrativeFragment: 'Five lanterns suspended across the central courtyard.',
+    narrativeFragment: 'Five bamboo struts framing the high upper archways.',
   },
 
-  // Character Suit
-  tile_character_1: {
-    id: 'tile_character_1',
-    suit: 'character',
-    rank: 1,
-    label: '1 Character',
-    shortName: '1 WAN',
-    narrativeFragment: 'A single stroke declaring the first imperial decree.',
-  },
-  tile_character_2: {
-    id: 'tile_character_2',
-    suit: 'character',
-    rank: 2,
-    label: '2 Character',
-    shortName: '2 WAN',
-    narrativeFragment: 'Two witnesses required to validate an identity.',
-  },
-  tile_character_3: {
-    id: 'tile_character_3',
-    suit: 'character',
-    rank: 3,
-    label: '3 Character',
-    shortName: '3 WAN',
-    narrativeFragment: 'Three covenants bound within the stone archives.',
-  },
-
-  // Circle Suit
+  // Circle (Pin / Dot) Suit
   tile_circle_1: {
     id: 'tile_circle_1',
     suit: 'circle',
     rank: 1,
-    label: '1 Circle (Pearl)',
+    label: '1 Circle (Giant Pearl)',
     shortName: '1 PIN',
-    narrativeFragment: 'The full moon mirrored on the tea table.',
+    narrativeFragment: 'A single celestial pearl floating in equilibrium.',
   },
   tile_circle_2: {
     id: 'tile_circle_2',
@@ -107,7 +83,7 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     rank: 2,
     label: '2 Circle',
     shortName: '2 PIN',
-    narrativeFragment: 'Two bronze coins paid at the gates of Jade Court.',
+    narrativeFragment: 'Two balancing spheres reflecting water reflections.',
   },
   tile_circle_3: {
     id: 'tile_circle_3',
@@ -115,7 +91,65 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     rank: 3,
     label: '3 Circle',
     shortName: '3 PIN',
-    narrativeFragment: 'Three glowing river stones marking the ford.',
+    narrativeFragment: 'Three diagonal stars marking the constellation path.',
+  },
+  tile_circle_4: {
+    id: 'tile_circle_4',
+    suit: 'circle',
+    rank: 4,
+    label: '4 Circle',
+    shortName: '4 PIN',
+    narrativeFragment: 'Four corner boundary posts of the courtyard.',
+  },
+  tile_circle_5: {
+    id: 'tile_circle_5',
+    suit: 'circle',
+    rank: 5,
+    label: '5 Circle',
+    shortName: '5 PIN',
+    narrativeFragment: 'Five points surrounding the central sanctuary dais.',
+  },
+
+  // Character (Wan) Suit
+  tile_character_1: {
+    id: 'tile_character_1',
+    suit: 'character',
+    rank: 1,
+    label: '1 Character',
+    shortName: '1 WAN',
+    narrativeFragment: 'The first numeric character of the imperial ledger.',
+  },
+  tile_character_2: {
+    id: 'tile_character_2',
+    suit: 'character',
+    rank: 2,
+    label: '2 Character',
+    shortName: '2 WAN',
+    narrativeFragment: 'Two horizontal balance bars inscribed in vermilion.',
+  },
+  tile_character_3: {
+    id: 'tile_character_3',
+    suit: 'character',
+    rank: 3,
+    label: '3 Character',
+    shortName: '3 WAN',
+    narrativeFragment: 'Three tiers of ancient court bureaucracy.',
+  },
+  tile_character_4: {
+    id: 'tile_character_4',
+    suit: 'character',
+    rank: 4,
+    label: '4 Character',
+    shortName: '4 WAN',
+    narrativeFragment: 'Four square walls containing the outer settlement.',
+  },
+  tile_character_5: {
+    id: 'tile_character_5',
+    suit: 'character',
+    rank: 5,
+    label: '5 Character',
+    shortName: '5 WAN',
+    narrativeFragment: 'The crossroads where the five outer roads converge.',
   },
 
   // Dragons
@@ -134,7 +168,7 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     dragon: 'green',
     label: 'Green Dragon (Hatsu)',
     shortName: 'GRN DRG',
-    narrativeFragment: 'A flourishing jade emblem of growth, renewal, and hidden passages.',
+    narrativeFragment: 'The blooming jade spring that stabilizes spatial curvature.',
   },
 
   // Winds
@@ -142,44 +176,53 @@ export const TILE_CATALOG: Record<string, TileDefinition> = {
     id: 'tile_wind_east',
     suit: 'wind',
     wind: 'east',
-    label: 'East Wind',
+    label: 'East Wind (Ton)',
     shortName: 'EAST',
-    narrativeFragment: 'The prevailing direction of authority. Governed by the Magistrate.',
+    narrativeFragment: 'The seat of the reigning Dealer. Controls the rotation of outer hallways.',
   },
   tile_wind_south: {
     id: 'tile_wind_south',
     suit: 'wind',
     wind: 'south',
-    label: 'South Wind',
+    label: 'South Wind (Nan)',
     shortName: 'SOUTH',
-    narrativeFragment: 'The wind of preservation and healing.',
+    narrativeFragment: 'The warm current opening the southern water gates.',
   },
   tile_wind_west: {
     id: 'tile_wind_west',
     suit: 'wind',
     wind: 'west',
-    label: 'West Wind',
+    label: 'West Wind (Shaa)',
     shortName: 'WEST',
-    narrativeFragment: 'The wind of fading memories and dusk.',
+    narrativeFragment: 'The setting wind sealing the twilight archives.',
   },
   tile_wind_north: {
     id: 'tile_wind_north',
     suit: 'wind',
     wind: 'north',
-    label: 'North Wind',
+    label: 'North Wind (Pei)',
     shortName: 'NORTH',
-    narrativeFragment: 'The cold stillness of the outer wall.',
+    narrativeFragment: 'The cold stillness locking immutable memories in ice.',
   },
 };
 
-export function getTileById(id: string): TileDefinition | null {
-  return TILE_CATALOG[id] ?? null;
+export function areTilesEqual(a: TileDefinition | null, b: TileDefinition | null): boolean {
+  if (!a || !b) return false;
+  return a.id === b.id;
 }
 
-export function areTilesIdentical(tileA: TileDefinition, tileB: TileDefinition): boolean {
-  if (tileA.suit !== tileB.suit) return false;
-  if (tileA.rank !== tileB.rank) return false;
-  if (tileA.wind !== tileB.wind) return false;
-  if (tileA.dragon !== tileB.dragon) return false;
-  return true;
+export function areTilesIdentical(a: TileDefinition | null, b: TileDefinition | null): boolean {
+  return areTilesEqual(a, b);
+}
+
+export function getTileById(id: string): TileDefinition | undefined {
+  return TILE_CATALOG[id];
+}
+
+export function isSuitedTile(tile: TileDefinition): boolean {
+  return tile.suit === 'bamboo' || tile.suit === 'character' || tile.suit === 'circle';
+}
+
+export function isHonorTile(tile: TileDefinition): boolean {
+  return tile.suit === 'wind' || tile.suit === 'dragon';
 }

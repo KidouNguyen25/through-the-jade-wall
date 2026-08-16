@@ -21,6 +21,14 @@ export const EAST_ARCADE_BOUNDS: BoundingBox = {
   maxZ: 9.5,
 };
 
+// Memory Room Sanctuary bounding box: hexagonal/octagonal hall
+export const MEMORY_ROOM_BOUNDS: BoundingBox = {
+  minX: -7.0,
+  maxX: 7.0,
+  minZ: -14.0,
+  maxZ: 6.0,
+};
+
 // Obstacles in Rain Alley
 export const ALLEY_OBSTACLES: BoundingBox[] = [
   // White Tile Pedestal against right wall at [1.6, 0, -3.5]
@@ -43,6 +51,20 @@ export const EAST_ARCADE_OBSTACLES: BoundingBox[] = [
   { minX: -6.0, maxX: -4.4, minZ: -16.0, maxZ: -14.0 },
   // Right Pavilion Wall at [5.0, 0, -10.0]
   { minX: 4.4, maxX: 6.0, minZ: -11.0, maxZ: -9.0 },
+];
+
+// Obstacles in Memory Room
+export const MEMORY_ROOM_OBSTACLES: BoundingBox[] = [
+  // Central Dais Projector Table at [0, 0, 0]
+  { minX: -1.2, maxX: 1.2, minZ: -1.2, maxZ: 1.2 },
+  // North Altar Wall at [0, 0, -9.0]
+  { minX: -2.5, maxX: 2.5, minZ: -9.5, maxZ: -8.5 },
+  // North Captain's Seal Pedestal at [0, 0, -6.5]
+  { minX: -0.45, maxX: 0.45, minZ: -6.95, maxZ: -6.05 },
+  // East Memory Pedestal at [3.5, 0, -3.0]
+  { minX: 2.8, maxX: 4.2, minZ: -3.7, maxZ: -2.3 },
+  // West Memory Pedestal at [-3.5, 0, -3.0]
+  { minX: -4.2, maxX: -2.8, minZ: -3.7, maxZ: -2.3 },
 ];
 
 // Chasm Void Obstacle (active when balconies are NOT aligned)

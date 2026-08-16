@@ -5,7 +5,18 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] - 2026-08-16
+## [0.4.0] - 2026-08-16
+
+### Added
+
+- **Narrative State & Dialogue Engine**: Comprehensive branching dialogue tree model in `src/domain/narrative/narrativeTypes.ts` with dialogue choice branching, speaker tags, narrative flag persistence, and rich lore trees (`MEMORY_ROOM_ENTRY_TREE`, `FRAGMENT_EAST_GATE_TREE`, `FRAGMENT_MIDNIGHT_BELL_TREE`, `FRAGMENT_CAPTAIN_SEAL_TREE`, `MEMORY_RECONSTRUCTED_TREE`).
+- **SaveSchema v1 & LocalStorage Persistence**: Deterministic save/load system with schema versioning (`SaveStateV1`), backward compatibility migration pipeline, and JSON serialization in `src/domain/save/saveSchema.ts`.
+- **Memory Sanctuary 3D Level**: Octagonal chamber scene in `src/world/scenes/MemoryRoomScene.tsx` featuring central Dais Projector Table, North Altar archivist wall, and 3 memory crystal pedestals (East Gate, Midnight Bell, Captain's Seal).
+- **Holographic Reconstruction Climax**: 3D wireframe rotating city hologram projection, Keeper Echo silhouette, and light beams appearing upon recovering all 3 memory fragments.
+- **Narrative HUD Overlay & Choice Picker**: Interactive dialogue presentation modal with keyboard and click choice selection, typewriter speaker tags, and dynamic Memory Fragment collection counters.
+- **Quality Gates & Test Coverage**: 38/38 unit tests passing across 6 test suites; Playwright E2E test verifying complete multi-phase player journey from Rain Alley through Balcony Bridge, Portal Gate, and Memory Sanctuary Hologram Reconstruction.
+
+
 
 ### Added
 

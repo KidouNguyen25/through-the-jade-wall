@@ -91,6 +91,48 @@
   gap: 0.75rem;
 }
 
+/* Phase 4: Memory Fragments Tracker in HUD */
+.memory-fragments-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(14, 28, 22, 0.9);
+  border: 1px solid var(--color-jade-bright);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  backdrop-filter: blur(8px);
+}
+
+.fragment-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 3px;
+  background: #182620;
+  border: 1px solid #2e4a3c;
+  color: var(--color-muted);
+  font-family: monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.fragment-dot.active {
+  background: var(--color-jade-bright);
+  border-color: var(--color-jade-glow);
+  color: #0b1411;
+  box-shadow: 0 0 10px rgba(94, 234, 212, 0.6);
+}
+
+.fragment-label {
+  color: var(--color-ivory);
+  font-size: 0.75rem;
+  margin-left: 0.2rem;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -220,6 +262,175 @@
   border-radius: 4px;
 }
 
+/* Phase 4: Dialogue Presentation Card */
+.dialogue-overlay-container {
+  position: absolute;
+  bottom: 8.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 640px;
+  pointer-events: auto;
+  z-index: 60;
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.dialogue-card {
+  background: rgba(10, 18, 14, 0.94);
+  border: 1px solid var(--color-jade-bright);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(94, 234, 212, 0.2);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dialogue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(45, 90, 69, 0.4);
+  padding-bottom: 0.5rem;
+}
+
+.dialogue-speaker-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.speaker-badge {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.speaker-alice {
+  background: rgba(45, 212, 191, 0.15);
+  border: 1px solid #2dd4bf;
+  color: #5eead4;
+}
+
+.speaker-keeper-echo {
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid #facc15;
+  color: #fde047;
+}
+
+.speaker-observation-log {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid #94a3b8;
+  color: #e2e8f0;
+}
+
+.speaker-the-dealer {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.speaker-role {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.dialogue-close-btn {
+  color: var(--color-muted);
+  font-size: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dialogue-close-btn:hover {
+  color: var(--color-ivory);
+}
+
+.dialogue-text {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #f7f9f8;
+  letter-spacing: 0.02em;
+}
+
+.dialogue-choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.dialogue-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(16, 32, 26, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.85rem;
+  color: var(--color-ivory);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dialogue-choice-btn:hover {
+  background: rgba(24, 52, 42, 0.95);
+  border-color: var(--color-jade-bright);
+  color: var(--color-jade-glow);
+  transform: translateX(4px);
+}
+
+.choice-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--color-jade-dark);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-jade-glow);
+}
+
+.dialogue-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.3rem;
+}
+
+.dialogue-continue-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(22, 48, 38, 0.9);
+  border: 1px solid var(--color-jade-bright);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  color: var(--color-ivory);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dialogue-continue-btn:hover {
+  background: rgba(30, 68, 54, 0.95);
+  color: var(--color-jade-glow);
+  box-shadow: 0 0 10px rgba(94, 234, 212, 0.3);
+}
+
 /* UI Footer */
 .ui-footer {
   display: flex;
@@ -278,6 +489,7 @@
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   animation: fadeIn 0.2s ease-out forwards;
+  pointer-events: none;
 }
 
 .tooltip-title {

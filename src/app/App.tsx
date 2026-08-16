@@ -1,136 +1,207 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import GameRoot from '../game/GameRoot';
-import { useSettingsStore } from '../state/settingsStore';
 import { useGameStore } from '../state/gameStore';
-import { getTileById } from '../domain/mahjong/tileTypes';
+import { useSettingsStore } from '../state/settingsStore';
+import { TILE_CATALOG } from '../domain/mahjong/tileTypes';
 import './App.css';
 
 export function App() {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const {
     currentScene,
-    activeCheckpoint,
+    inventoryTiles,
+    selectedSlot,
+    setSelectedSlot,
     activeInteractable,
     activeInspection,
     setActiveInspection,
-    inventoryTiles,
-    selectedInventoryTileId,
-    selectInventoryTile,
-    bannerMessage,
-    sameDoorPairActive,
+    narrativeMessage,
+    checkpoint,
     portalWarping,
-    hintModalOpen,
     activeHintLevel,
+    hintModalOpen,
+    setHintLevel,
     toggleHintModal,
-    requestNextHint,
-    collectWhiteTile,
-    collectBamboo4,
-    collectRedDragon,
-    placeTileInSocket,
-    traverseSameDoor,
-    enterTeaHouse,
+    // Phase 4: Dialogue & Memory Fragments
+    activeDialogueNode,
+    advanceDialogue,
+    closeDialogue,
+    memoryFragments,
+    memoryReconstructed,
   } = useGameStore();
 
   const {
     masterVolume,
-    setMasterVolume,
-    subtitles,
-    setSubtitles,
     reducedMotion,
+    highContrastIndicator,
+    showControlHints,
+    setMasterVolume,
     setReducedMotion,
+    setHighContrastIndicator,
+    setShowControlHints,
   } = useSettingsStore();
 
-  // Keyboard shortcut to select tiles using numbers 1..5 and H for Hint
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        e.target instanceof HTMLSelectElement
-      ) {
+  // Keyboard shortcut listener
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      // Close inspection or modals on Escape
+      if (e.code === 'Escape') {
+        if (activeInspection) {
+          setActiveInspection(null);
+          return;
+        }
+        if (hintModalOpen) {
+          toggleHintModal();
+          return;
+        }
+        if (activeDialogueNode) {
+          closeDialogue();
+          return;
+        }
+        setSettingsOpen((prev) => !prev);
         return;
       }
 
+      // Dialogue navigation (if active)
+      if (activeDialogueNode) {
+        if (activeDialogueNode.choices && activeDialogueNode.choices.length > 0) {
+          const digit = parseInt(e.key, 10);
+          if (!isNaN(digit) && digit >= 1 && digit <= activeDialogueNode.choices.length) {
+            advanceDialogue(digit - 1);
+            return;
+          }
+        } else if (e.code === 'Space' || e.code === 'KeyE' || e.code === 'Enter') {
+          // If no active 3D prompt is showing, advance dialogue
+          if (!activeInteractable) {
+            advanceDialogue();
+            return;
+          }
+        }
+      }
+
+      // Guidance Hint toggle on 'H'
       if (e.code === 'KeyH') {
         toggleHintModal();
         return;
       }
 
-      const num = parseInt(e.key, 10);
-      if (!isNaN(num) && num >= 1 && num <= inventoryTiles.length) {
-        const selectedId = inventoryTiles[num - 1];
-        selectInventoryTile(selectedId ?? null);
+      // Inventory Slot Select (Keys 1..4)
+      if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
+        const slotIdx = parseInt(e.code.replace('Digit', ''), 10) - 1;
+        if (slotIdx >= 0 && slotIdx < 4) {
+          setSelectedSlot(slotIdx);
+        }
       }
-    };
+    },
+    [
+      activeInspection,
+      hintModalOpen,
+      activeDialogueNode,
+      activeInteractable,
+      setActiveInspection,
+      toggleHintModal,
+      closeDialogue,
+      advanceDialogue,
+      setSelectedSlot,
+    ],
+  );
 
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [inventoryTiles, selectInventoryTile, toggleHintModal]);
+  }, [handleKeyDown]);
+
+  const toggleSettings = () => {
+    setSettingsOpen((prev) => !prev);
+  };
 
   const handlePromptClick = () => {
-    if (!activeInteractable) return;
-    const id = activeInteractable.id;
-
-    if (id === 'white_tile_pickup') {
-      collectWhiteTile();
-    } else if (id === 'enter_tea_house_trigger') {
-      enterTeaHouse();
-    } else if (id === 'bamboo_4_pickup') {
-      collectBamboo4();
-    } else if (id === 'socket_3_interaction') {
-      if (inventoryTiles.includes('tile_bamboo_4')) {
-        placeTileInSocket('socket_balcony_3', 'tile_bamboo_4');
-      }
-    } else if (id === 'red_dragon_pickup') {
-      collectRedDragon();
-    } else if (id === 'door_beta_socket') {
-      if (sameDoorPairActive) {
-        traverseSameDoor('beta');
-      } else if (inventoryTiles.includes('tile_dragon_red')) {
-        placeTileInSocket('socket_door_beta', 'tile_dragon_red');
-      }
-    } else if (id === 'door_alpha_portal') {
-      if (sameDoorPairActive) {
-        traverseSameDoor('alpha');
-      }
+    if (activeInteractable) {
+      window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyE', key: 'e' }));
+      setTimeout(() => {
+        window.dispatchEvent(new KeyboardEvent('keyup', { code: 'KeyE', key: 'e' }));
+      }, 50);
     }
   };
 
-  const selectedTileDef = selectedInventoryTileId ? getTileById(selectedInventoryTileId) : null;
+  const selectedTileId = inventoryTiles[selectedSlot] ?? null;
+  const selectedTile = selectedTileId ? (TILE_CATALOG[selectedTileId] ?? null) : null;
 
   return (
-    <div className="app-container">
-      {/* Portal Spatial Warp Screen Flash */}
-      {portalWarping && <div className="portal-warp-overlay" aria-hidden="true" />}
-
-      {/* 3D WebGL Canvas Layer */}
+    <div className={`app-container ${highContrastIndicator ? 'high-contrast' : ''}`}>
+      {/* 3D Canvas Viewport */}
       <div className="canvas-layer">
         <GameRoot />
       </div>
 
-      {/* HTML / CSS UI Overlay */}
+      {/* Screen flash transition when traversing portals */}
+      {portalWarping && <div className="portal-warp-overlay" aria-hidden="true" />}
+
+      {/* UI Overlay */}
       <div className="ui-overlay">
+        {/* Header HUD */}
         <header className="ui-header">
           <div className="title-group">
             <h1 className="game-title">THROUGH THE JADE WALL</h1>
             <span className="game-subtitle">
-              {currentScene === 'east_arcade'
-                ? sameDoorPairActive
-                  ? 'Act I // East Arcade — Twin Doorway Portal'
-                  : 'Act I // East Arcade — Three Balconies'
-                : 'Prologue // Rain Alley'}
+              {currentScene === 'memory_room'
+                ? 'Act I // Memory Sanctuary — Dais of Triads'
+                : currentScene === 'east_arcade'
+                  ? 'Act I // East Arcade — Three Balconies'
+                  : 'Prologue // Rain Alley'}
             </span>
           </div>
 
           <div className="header-actions">
+            {/* Memory Fragments Progress Badge in Memory Room */}
+            {currentScene === 'memory_room' && (
+              <div
+                className="memory-fragments-badge"
+                title="Triad Memory Resonance Fragments"
+                data-testid="memory-fragments-tracker"
+              >
+                <span
+                  className={`fragment-dot ${memoryFragments.eastGate ? 'active' : ''}`}
+                  title="East Gate Fragment"
+                >
+                  I
+                </span>
+                <span
+                  className={`fragment-dot ${memoryFragments.midnightBell ? 'active' : ''}`}
+                  title="Midnight Bell Fragment"
+                >
+                  II
+                </span>
+                <span
+                  className={`fragment-dot ${memoryFragments.captainSeal ? 'active' : ''}`}
+                  title="Captain Seal Fragment"
+                >
+                  III
+                </span>
+                <span className="fragment-label">
+                  {memoryReconstructed
+                    ? 'Triad Reconstructed'
+                    : `Fragments (${
+                        Number(memoryFragments.eastGate) +
+                        Number(memoryFragments.midnightBell) +
+                        Number(memoryFragments.captainSeal)
+                      }/3)`}
+                </span>
+              </div>
+            )}
+
             <div className="status-badge" role="status" aria-label="System status">
-              <span className="status-dot" aria-hidden="true" />
+              <span className="status-dot" />
               <span>
-                {sameDoorPairActive
-                  ? 'Phase 3: Impossible Space Gate'
+                {currentScene === 'memory_room'
+                  ? memoryReconstructed
+                    ? 'Phase 4: Memory Reconstructed'
+                    : 'Phase 4: Memory Sanctuary'
                   : currentScene === 'east_arcade'
-                    ? 'Phase 2: Mahjong Sequence Gate'
+                    ? useGameStore.getState().sameDoorPairActive
+                      ? 'Phase 3: Impossible Space Gate'
+                      : 'Phase 2: Mahjong Sequence Gate'
                     : 'Phase 1: Rain Alley Slice'}
               </span>
             </div>
@@ -139,15 +210,16 @@ export function App() {
               className="btn-icon"
               onClick={toggleHintModal}
               aria-label="Open Guidance Hints"
-              data-testid="hint-toggle-button"
+              title="Guidance (H)"
             >
               Guidance (H)
             </button>
 
             <button
               className="btn-icon"
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={toggleSettings}
               aria-label="Open Settings"
+              title="Settings"
             >
               Settings
             </button>
@@ -155,14 +227,14 @@ export function App() {
         </header>
 
         {/* Narrative Progression Banner */}
-        {bannerMessage && subtitles && (
-          <div className="narrative-banner" role="status">
-            <p className="narrative-text">{bannerMessage}</p>
-          </div>
+        {narrativeMessage && (
+          <aside className="narrative-banner" role="status">
+            <p className="narrative-text">{narrativeMessage}</p>
+          </aside>
         )}
 
-        {/* Center Screen Interaction Prompt */}
-        {activeInteractable && (
+        {/* Interaction Prompt Overlay */}
+        {activeInteractable && !activeDialogueNode && (
           <div className="interaction-prompt-container">
             <button
               className="interaction-prompt-badge"
@@ -175,67 +247,134 @@ export function App() {
           </div>
         )}
 
-        <footer className="ui-footer">
-          <div className="hint-bar" role="region" aria-label="Control hints">
-            <div className="hint-item">
-              <span className="key-cap">WASD / ↑←↓→</span>
-              <span>Move Alice</span>
-            </div>
-            <div className="hint-item">
-              <span className="key-cap">Shift</span>
-              <span>Sprint</span>
-            </div>
-            <div className="hint-item">
-              <span className="key-cap">E / Space</span>
-              <span>Interact</span>
-            </div>
-            <div className="hint-item">
-              <span className="key-cap">1..4</span>
-              <span>Select Tile</span>
-            </div>
-            <div className="hint-item">
-              <span className="key-cap">H</span>
-              <span>Hint</span>
-            </div>
-            <div className="hint-item">
-              <span className="key-cap">State</span>
-              <span>{activeCheckpoint}</span>
+        {/* Phase 4: Dialogue Presentation Modal */}
+        {activeDialogueNode && (
+          <div
+            className="dialogue-overlay-container"
+            role="region"
+            aria-label="Dialogue Monologue"
+            data-testid="dialogue-card"
+          >
+            <div className="dialogue-card">
+              <div className="dialogue-header">
+                <div className="dialogue-speaker-tag">
+                  <span
+                    className={`speaker-badge speaker-${activeDialogueNode.speaker.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {activeDialogueNode.speaker}
+                  </span>
+                  {activeDialogueNode.speakerRole && (
+                    <span className="speaker-role">{activeDialogueNode.speakerRole}</span>
+                  )}
+                </div>
+                <button
+                  className="dialogue-close-btn"
+                  onClick={closeDialogue}
+                  aria-label="Close dialogue"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="dialogue-text">{activeDialogueNode.text}</p>
+
+              {/* Dialogue Choices */}
+              {activeDialogueNode.choices && activeDialogueNode.choices.length > 0 ? (
+                <div className="dialogue-choices-list">
+                  {activeDialogueNode.choices.map((choice, idx) => (
+                    <button
+                      key={idx}
+                      className="dialogue-choice-btn"
+                      onClick={() => advanceDialogue(idx)}
+                      data-testid={`dialogue-choice-${idx}`}
+                    >
+                      <span className="choice-number">{idx + 1}</span>
+                      <span>{choice.label}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="dialogue-footer">
+                  <button
+                    className="dialogue-continue-btn"
+                    onClick={() => advanceDialogue()}
+                    data-testid="dialogue-continue-btn"
+                  >
+                    <span>Continue</span>
+                    <span className="key-cap">Space / E</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Multi-Slot Tile Inventory Tray */}
+        {/* Footer HUD */}
+        <footer className="ui-footer">
+          {/* Controls Hint Bar */}
+          {showControlHints && (
+            <nav className="hint-bar" aria-label="Control hints">
+              <div className="hint-item">
+                <span className="key-cap">WASD</span> / <span className="key-cap">↑←↓→</span> Move
+                Alice
+              </div>
+              <div className="hint-item">
+                <span className="key-cap">Shift</span> Sprint
+              </div>
+              <div className="hint-item">
+                <span className="key-cap">E</span> / <span className="key-cap">Space</span> Interact
+              </div>
+              <div className="hint-item">
+                <span className="key-cap">1..4</span> Select Tile
+              </div>
+              <div className="hint-item">
+                <span className="key-cap">H</span> Hint
+              </div>
+              <div className="hint-item">
+                <span className="version-tag">State {checkpoint}</span>
+              </div>
+            </nav>
+          )}
+
+          {/* Interactive Multi-Slot Tile Inventory Tray */}
           <div className="inventory-tray-container">
-            {selectedTileDef && (
-              <div className="tile-tooltip" role="region" aria-label="Selected Tile Description">
-                <span className="tooltip-title">{selectedTileDef.label}</span>
-                <span className="tooltip-text">{selectedTileDef.narrativeFragment}</span>
+            {/* Tile Lore Description Tooltip (hidden during active dialogue) */}
+            {!activeDialogueNode && selectedTile && (
+              <div
+                className="tile-tooltip"
+                role="region"
+                aria-label="Selected Tile Description"
+                data-testid="tile-tooltip"
+              >
+                <span className="tooltip-title">{selectedTile.label}</span>
+                <span className="tooltip-text">
+                  {selectedTile.narrativeFragment || 'A sacred mahjong tile bearing ancient seal.'}
+                </span>
               </div>
             )}
 
-            <div className="inventory-hud" aria-label="Tile inventory">
-              {[0, 1, 2, 3].map((index) => {
-                const tileId = inventoryTiles[index];
-                const tileDef = tileId ? getTileById(tileId) : null;
-                const isSelected = selectedInventoryTileId === tileId && tileId !== undefined;
+            <div className="inventory-hud" role="region" aria-label="Tile Inventory">
+              {[0, 1, 2, 3].map((idx) => {
+                const tileId = inventoryTiles[idx];
+                const tile = tileId ? TILE_CATALOG[tileId] : null;
+                const isSelected = idx === selectedSlot && !!tile;
 
                 return (
                   <button
-                    key={index}
-                    className={`inventory-slot ${tileDef ? 'occupied' : ''} ${
+                    key={idx}
+                    className={`inventory-slot ${tile ? 'occupied' : ''} ${
                       isSelected ? 'selected' : ''
                     }`}
-                    title={tileDef ? tileDef.label : 'Empty Slot'}
                     onClick={() => {
-                      if (tileId) {
-                        selectInventoryTile(isSelected ? null : tileId);
-                      }
+                      if (tile) setSelectedSlot(idx);
                     }}
-                    data-testid={`inventory-slot-${index}`}
+                    title={tile ? `${tile.label} (Press ${idx + 1})` : `Empty Slot ${idx + 1}`}
+                    data-testid={`inventory-slot-${idx}`}
                   >
-                    {tileDef ? (
+                    <span className="slot-number">{idx + 1}</span>
+                    {tile ? (
                       <div className="tile-icon">
-                        <span className="slot-number">{index + 1}</span>
-                        <span className="tile-name">{tileDef.shortName}</span>
+                        <span className="tile-name">{tile.shortName}</span>
                       </div>
                     ) : (
                       <span className="empty-slot-marker">—</span>
@@ -246,9 +385,7 @@ export function App() {
             </div>
           </div>
 
-          <div className="version-tag">
-            <span>v0.3.0-alpha</span>
-          </div>
+          <div className="version-tag">v0.4.0-alpha</div>
         </footer>
       </div>
 
@@ -264,97 +401,80 @@ export function App() {
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 id="hint-modal-title" className="modal-title">
-                The Court's Whispers (Tier {activeHintLevel})
+                Sanctuary Guidance & Insights
               </h2>
               <button
                 className="modal-close"
                 onClick={toggleHintModal}
-                aria-label="Close Hint Modal"
+                aria-label="Close guidance modal"
               >
                 ✕
               </button>
             </div>
 
             <div className="hint-content">
-              {/* Level 1: Environmental Affordance */}
-              <div className="hint-section">
+              {/* Layer 1: Environmental Clue */}
+              <div className={`hint-section ${activeHintLevel >= 1 ? 'active' : ''}`}>
                 <span className="hint-tier-tag">Layer I — Environmental Observation</span>
                 <p className="hint-body">
-                  Doorway Alpha on the East Pavilion bears an ancient vermilion seal: the Red Dragon
-                  plaque. High on the observation tower, Doorway Beta has an empty square recess of
-                  matching dimensions.
+                  {currentScene === 'memory_room'
+                    ? 'Three pedestal prisms surround the central Dais of Triads. Each holds a memory crystal from the past.'
+                    : currentScene === 'east_arcade'
+                      ? 'The three balconies over the abyss have tile sockets. The walls show a 2-3-4 bamboo carving.'
+                      : 'The tea house gate requires a key of pure intention. Look for the glowing stone pedestal.'}
                 </p>
               </div>
 
-              {/* Level 2: Investigative Domain Rule */}
+              {/* Layer 2: Mahjong Space Principle */}
               {activeHintLevel >= 2 && (
-                <div className="hint-section active">
+                <div className={`hint-section ${activeHintLevel >= 2 ? 'active' : ''}`}>
                   <span className="hint-tier-tag">Layer II — Mahjong Space Principle</span>
                   <p className="hint-body">
-                    In Mahjong, a <em>Pair (Toitsu)</em> establishes identical identity between two
-                    objects. If two distant doors hold matching Dragon plaques, the architecture of
-                    Jade Court binds them into the same physical doorway.
+                    {currentScene === 'memory_room'
+                      ? 'Triads (Chow/Pung) create solid reality out of scattered fragments. Align all 3 memories on the table.'
+                      : currentScene === 'east_arcade'
+                        ? 'Sequences (Chow) connect disparate physical platforms. Pairs (Toitsu) bind separate doorways into identical coordinates.'
+                        : 'White Dragons (Haku) symbolize the blank slate — the opening state before any meld is declared.'}
                   </p>
                 </div>
               )}
 
-              {/* Level 3: Direct Actionable Guidance */}
+              {/* Layer 3: Direct Actionable Solution */}
               {activeHintLevel >= 3 && (
                 <div className="hint-section actionable">
-                  <span className="hint-tier-tag">Layer III — Clear Guidance</span>
+                  <span className="hint-tier-tag">Layer III — Actionable Solution</span>
                   <p className="hint-body">
-                    Retrieve the Red Dragon plaque from the altar shrine on the Upper Terrace, cross
-                    to the West Tower, and place it into the empty socket above Doorway Beta. Then
-                    step through either doorway to warp across space.
+                    {currentScene === 'memory_room'
+                      ? 'Walk to all 3 memory pedestals (East Gate, Midnight Bell, Captain’s Seal) and press E to activate the projection.'
+                      : currentScene === 'east_arcade'
+                        ? 'Pick up 4 Bamboo from the merchant table and place it into Balcony Socket 3. Then take the Red Dragon Plaque to Doorway Beta.'
+                        : 'Walk to the stone pedestal at the right wall, press E to pick up the White Tile, then proceed to the sliding gate.'}
                   </p>
                 </div>
               )}
-            </div>
 
-            <div className="hint-actions">
-              {activeHintLevel < 3 ? (
-                <button className="btn-hint-expand" onClick={requestNextHint}>
-                  Request Deeper Insight (Layer {activeHintLevel + 1})
-                </button>
-              ) : (
-                <span className="hint-max-reached">All guidance layers revealed.</span>
-              )}
+              <div className="hint-actions">
+                {activeHintLevel < 3 ? (
+                  <button
+                    className="btn-hint-expand"
+                    onClick={() => setHintLevel(activeHintLevel + 1)}
+                  >
+                    Request Deeper Insight (Layer {activeHintLevel + 1})
+                  </button>
+                ) : (
+                  <span className="hint-max-reached">Maximum insight reached</span>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Inspection Modal */}
-      {activeInspection && (
-        <div
-          className="modal-backdrop"
-          onClick={() => setActiveInspection(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">{activeInspection.title}</h2>
-              <button
-                className="modal-close"
-                onClick={() => setActiveInspection(null)}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <p style={{ lineHeight: 1.6, fontSize: '0.9rem', color: 'var(--color-ivory)' }}>
-              {activeInspection.description}
-            </p>
           </div>
         </div>
       )}
 
       {/* Settings Modal */}
-      {isSettingsOpen && (
+      {settingsOpen && (
         <div
           className="modal-backdrop"
-          onClick={() => setIsSettingsOpen(false)}
+          onClick={toggleSettings}
           role="dialog"
           aria-modal="true"
           aria-labelledby="settings-title"
@@ -362,24 +482,24 @@ export function App() {
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 id="settings-title" className="modal-title">
-                System Configuration
+                Preferences & Accessibility
               </h2>
               <button
                 className="modal-close"
-                onClick={() => setIsSettingsOpen(false)}
-                aria-label="Close Settings"
+                onClick={toggleSettings}
+                aria-label="Close settings modal"
               >
                 ✕
               </button>
             </div>
 
             <div className="setting-row">
-              <label htmlFor="master-volume" className="setting-label">
+              <label htmlFor="volume-slider" className="setting-label">
                 Master Volume ({Math.round(masterVolume * 100)}%)
               </label>
               <div className="setting-control">
                 <input
-                  id="master-volume"
+                  id="volume-slider"
                   type="range"
                   min="0"
                   max="1"
@@ -391,29 +511,43 @@ export function App() {
             </div>
 
             <div className="setting-row">
-              <label htmlFor="subtitles-toggle" className="setting-label">
-                Subtitles
+              <label htmlFor="reduced-motion-toggle" className="setting-label">
+                Reduced Motion (Reduce camera drift)
               </label>
               <div className="setting-control">
                 <input
-                  id="subtitles-toggle"
+                  id="reduced-motion-toggle"
                   type="checkbox"
-                  checked={subtitles}
-                  onChange={(e) => setSubtitles(e.target.checked)}
+                  checked={reducedMotion}
+                  onChange={(e) => setReducedMotion(e.target.checked)}
                 />
               </div>
             </div>
 
             <div className="setting-row">
-              <label htmlFor="motion-toggle" className="setting-label">
-                Reduced Motion
+              <label htmlFor="high-contrast-toggle" className="setting-label">
+                High Contrast Indicator
               </label>
               <div className="setting-control">
                 <input
-                  id="motion-toggle"
+                  id="high-contrast-toggle"
                   type="checkbox"
-                  checked={reducedMotion}
-                  onChange={(e) => setReducedMotion(e.target.checked)}
+                  checked={highContrastIndicator}
+                  onChange={(e) => setHighContrastIndicator(e.target.checked)}
+                />
+              </div>
+            </div>
+
+            <div className="setting-row">
+              <label htmlFor="control-hints-toggle" className="setting-label">
+                Show On-Screen Control Hints
+              </label>
+              <div className="setting-control">
+                <input
+                  id="control-hints-toggle"
+                  type="checkbox"
+                  checked={showControlHints}
+                  onChange={(e) => setShowControlHints(e.target.checked)}
                 />
               </div>
             </div>

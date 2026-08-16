@@ -7,6 +7,7 @@ export interface SettingsState {
   subtitles: boolean;
   reducedMotion: boolean;
   highContrastIndicator: boolean;
+  showControlHints: boolean;
 
   // Actions
   setMasterVolume: (volume: number) => void;
@@ -15,6 +16,7 @@ export interface SettingsState {
   setSubtitles: (enabled: boolean) => void;
   setReducedMotion: (enabled: boolean) => void;
   setHighContrastIndicator: (enabled: boolean) => void;
+  setShowControlHints: (enabled: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -23,7 +25,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   sfxVolume: 0.8,
   subtitles: true,
   reducedMotion: false,
-  highContrastIndicator: true,
+  highContrastIndicator: false,
+  showControlHints: true,
 
   setMasterVolume: (masterVolume) => set({ masterVolume }),
   setMusicVolume: (musicVolume) => set({ musicVolume }),
@@ -31,4 +34,5 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setSubtitles: (subtitles) => set({ subtitles }),
   setReducedMotion: (reducedMotion) => set({ reducedMotion }),
   setHighContrastIndicator: (highContrastIndicator) => set({ highContrastIndicator }),
+  setShowControlHints: (showControlHints) => set({ showControlHints }),
 }));

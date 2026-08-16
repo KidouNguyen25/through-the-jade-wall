@@ -4,14 +4,67 @@ import * as THREE from 'three';
 import { useGameStore } from '../../state/gameStore';
 import { Interactable } from '../../game/interaction/Interactable';
 
+export function RedDragonPickup() {
+  const meshRef = useRef<THREE.Group>(null);
+  const { hasRedDragon, collectRedDragon, balconiesAligned } = useGameStore();
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current || hasRedDragon) return;
+    const t = clock.getElapsedTime();
+    meshRef.current.position.y = 1.2 + Math.sin(t * 2) * 0.08;
+    meshRef.current.rotation.y = t * 1.2;
+  });
+
+  if (hasRedDragon || !balconiesAligned) return null;
+
+  return (
+    <Interactable
+      id="pickup_dragon_red"
+      name="Red Dragon Plaque"
+      position={[0, 0, -12.0]}
+      radius={2.6}
+      promptText="Pick up Red Dragon Plaque"
+      onInteract={collectRedDragon}
+    >
+      {/* Stone Altar */}
+      <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.5, 0.6, 1.0, 16]} />
+        <meshStandardMaterial color="#1a2520" roughness={0.6} />
+      </mesh>
+
+      {/* Floating Red Dragon Plaque */}
+      <group ref={meshRef} position={[0, 1.2, 0]}>
+        <mesh castShadow>
+          <boxGeometry args={[0.5, 0.7, 0.16]} />
+          <meshStandardMaterial
+            color="#7f1d1d"
+            roughness={0.2}
+            metalness={0.2}
+            emissive="#ef4444"
+            emissiveIntensity={0.4}
+          />
+        </mesh>
+        {/* Vermilion Kanji Glow Symbol */}
+        <mesh position={[0, 0, 0.085]}>
+          <planeGeometry args={[0.35, 0.5]} />
+          <meshBasicMaterial color="#fca5a5" wireframe />
+        </mesh>
+      </group>
+
+      <pointLight position={[0, 1.4, 0]} intensity={1.8} color="#ef4444" distance={4} />
+    </Interactable>
+  );
+}
+
 export function PortalMistPlane({ isActive }: { isActive: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
     if (!meshRef.current || !isActive) return;
     const t = clock.getElapsedTime();
-    if (meshRef.current.material instanceof THREE.MeshStandardMaterial) {
-      meshRef.current.material.opacity = 0.65 + Math.sin(t * 4) * 0.15;
+    const mat = meshRef.current.material as THREE.MeshStandardMaterial;
+    if (mat) {
+      mat.opacity = 0.55 + Math.sin(t * 3) * 0.15;
     }
   });
 
@@ -19,84 +72,28 @@ export function PortalMistPlane({ isActive }: { isActive: boolean }) {
 
   return (
     <mesh ref={meshRef} position={[0, 1.5, 0]}>
-      <planeGeometry args={[1.6, 2.8]} />
+      <planeGeometry args={[1.4, 2.6]} />
       <meshStandardMaterial
         color="#2dd4bf"
-        emissive="#0f766e"
-        emissiveIntensity={1.2}
+        emissive="#0d9488"
+        emissiveIntensity={0.9}
         transparent
-        opacity={0.7}
+        opacity={0.6}
         side={THREE.DoubleSide}
       />
     </mesh>
   );
 }
 
-export function RedDragonPickup() {
-  const meshRef = useRef<THREE.Group>(null);
-  const { hasRedDragon, collectRedDragon } = useGameStore();
-
-  useFrame(({ clock }) => {
-    if (!meshRef.current || hasRedDragon) return;
-    const t = clock.getElapsedTime();
-    meshRef.current.position.y = 1.1 + Math.sin(t * 2) * 0.05;
-    meshRef.current.rotation.y = t * 0.8;
-  });
-
-  if (hasRedDragon) return null;
-
-  return (
-    <Interactable
-      id="red_dragon_pickup"
-      name="Red Dragon Plaque"
-      position={[0, 0, -12.0]}
-      radius={2.8}
-      promptText="Pick up Red Dragon Plaque"
-      onInteract={collectRedDragon}
-    >
-      {/* Altar Pedestal */}
-      <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.7, 0.85, 0.8, 16]} />
-        <meshStandardMaterial color="#1f2923" roughness={0.7} />
-      </mesh>
-
-      {/* Floating Red Dragon Tile */}
-      <group ref={meshRef} position={[0, 1.1, 0]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.7, 0.95, 0.25]} />
-          <meshStandardMaterial
-            color="#2a0808"
-            roughness={0.2}
-            emissive="#450a0a"
-            emissiveIntensity={0.6}
-          />
-        </mesh>
-        <mesh position={[0, 0, 0.13]}>
-          <planeGeometry args={[0.55, 0.8]} />
-          <meshStandardMaterial color="#fdf2f2" roughness={0.3} />
-        </mesh>
-        {/* Red Dragon "Chun" Glyph Geometry */}
-        <mesh position={[0, 0, 0.14]}>
-          <boxGeometry args={[0.3, 0.08, 0.01]} />
-          <meshBasicMaterial color="#dc2626" />
-        </mesh>
-        <mesh position={[0, 0, 0.14]}>
-          <boxGeometry args={[0.08, 0.4, 0.01]} />
-          <meshBasicMaterial color="#dc2626" />
-        </mesh>
-        <mesh position={[0, 0.05, 0.14]}>
-          <boxGeometry args={[0.26, 0.18, 0.01]} />
-          <meshBasicMaterial color="#b91c1c" />
-        </mesh>
-      </group>
-      <pointLight position={[0, 1.5, 0]} intensity={1.2} color="#f87171" distance={4} />
-    </Interactable>
-  );
-}
-
 export function SameDoorGate() {
-  const { placedTiles, inventoryTiles, sameDoorPairActive, placeTileInSocket, traverseSameDoor } =
-    useGameStore();
+  const {
+    placedTiles,
+    placeTileInSocket,
+    traverseSameDoor,
+    sameDoorPairActive,
+    inventoryTiles,
+    enterMemoryRoom,
+  } = useGameStore();
 
   const socketBetaTile = placedTiles['socket_door_beta'] ?? null;
   const hasRedDragon = inventoryTiles.includes('tile_dragon_red');
@@ -117,7 +114,7 @@ export function SameDoorGate() {
         id="door_alpha_portal"
         name="Doorway Alpha"
         position={[3.5, 0, -10.0]}
-        radius={3.2}
+        radius={2.8}
         promptText={
           sameDoorPairActive
             ? 'Step Through Doorway Alpha'
@@ -162,7 +159,7 @@ export function SameDoorGate() {
         id="door_beta_socket"
         name="Doorway Beta"
         position={[-3.5, 0, -15.0]}
-        radius={3.2}
+        radius={3.5}
         promptText={
           sameDoorPairActive
             ? 'Step Through Doorway Beta'
@@ -211,6 +208,38 @@ export function SameDoorGate() {
           <pointLight position={[0, 1.5, 0.5]} intensity={1.5} color="#2dd4bf" distance={5} />
         )}
       </Interactable>
+
+      {/* 4. Memory Sanctuary Gateway Door (High Observation Deck at [-3.5, 0, -19.5]) */}
+      {sameDoorPairActive && (
+        <Interactable
+          id="memory_sanctuary_door"
+          name="Memory Sanctuary Gateway"
+          position={[-3.5, 0, -19.5]}
+          radius={2.8}
+          promptText="Enter Memory Sanctuary"
+          onInteract={() => {
+            enterMemoryRoom();
+          }}
+        >
+          {/* Ornate Octagonal Sanctuary Gate Frame */}
+          <mesh position={[0, 2.0, 0]} castShadow>
+            <boxGeometry args={[2.4, 4.0, 0.4]} />
+            <meshStandardMaterial color="#0b2219" roughness={0.5} />
+          </mesh>
+          {/* Glowing Jade Inlay Portal */}
+          <mesh position={[0, 2.0, 0.05]}>
+            <planeGeometry args={[1.8, 3.4]} />
+            <meshStandardMaterial
+              color="#5eead4"
+              emissive="#14b8a6"
+              emissiveIntensity={0.8}
+              transparent
+              opacity={0.85}
+            />
+          </mesh>
+          <pointLight position={[0, 2.0, 0.5]} intensity={2.0} color="#5eead4" distance={6} />
+        </Interactable>
+      )}
     </group>
   );
 }
