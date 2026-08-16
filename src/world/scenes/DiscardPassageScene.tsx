@@ -251,7 +251,7 @@ function SpatialGates() {
  * North Threshold Doorway & Bridge
  */
 function NorthThreshold() {
-  const { discardPassageResolved, setNarrativeMessage } = useGameStore();
+  const { discardPassageResolved, enterDeadHandCourtyard } = useGameStore();
 
   return (
     <group position={[0, 0, -21.0]}>
@@ -289,9 +289,7 @@ function NorthThreshold() {
           position={[0, 0, -20.5]}
           radius={3.0}
           promptText="Cross Threshold into Watcher's Courtyard"
-          onInteract={() =>
-            setNarrativeMessage('Approaching the Courtyard of the Watchers. The Dead Hand awaits.')
-          }
+          onInteract={enterDeadHandCourtyard}
         />
       )}
     </group>

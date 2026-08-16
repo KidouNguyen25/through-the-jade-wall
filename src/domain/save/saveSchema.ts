@@ -7,7 +7,8 @@ export interface MemoryFragmentState {
 export interface SaveStateV1 {
   version: 1;
   savedAt: string;
-  currentScene: 'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'boss_court';
+  currentScene:
+    'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
   checkpoint: string;
   playerPosition: [number, number, number];
   inventoryTiles: string[];
@@ -27,6 +28,8 @@ export interface SaveStateV1 {
   discardPassageResolved: boolean;
   westPathOpen: boolean;
   eastPathOpen: boolean;
+  deadHandInvalidated: boolean;
+  bossCourtUnlocked: boolean;
 }
 
 export const SAVE_STORAGE_KEY = 'ttjw_save_slot_0';
@@ -70,6 +73,8 @@ export function createInitialSave(overrides?: Partial<SaveStateV1>): SaveStateV1
     discardPassageResolved: false,
     westPathOpen: false,
     eastPathOpen: false,
+    deadHandInvalidated: false,
+    bossCourtUnlocked: false,
     ...overrides,
   };
 }

@@ -14,6 +14,9 @@ import {
   DISCARD_PASSAGE_BASE_OBSTACLES,
   WEST_GATE_BARRIER,
   EAST_GATE_BARRIER,
+  DEAD_HAND_BOUNDS,
+  DEAD_HAND_BASE_OBSTACLES,
+  BOSS_GATE_BARRIER,
   CHASM_VOID_OBSTACLE,
   clampPositionToBounds,
   resolveBoxCollision,
@@ -101,6 +104,7 @@ export function PlayerController() {
     balconiesAligned,
     westPathOpen,
     eastPathOpen,
+    bossCourtUnlocked,
   } = useGameStore();
 
   const currentPos = useRef(new THREE.Vector3(...playerPosition));
@@ -151,26 +155,30 @@ export function PlayerController() {
 
       // Select scene-specific bounds and obstacles
       const activeBounds =
-        currentScene === 'discard_passage'
-          ? DISCARD_PASSAGE_BOUNDS
-          : currentScene === 'memory_room'
-            ? MEMORY_ROOM_BOUNDS
-            : currentScene === 'east_arcade'
-              ? EAST_ARCADE_BOUNDS
-              : ALLEY_BOUNDS;
+        currentScene === 'dead_hand'
+          ? DEAD_HAND_BOUNDS
+          : currentScene === 'discard_passage'
+            ? DISCARD_PASSAGE_BOUNDS
+            : currentScene === 'memory_room'
+              ? MEMORY_ROOM_BOUNDS
+              : currentScene === 'east_arcade'
+                ? EAST_ARCADE_BOUNDS
+                : ALLEY_BOUNDS;
 
       const activeObstacles = [
-        ...(currentScene === 'discard_passage'
-          ? [
-              ...DISCARD_PASSAGE_BASE_OBSTACLES,
-              ...(!westPathOpen ? [WEST_GATE_BARRIER] : []),
-              ...(!eastPathOpen ? [EAST_GATE_BARRIER] : []),
-            ]
-          : currentScene === 'memory_room'
-            ? MEMORY_ROOM_OBSTACLES
-            : currentScene === 'east_arcade'
-              ? EAST_ARCADE_OBSTACLES
-              : ALLEY_OBSTACLES),
+        ...(currentScene === 'dead_hand'
+          ? [...DEAD_HAND_BASE_OBSTACLES, ...(!bossCourtUnlocked ? [BOSS_GATE_BARRIER] : [])]
+          : currentScene === 'discard_passage'
+            ? [
+                ...DISCARD_PASSAGE_BASE_OBSTACLES,
+                ...(!westPathOpen ? [WEST_GATE_BARRIER] : []),
+                ...(!eastPathOpen ? [EAST_GATE_BARRIER] : []),
+              ]
+            : currentScene === 'memory_room'
+              ? MEMORY_ROOM_OBSTACLES
+              : currentScene === 'east_arcade'
+                ? EAST_ARCADE_OBSTACLES
+                : ALLEY_OBSTACLES),
         ...(currentScene === 'east_arcade' && !balconiesAligned ? [CHASM_VOID_OBSTACLE] : []),
       ];
 

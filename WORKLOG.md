@@ -1,5 +1,29 @@
 # WORKLOG
 
+## 2026-08-16 — Phase 6: Dead Hand & Watcher Pair Encounter
+
+- **Task**: Active Milestone: Phase 6 — Dead Hand Encounter (`current_project_task.md`).
+- **Branch**: `feat/dead-hand-encounter` (Merged to `main`)
+- **Actions Taken**:
+  1. Created feature branch `feat/dead-hand-encounter`.
+  2. Implemented pure deterministic dead hand domain model (`isPlayerInSafeZone`, `isPlayerDetectedByWatcher`, `evaluateInvalidation`) in `src/domain/deadhand/deadHandModel.ts`.
+  3. Extended `SaveStateV1` schema in `src/domain/save/saveSchema.ts` with `deadHandInvalidated`, `bossCourtUnlocked`, and `'dead_hand'` in `currentScene`.
+  4. Created rich branching dialogue trees in `src/domain/narrative/dialogueData.ts` (`DEAD_HAND_ENTRY_TREE`, `DEAD_HAND_DETECTED_TREE`, `DEAD_HAND_INVALIDATED_TREE`) and updated `SpeakerId` in `src/domain/narrative/narrativeTypes.ts`.
+  5. Updated collision model in `src/domain/collision/collisionModel.ts` and `src/game/player/PlayerController.tsx` with Dead Hand Courtyard bounds, base obstacles, and boss gate barrier.
+  6. Built 3D Dead Hand Courtyard scene in `src/world/scenes/DeadHandScene.tsx` featuring twin sweeping Watcher Sentinel automatons with dynamic searchlights and volumetric cones, 3 safe discard sanctuaries (_Furiten_), central Invalidation Gong dais, and North Boss Gateway.
+  7. Connected North Threshold archway in `src/world/scenes/DiscardPassageScene.tsx` to `enterDeadHandCourtyard` and mounted `DeadHandScene` in `src/game/GameRoot.tsx`.
+  8. Created comprehensive unit test suite in `src/test/deadhand.test.ts` (54/54 unit tests passing across 8 suites).
+  9. Created and verified comprehensive Playwright E2E test in `tests/e2e/smoke.spec.ts` testing the complete player journey: Rain Alley → White Tile → Tea House → East Arcade → Bamboo 4 → Sequence Gate → Balcony Bridge → Altar Red Dragon → Same Door Portal Gate → Memory Sanctuary → 3 Memory Pedestals → Hologram Reconstruction → Discard Passage → Reliquary Table → White Tile Protection Rejection → Scholar's Sacrifice (Bamboo 4) → West Portcullis Open → North Threshold crossing → Watcher Courtyard Entry → Stealth Flank Colonnade Navigation → Invalidation Gong Strike (Chombo Declaration) → Watcher Stasis Lock → Unsealed Dealer's Court Gateway Crossing with 0 console errors.
+- **Quality Gates Results**:
+  - `npm run format:check`: PASSED (100% Prettier compliance)
+  - `npm run lint`: PASSED (0 errors, 0 warnings)
+  - `npm run typecheck`: PASSED (0 errors)
+  - `npm run test`: PASSED (54 / 54 unit tests passed in 3.38s)
+  - `npm run build`: PASSED (Production bundle in `dist/`)
+  - `npm run test:e2e`: PASSED (Playwright e2e test in Chromium, 3.7m, 0 console errors)
+
+---
+
 ## 2026-08-16 — Phase 5: Discard Consequence & Passage of Broken Tiles
 
 - **Task**: Active Milestone: Phase 5 — Discard Consequence (`current_project_task.md`).

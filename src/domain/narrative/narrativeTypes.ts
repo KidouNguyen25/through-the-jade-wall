@@ -8,7 +8,10 @@ export type SpeakerId =
   | 'Archivist Echo'
   | 'Regent Brazen Brazier'
   | 'Vermilion Regent Echo'
-  | 'Altar of Discard';
+  | 'Altar of Discard'
+  | 'Watcher Sentinel Alpha'
+  | 'Watcher Sentinel Beta'
+  | 'Gong of Invalidation';
 
 export interface DialogueChoice {
   label: string;

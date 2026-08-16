@@ -50,6 +50,29 @@ export function Interactable({
     };
   }, [id]);
 
+  // Support direct click / programmatic interaction event dispatch
+  useEffect(() => {
+    const handleCustomInteract = (e: Event) => {
+      const customEvent = e as CustomEvent<{ id?: string }>;
+      if (customEvent.detail?.id === id) {
+        if (onInteract) {
+          onInteract();
+          useGameStore.getState().setActiveInteractable(null);
+        } else if (inspectTitle && inspectDescription) {
+          useGameStore.getState().setActiveInspection({
+            title: inspectTitle,
+            description: inspectDescription,
+          });
+        }
+      }
+    };
+
+    window.addEventListener('ttjw-interact', handleCustomInteract);
+    return () => {
+      window.removeEventListener('ttjw-interact', handleCustomInteract);
+    };
+  }, [id, onInteract, inspectTitle, inspectDescription]);
+
   useFrame(() => {
     if (isPaused) return;
 

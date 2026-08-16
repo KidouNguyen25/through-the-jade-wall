@@ -22,11 +22,15 @@ import {
   DISCARD_ARCHIVIST_CONSEQUENCE_TREE,
   DISCARD_REGENT_CONSEQUENCE_TREE,
   DISCARD_WHITE_TILE_REJECTED_TREE,
+  DEAD_HAND_ENTRY_TREE,
+  DEAD_HAND_DETECTED_TREE,
+  DEAD_HAND_INVALIDATED_TREE,
 } from '../domain/narrative/dialogueData';
 import { DiscardAltarType, evaluateSacrifice } from '../domain/discard/discardModel';
+import { evaluateInvalidation } from '../domain/deadhand/deadHandModel';
 
 export type SceneId =
-  'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'boss_court';
+  'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
 
 export interface ActiveInteractable {
   id: string;
@@ -85,6 +89,11 @@ export interface GameState {
   westPathOpen: boolean;
   eastPathOpen: boolean;
 
+  // Phase 6: Dead Hand Encounter State
+  deadHandInvalidated: boolean;
+  bossCourtUnlocked: boolean;
+  watchersFrozen: boolean;
+
   // Actions
   setPlayerPosition: (position: [number, number, number]) => void;
   setCurrentScene: (scene: SceneId) => void;
@@ -99,6 +108,9 @@ export interface GameState {
   enterTeaHouse: () => void;
   enterMemoryRoom: () => void;
   enterDiscardPassage: () => void;
+  enterDeadHandCourtyard: () => void;
+  triggerWatcherDetection: () => void;
+  activateDeadHandInvalidation: () => boolean;
   performSacrifice: (altar: DiscardAltarType) => boolean;
   placeTileInSocket: (socketId: string, tileId: TileId) => void;
   traverseSameDoor: (fromDoor: 'alpha' | 'beta') => void;
@@ -170,6 +182,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   discardPassageResolved: false,
   westPathOpen: false,
   eastPathOpen: false,
+
+  // Phase 6 state
+  deadHandInvalidated: false,
+  bossCourtUnlocked: false,
+  watchersFrozen: false,
 
   setPlayerPosition: (position) => set({ playerPosition: position }),
   setCurrentScene: (scene) => set({ currentScene: scene }),
@@ -343,6 +360,56 @@ export const useGameStore = create<GameState>((set, get) => ({
       get().startDialogue(DISCARD_REGENT_CONSEQUENCE_TREE);
     }
 
+    get().saveGame();
+    return true;
+  },
+
+  enterDeadHandCourtyard: () => {
+    set({
+      currentScene: 'dead_hand',
+      playerPosition: [0, 0, 7.5],
+      checkpoint: 'cp_dead_hand_entered',
+      narrativeMessage:
+        'Courtyard of the Watchers — Two patrolling sentinels scan the floor. Stand on Safe Discard tiles to remain hidden.',
+      activeInteractable: null,
+      activeInspection: null,
+      activeHintLevel: 1,
+    });
+    get().startDialogue(DEAD_HAND_ENTRY_TREE);
+    get().saveGame();
+  },
+
+  triggerWatcherDetection: () => {
+    const state = get();
+    if (state.watchersFrozen) return;
+
+    set({
+      playerPosition: [0, 0, 7.5],
+      narrativeMessage: 'Detected by Watcher Sentinel! Repositioned to courtyard entrance.',
+      activeInteractable: null,
+    });
+    get().startDialogue(DEAD_HAND_DETECTED_TREE);
+  },
+
+  activateDeadHandInvalidation: () => {
+    const state = get();
+    const result = evaluateInvalidation(state.hasWhiteTile, state.deadHandInvalidated);
+
+    if (!result.success) {
+      set({ narrativeMessage: result.message });
+      return false;
+    }
+
+    set({
+      deadHandInvalidated: true,
+      bossCourtUnlocked: true,
+      watchersFrozen: true,
+      checkpoint: 'cp_dead_hand_invalidated',
+      narrativeMessage: result.message,
+      activeInteractable: null,
+    });
+
+    get().startDialogue(DEAD_HAND_INVALIDATED_TREE);
     get().saveGame();
     return true;
   },
@@ -574,6 +641,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       discardPassageResolved: state.discardPassageResolved,
       westPathOpen: state.westPathOpen,
       eastPathOpen: state.eastPathOpen,
+      deadHandInvalidated: state.deadHandInvalidated,
+      bossCourtUnlocked: state.bossCourtUnlocked,
     };
     return saveToLocalStorage(saveState);
   },
@@ -603,6 +672,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       discardPassageResolved: loaded.discardPassageResolved ?? false,
       westPathOpen: loaded.westPathOpen ?? false,
       eastPathOpen: loaded.eastPathOpen ?? false,
+      deadHandInvalidated: loaded.deadHandInvalidated ?? false,
+      bossCourtUnlocked: loaded.bossCourtUnlocked ?? false,
+      watchersFrozen: loaded.deadHandInvalidated ?? false,
     });
     return true;
   },
@@ -630,6 +702,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       discardPassageResolved: initial.discardPassageResolved,
       westPathOpen: initial.westPathOpen,
       eastPathOpen: initial.eastPathOpen,
+      deadHandInvalidated: initial.deadHandInvalidated,
+      bossCourtUnlocked: initial.bossCourtUnlocked,
+      watchersFrozen: false,
       activeInteractable: null,
       activeInspection: null,
       activeDialogueTree: null,

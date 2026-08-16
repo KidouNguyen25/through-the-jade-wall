@@ -101,6 +101,33 @@ export const EAST_GATE_BARRIER: BoundingBox = {
   maxZ: -8.5,
 };
 
+// Bounds for Dead Hand Courtyard (Scene: 'dead_hand')
+export const DEAD_HAND_BOUNDS: BoundingBox = {
+  minX: -8.0,
+  maxX: 8.0,
+  minZ: -24.0,
+  maxZ: 10.0,
+};
+
+// Obstacles in Dead Hand Courtyard
+export const DEAD_HAND_BASE_OBSTACLES: BoundingBox[] = [
+  // West Watcher Sentinel Pedestal at [-3.3, 0, -3.3]
+  { minX: -4.0, maxX: -2.6, minZ: -4.0, maxZ: -2.6 },
+  // East Watcher Sentinel Pedestal at [3.3, 0, -3.3]
+  { minX: 2.6, maxX: 4.0, minZ: -4.0, maxZ: -2.6 },
+  // Central Gong Invalidation Pedestal at [0, 0, -8.0]
+  { minX: -1.0, maxX: 1.0, minZ: -8.8, maxZ: -7.2 },
+  // North Boss Gate Wall at [0, 0, -22.5]
+  { minX: -2.0, maxX: 2.0, minZ: -23.5, maxZ: -21.5 },
+];
+
+export const BOSS_GATE_BARRIER: BoundingBox = {
+  minX: -7.0,
+  maxX: 7.0,
+  minZ: -19.5,
+  maxZ: -18.5,
+};
+
 // Chasm Void Obstacle (active when balconies are NOT aligned)
 export const CHASM_VOID_OBSTACLE: BoundingBox = {
   minX: -6.5,

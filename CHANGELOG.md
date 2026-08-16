@@ -5,11 +5,22 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-08-16
+
+### Added
+
+- **Dead Hand Domain Model & Stealth Detection**: Pure deterministic domain logic in `src/domain/deadhand/deadHandModel.ts` implementing cone-based field-of-view scanning, safe discard sanctuary protection (_Furiten_), and Chombo invalidation mechanics.
+- **Courtyard of the Watchers 3D Scene**: Atmospheric nighttime stronghold courtyard in `src/world/scenes/DeadHandScene.tsx` featuring twin Watcher Sentinel automatons with sweeping vision spotlights, safe discard trenches, central Invalidation Gong dais, and North Boss Gateway.
+- **Watcher AI & Detection System**: Sweeping dynamic spotlight searchlights with volumetric vision cones, safe zone stealth flanking, and alert-state failure loops repositioning caught players with immersive narrative dialogue.
+- **Chombo Invalidation Ritual**: Strike the central White Tile Gong to declare a Dead Hand, permanently locking the mechanical sentinels in stasis and opening the North Gateway to the Dealer's Court.
+- **SaveSchema v1 Dead Hand Tracking**: Extended `SaveStateV1` schema with `deadHandInvalidated`, `bossCourtUnlocked`, and `'dead_hand'` scene persistence.
+- **Quality Gates & Test Coverage**: 54/54 unit tests passing across 8 test suites; Playwright E2E test verifying complete multi-phase player journey from Rain Alley through Balcony Bridge, Portal Gate, Memory Sanctuary, Discard Passage, Watcher Courtyard, and Chombo Invalidation with 0 console errors.
+
 ## [0.5.0] - 2026-08-16
 
 ### Added
 
-- **Discard Domain Model & Sacrifice Mechanics**: Pure deterministic discard evaluation in `src/domain/discard/discardModel.ts` validating permanent tile sacrifices (*Tedashi*) with permanent White Dragon immunity/protection.
+- **Discard Domain Model & Sacrifice Mechanics**: Pure deterministic discard evaluation in `src/domain/discard/discardModel.ts` validating permanent tile sacrifices (_Tedashi_) with permanent White Dragon immunity/protection.
 - **Passage of Broken Tiles 3D Scene**: Obsidian canyon level in `src/world/scenes/DiscardPassageScene.tsx` featuring the Reliquary of Lost Discards offering table, West Archivist Stone Furnace, East Regent Brazen Brazier, and North Threshold archway.
 - **Dynamic Spatial Gate Collapse**: Real-time physical portcullis animations and barrier state transitions where unlocking one path permanently collapses the opposite route into impassable rubble.
 - **Narrative Consequence Branching**: Rich branching lore dialogue trees (`DISCARD_PASSAGE_ENTRY_TREE`, `DISCARD_ARCHIVIST_CONSEQUENCE_TREE`, `DISCARD_REGENT_CONSEQUENCE_TREE`, `DISCARD_WHITE_TILE_REJECTED_TREE`) in `src/domain/narrative/dialogueData.ts`.

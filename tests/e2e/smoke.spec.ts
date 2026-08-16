@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
-  test('progresses through Rain Alley, Balcony Bridge, Portal Gate, Memory Sanctuary, and Discard Passage', async ({
+test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
+  test('progresses through Rain Alley, Balcony Bridge, Portal Gate, Memory Sanctuary, Discard Passage, and Watcher Courtyard', async ({
     page,
   }) => {
-    test.setTimeout(240000);
+    test.setTimeout(300000);
 
     const consoleErrors: string[] = [];
     page.on('console', (msg) => {
@@ -48,7 +48,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     const promptButton = page.locator('[data-testid="interaction-prompt-button"]');
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Pick up White Tile');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 3. Verify White Tile in inventory
     await expect(slot0).toHaveClass(/occupied/);
@@ -69,7 +69,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // Trigger enter Tea House
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Enter Tea House');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 5. Verify East Arcade Scene Transition
     await expect(page.locator('.status-badge')).toContainText('Phase 2: Mahjong Sequence Gate');
@@ -92,7 +92,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 7. Pick up Bamboo 4 Tile
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Pick up 4 Bamboo');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 8. Verify Bamboo 4 in inventory
     const slot1 = page.locator('[data-testid="inventory-slot-1"]');
@@ -116,7 +116,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 10. Place Bamboo 4 into Socket 3
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Place 4 Bamboo');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 11. Verify Sequence Gate resolved and balconies aligned
     await expect(page.locator('.narrative-banner')).toContainText(
@@ -154,7 +154,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 14. Pick up Red Dragon Plaque at Altar ([0, 0, -12.0])
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Pick up Red Dragon Plaque');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 15. Verify Red Dragon in inventory slot
     await expect(slot1).toHaveClass(/occupied/);
@@ -175,13 +175,13 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     await page.keyboard.up('KeyA');
 
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1400);
     await page.keyboard.up('KeyW');
 
     // 17. Place Red Dragon Plaque into Doorway Beta
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Place Red Dragon Plaque');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 18. Verify Pair Gate Solved & Portal Activated
     await expect(page.locator('.narrative-banner')).toContainText(
@@ -199,7 +199,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 20. Enter Memory Sanctuary
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Enter Memory Sanctuary');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 21. Verify Memory Room Scene Transition
     await expect(page.locator('.status-badge')).toContainText('Phase 4: Memory Sanctuary');
@@ -246,7 +246,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 24. Inspect East Gate Fragment
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Inspect East Gate Fragment');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // Advance fragment dialogue
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
@@ -269,7 +269,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 26. Inspect Midnight Bell Fragment
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Inspect Midnight Bell Fragment');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // Advance fragment dialogue
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
@@ -288,14 +288,14 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     await page.keyboard.up('KeyD');
 
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(650);
+    await page.waitForTimeout(550);
     await page.keyboard.up('KeyW');
     await page.keyboard.up('ShiftLeft');
 
     // 28. Inspect Captain's Seal Fragment
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText("Inspect Captain's Seal Fragment");
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // Advance 3rd fragment dialogue
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
@@ -327,7 +327,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 31. Enter Discard Passage
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Enter Discard Passage');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // 32. Verify Discard Passage Transition & Advance Entry Inscription Monologue
     await expect(page.locator('.status-badge')).toContainText('Phase 5: Discard Consequence');
@@ -353,7 +353,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     // 34. Draw offering tiles from Reliquary
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Draw Offering Tiles from Reliquary');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // Verify Bamboo 4 and Red Dragon in slots 1 and 2
     await expect(slot1).toHaveClass(/occupied/);
@@ -373,7 +373,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     await page.keyboard.up('KeyA');
 
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1600);
+    await page.waitForTimeout(1350);
     await page.keyboard.up('KeyW');
     await page.keyboard.up('ShiftLeft');
 
@@ -385,7 +385,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
 
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText('Sacrifice Selected Tile to Archivist Furnace');
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // Verify rejection dialogue
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
@@ -401,7 +401,7 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     await page.waitForTimeout(200);
 
     await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
 
     // Verify consequence dialogue and status badge
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
@@ -430,17 +430,82 @@ test.describe('Through the Jade Wall - Phase 5 Discard Consequence E2E', () => {
     await page.keyboard.up('KeyD');
     await page.keyboard.up('ShiftLeft');
 
-    // 39. Interact with North Threshold
+    // 39. Interact with North Threshold to Enter Watcher Courtyard
     await expect(promptButton).toBeVisible({ timeout: 5000 });
     await expect(promptButton).toContainText("Cross Threshold into Watcher's Courtyard");
-    await page.keyboard.press('KeyE');
+    await promptButton.click({ force: true });
+
+    // 40. Verify Dead Hand Scene Transition & Advance Entry Monologue
+    await expect(page.locator('.status-badge')).toContainText('Phase 6: Watcher Encounter');
+    await expect(page.locator('.game-subtitle')).toContainText('Courtyard of the Watchers');
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('Alice');
+
+    // Advance 3 entry dialogue nodes
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 41. Stealth Flank along West Colonnade behind Watcher Alpha to Central Gong ([0, 0, -8.0])
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('ShiftLeft');
+    await page.keyboard.down('KeyA');
+    await page.waitForTimeout(900);
+    await page.keyboard.up('KeyA');
+
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(2800);
+    await page.keyboard.up('KeyW');
+
+    await page.keyboard.down('KeyD');
+    await page.waitForTimeout(900);
+    await page.keyboard.up('KeyD');
+    await page.keyboard.up('ShiftLeft');
+
+    // 42. Strike Invalidation Gong to Declare Chombo (Dead Hand)
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Strike Gong to Declare Chombo');
+    await promptButton.click({ force: true });
+
+    // 43. Verify Dead Hand Invalidation Dialogue & Stasis Status Badge
+    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
+    await expect(dialogueCard).toContainText('CHOMBO');
+    await expect(page.locator('.status-badge')).toContainText(
+      'Phase 6: Dead Hand Declared (Stasis Lock)',
+    );
+
+    // Advance 3 invalidation dialogue nodes
+    await continueBtn.click();
+    await continueBtn.click();
+    await continueBtn.click();
+    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+
+    // 44. Walk forward to unsealed Dealer's Court Gateway (at [0, 0, -20.5] from [0, 0, -8.0])
+    await page.waitForTimeout(300);
+    await page.locator('body').focus();
+    await page.waitForTimeout(200);
+
+    await page.keyboard.down('ShiftLeft');
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(2400);
+    await page.keyboard.up('KeyW');
+    await page.keyboard.up('ShiftLeft');
+
+    // 45. Cross Gateway into Dealer's Court
+    await expect(promptButton).toBeVisible({ timeout: 5000 });
+    await expect(promptButton).toContainText('Cross Gateway into Dealer’s Court');
+    await promptButton.click({ force: true });
 
     // Verify narrative message update
     await expect(page.locator('.narrative-banner')).toContainText(
-      'Approaching the Courtyard of the Watchers. The Dead Hand awaits.',
+      'Approaching the Circular Arena of the Dealer. The Final Wind draws near.',
     );
 
-    // 40. Verify 0 console errors across entire multi-phase journey!
+    // 46. Verify 0 console errors across entire multi-phase journey!
     expect(consoleErrors).toEqual([]);
   });
 });

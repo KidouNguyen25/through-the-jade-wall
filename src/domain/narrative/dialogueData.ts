@@ -214,3 +214,71 @@ export const DISCARD_WHITE_TILE_REJECTED_TREE: DialogueTree = {
     },
   },
 };
+
+export const DEAD_HAND_ENTRY_TREE: DialogueTree = {
+  id: 'dead_hand_entry',
+  initialNodeId: 'node_dhe_1',
+  nodes: {
+    node_dhe_1: {
+      id: 'node_dhe_1',
+      speaker: 'Alice',
+      text: 'The Courtyard of the Watchers. Two colossal automatons sweep their ocular lanterns across the stone flags.',
+      nextNodeId: 'node_dhe_2',
+    },
+    node_dhe_2: {
+      id: 'node_dhe_2',
+      speaker: 'Observation Log',
+      text: 'Rule of Safe Discard (Furiten): Standing within the glowing green Discard Sanctuaries shields you from Watcher detection.',
+      nextNodeId: 'node_dhe_3',
+    },
+    node_dhe_3: {
+      id: 'node_dhe_3',
+      speaker: 'Alice',
+      text: 'I must reach the Central Gong of Invalidation ahead and declare Chombo to freeze their search loops.',
+    },
+  },
+};
+
+export const DEAD_HAND_DETECTED_TREE: DialogueTree = {
+  id: 'dead_hand_detected',
+  initialNodeId: 'node_det_1',
+  nodes: {
+    node_det_1: {
+      id: 'node_det_1',
+      speaker: 'Watcher Sentinel Alpha',
+      speakerRole: 'Sentinel of the Outer Bastion',
+      text: 'UNAUTHORIZED WAIT DETECTED! INTRUDER POSITION COMPROMISED!',
+      nextNodeId: 'node_det_2',
+    },
+    node_det_2: {
+      id: 'node_det_2',
+      speaker: 'Alice',
+      text: 'Their ocular beam caught me outside the discard sanctuary! I must recalibrate from the courtyard threshold.',
+    },
+  },
+};
+
+export const DEAD_HAND_INVALIDATED_TREE: DialogueTree = {
+  id: 'dead_hand_invalidated',
+  initialNodeId: 'node_inv_1',
+  nodes: {
+    node_inv_1: {
+      id: 'node_inv_1',
+      speaker: 'Gong of Invalidation',
+      text: 'CHOMBO! The Blank Tile resonates through the courtyard. The Watchers’ illegal tenpai state forces immediate Dead Hand penalty!',
+      nextNodeId: 'node_inv_2',
+    },
+    node_inv_2: {
+      id: 'node_inv_2',
+      speaker: 'Watcher Sentinel Beta',
+      speakerRole: 'Sentinel of the Inner Bastion',
+      text: 'ERROR: ILLEGAL WAIT ENCOUNTERED. HAND RENDERED VOID. ENGAGING TOTAL STASIS LOCKDOWN...',
+      nextNodeId: 'node_inv_3',
+    },
+    node_inv_3: {
+      id: 'node_inv_3',
+      speaker: 'Alice',
+      text: 'The Watchers are frozen in stasis! The monumental doors to the Dealer’s Court are now unsealed.',
+    },
+  },
+};

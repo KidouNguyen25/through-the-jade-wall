@@ -118,10 +118,9 @@ export function App() {
 
   const handlePromptClick = () => {
     if (activeInteractable) {
-      window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyE', key: 'e' }));
-      setTimeout(() => {
-        window.dispatchEvent(new KeyboardEvent('keyup', { code: 'KeyE', key: 'e' }));
-      }, 50);
+      window.dispatchEvent(
+        new CustomEvent('ttjw-interact', { detail: { id: activeInteractable.id } }),
+      );
     }
   };
 
@@ -145,13 +144,15 @@ export function App() {
           <div className="title-group">
             <h1 className="game-title">THROUGH THE JADE WALL</h1>
             <span className="game-subtitle">
-              {currentScene === 'discard_passage'
-                ? 'Act I // Passage of Broken Tiles'
-                : currentScene === 'memory_room'
-                  ? 'Act I // Memory Sanctuary — Dais of Triads'
-                  : currentScene === 'east_arcade'
-                    ? 'Act I // East Arcade — Three Balconies'
-                    : 'Prologue // Rain Alley'}
+              {currentScene === 'dead_hand'
+                ? 'Act I // Courtyard of the Watchers'
+                : currentScene === 'discard_passage'
+                  ? 'Act I // Passage of Broken Tiles'
+                  : currentScene === 'memory_room'
+                    ? 'Act I // Memory Sanctuary — Dais of Triads'
+                    : currentScene === 'east_arcade'
+                      ? 'Act I // East Arcade — Three Balconies'
+                      : 'Prologue // Rain Alley'}
             </span>
           </div>
 
@@ -196,21 +197,25 @@ export function App() {
             <div className="status-badge" role="status" aria-label="System status">
               <span className="status-dot" />
               <span>
-                {currentScene === 'discard_passage'
-                  ? useGameStore.getState().discardPassageChoice === 'archivist'
-                    ? 'Phase 5: Scholar’s Ascent (West Unlocked)'
-                    : useGameStore.getState().discardPassageChoice === 'regent'
-                      ? 'Phase 5: Martial Passage (East Unlocked)'
-                      : 'Phase 5: Discard Consequence'
-                  : currentScene === 'memory_room'
-                    ? memoryReconstructed
-                      ? 'Phase 4: Memory Reconstructed'
-                      : 'Phase 4: Memory Sanctuary'
-                    : currentScene === 'east_arcade'
-                      ? useGameStore.getState().sameDoorPairActive
-                        ? 'Phase 3: Impossible Space Gate'
-                        : 'Phase 2: Mahjong Sequence Gate'
-                      : 'Phase 1: Rain Alley Slice'}
+                {currentScene === 'dead_hand'
+                  ? useGameStore.getState().deadHandInvalidated
+                    ? 'Phase 6: Dead Hand Declared (Stasis Lock)'
+                    : 'Phase 6: Watcher Encounter'
+                  : currentScene === 'discard_passage'
+                    ? useGameStore.getState().discardPassageChoice === 'archivist'
+                      ? 'Phase 5: Scholar’s Ascent (West Unlocked)'
+                      : useGameStore.getState().discardPassageChoice === 'regent'
+                        ? 'Phase 5: Martial Passage (East Unlocked)'
+                        : 'Phase 5: Discard Consequence'
+                    : currentScene === 'memory_room'
+                      ? memoryReconstructed
+                        ? 'Phase 4: Memory Reconstructed'
+                        : 'Phase 4: Memory Sanctuary'
+                      : currentScene === 'east_arcade'
+                        ? useGameStore.getState().sameDoorPairActive
+                          ? 'Phase 3: Impossible Space Gate'
+                          : 'Phase 2: Mahjong Sequence Gate'
+                        : 'Phase 1: Rain Alley Slice'}
               </span>
             </div>
 
@@ -425,13 +430,15 @@ export function App() {
               <div className={`hint-section ${activeHintLevel >= 1 ? 'active' : ''}`}>
                 <span className="hint-tier-tag">Layer I — Environmental Observation</span>
                 <p className="hint-body">
-                  {currentScene === 'discard_passage'
-                    ? 'Two sacrificial altars stand at the fork: the emerald Stone Furnace to the West, and the crimson Brazen Brazier to the East.'
-                    : currentScene === 'memory_room'
-                      ? 'Three pedestal prisms surround the central Dais of Triads. Each holds a memory crystal from the past.'
-                      : currentScene === 'east_arcade'
-                        ? 'The three balconies over the abyss have tile sockets. The walls show a 2-3-4 bamboo carving.'
-                        : 'The tea house gate requires a key of pure intention. Look for the glowing stone pedestal.'}
+                  {currentScene === 'dead_hand'
+                    ? 'Two mechanical Watchers sweep ocular lantern searchlights across the courtyard. Glowing green sanctuaries line the stone floor.'
+                    : currentScene === 'discard_passage'
+                      ? 'Two ceremonial sacrificial altars stand at the cliff edge: the Scholar’s Furnace to the West, and the Regent’s Brazier to the East.'
+                      : currentScene === 'memory_room'
+                        ? 'Three pedestal prisms surround the central Dais of Triads. Each holds a memory crystal from the past.'
+                        : currentScene === 'east_arcade'
+                          ? 'The three balconies over the abyss have tile sockets. The walls show a 2-3-4 bamboo carving.'
+                          : 'The tea house gate requires a key of pure intention. Look for the glowing stone pedestal.'}
                 </p>
               </div>
 
@@ -440,13 +447,15 @@ export function App() {
                 <div className={`hint-section ${activeHintLevel >= 2 ? 'active' : ''}`}>
                   <span className="hint-tier-tag">Layer II — Mahjong Space Principle</span>
                   <p className="hint-body">
-                    {currentScene === 'discard_passage'
-                      ? 'In Mahjong, a discard (Tedashi) is an irreversible commitment that alters future hand topologies. Discarding a tile unlocks one route while permanently collapsing the other.'
-                      : currentScene === 'memory_room'
-                        ? 'Triads (Chow/Pung) create solid reality out of scattered fragments. Align all 3 memories on the table.'
-                        : currentScene === 'east_arcade'
-                          ? 'Sequences (Chow) connect disparate physical platforms. Pairs (Toitsu) bind separate doorways into identical coordinates.'
-                          : 'White Dragons (Haku) symbolize the blank slate — the opening state before any meld is declared.'}
+                    {currentScene === 'dead_hand'
+                      ? 'Furiten / Genbutsu rule: Safe tiles already discarded cannot be called for win. Standing within the glowing Discard Sanctuaries shields you completely from the Watchers’ sight.'
+                      : currentScene === 'discard_passage'
+                        ? 'In Mahjong, a discard (Tedashi) is an irreversible commitment that alters future hand topologies. Discarding a tile unlocks one route while permanently collapsing the other.'
+                        : currentScene === 'memory_room'
+                          ? 'Triads (Chow/Pung) create solid reality out of scattered fragments. Align all 3 memories on the table.'
+                          : currentScene === 'east_arcade'
+                            ? 'Sequences (Chow) connect disparate physical platforms. Pairs (Toitsu) bind separate doorways into identical coordinates.'
+                            : 'White Dragons (Haku) symbolize the blank slate — the opening state before any meld is declared.'}
                   </p>
                 </div>
               )}
@@ -456,13 +465,15 @@ export function App() {
                 <div className="hint-section actionable">
                   <span className="hint-tier-tag">Layer III — Actionable Solution</span>
                   <p className="hint-body">
-                    {currentScene === 'discard_passage'
-                      ? 'Select Bamboo 4 or Red Dragon in your inventory (1..4 keys), approach the respective altar (Furnace for West, Brazier for East), and press E to sacrifice it and unlock the path.'
-                      : currentScene === 'memory_room'
-                        ? 'Walk to all 3 memory pedestals (East Gate, Midnight Bell, Captain’s Seal) and press E to activate the projection.'
-                        : currentScene === 'east_arcade'
-                          ? 'Pick up 4 Bamboo from the merchant table and place it into Balcony Socket 3. Then take the Red Dragon Plaque to Doorway Beta.'
-                          : 'Walk to the stone pedestal at the right wall, press E to pick up the White Tile, then proceed to the sliding gate.'}
+                    {currentScene === 'dead_hand'
+                      ? 'Sprint between the Discard Sanctuaries while the Watchers turn away. Reach the Central Invalidation Dais at [0, 0, -8.0] and strike the Gong with the White Tile to declare Chombo and freeze them in stasis.'
+                      : currentScene === 'discard_passage'
+                        ? 'Select Bamboo 4 or Red Dragon in your inventory (1..4 keys), approach the respective altar (Furnace for West, Brazier for East), and press E to sacrifice it and unlock the path.'
+                        : currentScene === 'memory_room'
+                          ? 'Walk to all 3 memory pedestals (East Gate, Midnight Bell, Captain’s Seal) and press E to activate the projection.'
+                          : currentScene === 'east_arcade'
+                            ? 'Pick up 4 Bamboo from the merchant table and place it into Balcony Socket 3. Then take the Red Dragon Plaque to Doorway Beta.'
+                            : 'Walk to the stone pedestal at the right wall, press E to pick up the White Tile, then proceed to the sliding gate.'}
                   </p>
                 </div>
               )}
