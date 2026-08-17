@@ -1,5 +1,32 @@
 # WORKLOG
 
+## 2026-08-17 — Phase 9.1: Gameplay Validation Gate
+
+- **Task**: Phase 9.1 — Gameplay Validation Gate (`current_project_task.md`).
+- **Branch**: `test/phase-9-gameplay-validation`
+- **Actions Taken**:
+  1. Created dedicated branch `test/phase-9-gameplay-validation`.
+  2. Built reusable, strongly typed gameplay helpers in `tests/e2e/helpers/gameplayHelpers.ts` for movement (`sprintMove`, `holdKey`, `focusGame`), prompt interactions (`interactWithPrompt`), dialogue advancement (`advanceDialogue`, `selectDialogueChoice`), inventory management (`selectInventorySlot`, `expectInventorySlot`), and scene assertions (`expectScene`).
+  3. Refactored canonical vertical slice smoke test in `tests/e2e/smoke.spec.ts`, replacing arbitrary `waitForTimeout` calls with observable DOM and state locators while keeping exact movement simulations.
+  4. Added targeted regression test suites:
+     - `tests/e2e/save-persistence.spec.ts`: Cold page reload state preservation & mid-game memory reconstruction checkpoint restoration.
+     - `tests/e2e/discard-consequence.spec.ts`: Alternate Martial Sacrifice (Regent branch) unlocking East iron gate and collapsing West archway, and strict White Tile immunity protection.
+     - `tests/e2e/puzzle-gate-invalidation.spec.ts`: Sequence Gate unbridged prevention and Same-Door pair incomplete state validation.
+  5. Fixed cold page reload save restoration by calling `useGameStore.getState().loadGame()` in `App.tsx` on mount.
+  6. Configured Playwright runner to `workers: 1` and `fullyParallel: false` to ensure deterministic 60fps WebGL/R3F physics across all test runs.
+  7. Updated GitHub Actions CI workflow in `.github/workflows/ci.yml` to install Playwright chromium and require `npm run test:e2e`.
+  8. Updated GitHub Pages deployment workflow in `.github/workflows/deploy.yml` to block deployment unless all Playwright E2E gameplay validation checks pass 100%.
+  9. Updated `QUALITY_GATES.md`, `current_project_task.md`, `CHANGELOG.md`, and `README.md`.
+- **Quality Gates Results**:
+  - `npm run format:check`: PASSED (100% Prettier compliance)
+  - `npm run lint`: PASSED (0 errors, 0 warnings)
+  - `npm run typecheck`: PASSED (0 errors)
+  - `npm run test`: PASSED (73 / 73 unit tests passed across 10 suites)
+  - `npm run test:e2e`: PASSED (7 / 7 tests passed across 4 E2E test suites with 0 console errors)
+  - `npm run build`: PASSED (Clean production bundle in `dist/`)
+
+---
+
 ## 2026-08-16 — Phase 8: Polish, Procedural Audio Synthesizer & Public Release (v1.0.0)
 
 - **Task**: Active Milestone: Phase 8 — Polish & Public Release (`current_project_task.md`).

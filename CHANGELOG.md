@@ -5,6 +5,24 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-08-17
+
+### Added
+
+- **Gameplay Test Helpers Library**: Extracted clean, reusable test helpers in `tests/e2e/helpers/gameplayHelpers.ts` for locomotion simulation, prompt interaction, branching dialogue selection, slot switching, and error assertion.
+- **Targeted Regression Test Suites**:
+  - `tests/e2e/save-persistence.spec.ts`: Validated cold page reload state restoration and mid-game memory reconstruction checkpoint loading.
+  - `tests/e2e/discard-consequence.spec.ts`: Validated alternate Martial Sacrifice (Regent branch) unlocking East iron gate and collapsing West archway, alongside strict White Tile immunity.
+  - `tests/e2e/puzzle-gate-invalidation.spec.ts`: Validated unbridged Sequence Gate prevention and incomplete Same-Door pair portal prevention.
+- **CI & Deployment Gating Requirements**:
+  - Configured `.github/workflows/ci.yml` to install Playwright browsers and enforce `npm run test:e2e` on all PRs and pushes to `main`.
+  - Updated `.github/workflows/deploy.yml` to strictly block GitHub Pages release deployment unless all Playwright gameplay validation tests pass.
+
+### Fixed
+
+- **App Mount Save Restoration**: Added `useGameStore.getState().loadGame()` in `App.tsx` on mount to ensure persistent saves in `localStorage` are reliably restored upon page refresh.
+- **Timing Fragility Reduction**: Eliminated arbitrary synchronization sleeps in `tests/e2e/smoke.spec.ts`, replacing them with observable DOM and state locators.
+
 ## [1.0.0] - 2026-08-16
 
 ### Added

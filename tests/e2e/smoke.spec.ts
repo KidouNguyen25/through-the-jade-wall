@@ -1,122 +1,75 @@
 import { test, expect } from '@playwright/test';
+import {
+  setupConsoleErrorListener,
+  clearStorageAndReload,
+  focusGame,
+  holdKey,
+  sprintMove,
+  interactWithPrompt,
+  advanceDialogue,
+  selectDialogueChoice,
+  selectInventorySlot,
+  expectInventorySlot,
+  expectScene,
+} from './helpers/gameplayHelpers';
 
-test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
-  test('progresses through Rain Alley, Balcony Bridge, Portal Gate, Memory Sanctuary, Discard Passage, and Watcher Courtyard', async ({
+test.describe('Through the Jade Wall — Vertical Slice Full Playthrough E2E', () => {
+  test('progresses through Rain Alley, Balcony Bridge, Portal Gate, Memory Sanctuary, Discard Passage, Watcher Courtyard, and Dealer Climax', async ({
     page,
   }) => {
-    test.setTimeout(300000);
+    test.setTimeout(360000);
 
-    const consoleErrors: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
-    });
+    const consoleErrors = setupConsoleErrorListener(page);
 
-    await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-    });
-    await page.reload();
-    await page.waitForTimeout(500);
+    await clearStorageAndReload(page);
 
     // 1. Initial Rain Alley Verification
     await expect(page.locator('.game-title')).toHaveText('THROUGH THE JADE WALL');
-    await expect(page.locator('.status-badge')).toContainText('Phase 1: Rain Alley Slice');
-    await expect(page.locator('[data-testid="game-canvas-container"]')).toBeVisible();
+    await expectScene(page, undefined, 'Phase 1: Rain Alley Slice');
+    await expectInventorySlot(page, 0, undefined, false);
 
-    const slot0 = page.locator('[data-testid="inventory-slot-0"]');
-    await expect(slot0).toBeVisible();
-    await expect(slot0).not.toHaveClass(/occupied/);
-
-    // Focus canvas window
-    await page.locator('body').focus();
-    await page.waitForTimeout(300);
+    // Focus canvas window for locomotion
+    await focusGame(page);
 
     // 2. Sprint to White Tile in Rain Alley (at [1.6, 0, -3.5] from [0, 0, 8.0])
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2100);
-    await page.keyboard.up('KeyW');
-    await page.keyboard.up('ShiftLeft');
+    await sprintMove(page, 'KeyW', 2100);
+    await holdKey(page, 'KeyD', 450);
 
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(450);
-    await page.keyboard.up('KeyD');
+    // Pick up White Tile
+    await interactWithPrompt(page, 'Pick up White Tile');
 
-    const promptButton = page.locator('[data-testid="interaction-prompt-button"]');
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Pick up White Tile');
-    await promptButton.click({ force: true });
-
-    // 3. Verify White Tile in inventory
-    await expect(slot0).toHaveClass(/occupied/);
-    await expect(slot0).toContainText('WHITE');
+    // 3. Verify White Tile in inventory slot 0
+    await expectInventorySlot(page, 0, 'WHITE', true);
 
     // 4. Return to center and sprint into Tea House doorway (at [0, 0, -10.0])
-    await page.locator('body').focus();
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(450);
-    await page.keyboard.up('KeyA');
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(900);
-    await page.keyboard.up('KeyW');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await holdKey(page, 'KeyA', 450);
+    await sprintMove(page, 'KeyW', 900);
 
     // Trigger enter Tea House
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Enter Tea House');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Enter Tea House');
 
     // 5. Verify East Arcade Scene Transition
-    await expect(page.locator('.status-badge')).toContainText('Phase 2: Mahjong Sequence Gate');
-    await expect(page.locator('.game-subtitle')).toContainText('East Arcade');
-
-    // Re-focus body after scene change
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
+    await expectScene(page, 'East Arcade', 'Phase 2: Mahjong Sequence Gate');
 
     // 6. Move towards Bamboo 4 Tile in East Arcade (at [3.0, 0, 4.0] from spawn [0, 0, 8.0])
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(800);
-    await page.keyboard.up('KeyD');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1300);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await holdKey(page, 'KeyD', 800);
+    await holdKey(page, 'KeyW', 1300);
 
     // 7. Pick up Bamboo 4 Tile
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Pick up 4 Bamboo');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Pick up 4 Bamboo');
 
-    // 8. Verify Bamboo 4 in inventory
-    const slot1 = page.locator('[data-testid="inventory-slot-1"]');
-    await expect(slot1).toHaveClass(/occupied/);
-    await expect(slot1).toContainText('4 BAM');
-
-    // Re-focus body after collecting tile
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
+    // 8. Verify Bamboo 4 in inventory slot 1
+    await expectInventorySlot(page, 1, '4 BAM', true);
 
     // 9. Move towards Sequence Gate Socket 3 (at [2.2, 0, 2.0])
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(250);
-    await page.keyboard.up('KeyA');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(550);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await holdKey(page, 'KeyA', 250);
+    await holdKey(page, 'KeyW', 550);
 
     // 10. Place Bamboo 4 into Socket 3
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Place 4 Bamboo');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Place 4 Bamboo');
 
     // 11. Verify Sequence Gate resolved and balconies aligned
     await expect(page.locator('.narrative-banner')).toContainText(
@@ -136,74 +89,43 @@ test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
 
     // Close hint modal
     await page.keyboard.press('KeyH');
-    await page.waitForTimeout(200);
+    await expect(page.locator('#hint-modal-title')).not.toBeVisible();
 
     // 13. Walk across aligned Balcony Bridge to Upper Terrace Altar (from [2.1, 0, 1.8] to [0, 0, -10.8])
-    await page.waitForTimeout(200);
-    await page.locator('body').focus();
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(600);
-    await page.keyboard.up('KeyA');
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2300);
-    await page.keyboard.up('KeyW');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await holdKey(page, 'KeyA', 600);
+    await sprintMove(page, 'KeyW', 2300);
 
     // 14. Pick up Red Dragon Plaque at Altar ([0, 0, -12.0])
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Pick up Red Dragon Plaque');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Pick up Red Dragon Plaque');
 
-    // 15. Verify Red Dragon in inventory slot
-    await expect(slot1).toHaveClass(/occupied/);
-    await expect(slot1).toContainText('RED DRG');
-
-    // Re-focus body after collecting Red Dragon
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
+    // 15. Verify Red Dragon in inventory slot 1
+    await expectInventorySlot(page, 1, 'RED DRG', true);
 
     // 16. Navigate around Altar to Doorway Beta Socket (at [-3.5, 0, -15.0])
-    await page.keyboard.down('KeyS');
-    await page.waitForTimeout(200);
-    await page.keyboard.up('KeyS');
-
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(1000);
-    await page.keyboard.up('KeyA');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1400);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await holdKey(page, 'KeyS', 200);
+    await holdKey(page, 'KeyA', 1000);
+    await holdKey(page, 'KeyW', 1000);
 
     // 17. Place Red Dragon Plaque into Doorway Beta
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Place Red Dragon Plaque');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Place Red Dragon Plaque');
 
     // 18. Verify Pair Gate Solved & Portal Activated
     await expect(page.locator('.narrative-banner')).toContainText(
       'Pair of Red Dragons established',
     );
-    await expect(page.locator('.status-badge')).toContainText('Phase 3: Impossible Space Gate');
+    await expectScene(page, undefined, 'Phase 3: Impossible Space Gate');
 
     // 19. Walk forward past Doorway Beta to Memory Sanctuary Door (at [-3.5, 0, -19.5])
-    await page.waitForTimeout(200);
-    await page.locator('body').focus();
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1200);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await sprintMove(page, 'KeyW', 1200);
 
     // 20. Enter Memory Sanctuary
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Enter Memory Sanctuary');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Enter Memory Sanctuary');
 
     // 21. Verify Memory Room Scene Transition
-    await expect(page.locator('.status-badge')).toContainText('Phase 4: Memory Sanctuary');
-    await expect(page.locator('.game-subtitle')).toContainText('Memory Sanctuary');
+    await expectScene(page, 'Memory Sanctuary', 'Phase 4: Memory Sanctuary');
     await expect(page.locator('[data-testid="memory-fragments-tracker"]')).toBeVisible();
 
     // 22. Advance through Introductory Dialogue Monologue
@@ -211,386 +133,183 @@ test.describe('Through the Jade Wall - Phase 6 Dead Hand Encounter E2E', () => {
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Alice');
 
-    // Click continue on node 1
-    const continueBtn = page.locator('[data-testid="dialogue-continue-btn"]');
-    await expect(continueBtn).toBeVisible();
-    await continueBtn.click();
-
-    // Choice node 2: select choice 0 ("What is this place?")
-    const choice0 = page.locator('[data-testid="dialogue-choice-0"]');
-    await expect(choice0).toBeVisible();
-    await choice0.click();
-
-    // Node 3 & 4
-    await expect(continueBtn).toBeVisible();
-    await continueBtn.click();
-    await expect(continueBtn).toBeVisible();
-    await continueBtn.click();
-
-    // Verify dialogue closed
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    // Click continue on node 1, select choice 0, and advance remaining nodes
+    await advanceDialogue(page, 1);
+    await selectDialogueChoice(page, 0);
+    await advanceDialogue(page, 2, true);
 
     // 23. Move to East Gate Fragment Pedestal (at [3.5, 0, -3.0] from spawn [0, 0, 4.5])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(1000);
-    await page.keyboard.up('KeyD');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2000);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await holdKey(page, 'KeyD', 1000);
+    await holdKey(page, 'KeyW', 2000);
 
     // 24. Inspect East Gate Fragment
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Inspect East Gate Fragment');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Inspect East Gate Fragment');
 
     // Advance fragment dialogue
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Observation Log');
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await advanceDialogue(page, 2, true);
 
     // 25. Sprint to Midnight Bell Fragment Pedestal (at [-3.5, 0, -3.0] from [3.5, 0, -3.0])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(1300);
-    await page.keyboard.up('KeyA');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await sprintMove(page, 'KeyA', 1300);
 
     // 26. Inspect Midnight Bell Fragment
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Inspect Midnight Bell Fragment');
-    await promptButton.click({ force: true });
-
-    // Advance fragment dialogue
-    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await interactWithPrompt(page, 'Inspect Midnight Bell Fragment');
+    await advanceDialogue(page, 2, true);
 
     // 27. Move to Captain's Seal Fragment Pedestal (at [0, 0, -6.5] from [-3.5, 0, -3.0])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(650);
-    await page.keyboard.up('KeyD');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(700);
-    await page.keyboard.up('KeyW');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await sprintMove(page, 'KeyD', 650);
+    await sprintMove(page, 'KeyW', 700);
 
     // 28. Inspect Captain's Seal Fragment
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText("Inspect Captain's Seal Fragment");
-    await promptButton.click({ force: true });
-
-    // Advance 3rd fragment dialogue
-    await expect(dialogueCard).toBeVisible({ timeout: 5000 });
-    await continueBtn.click();
-    await continueBtn.click();
+    await interactWithPrompt(page, "Inspect Captain's Seal Fragment");
+    await advanceDialogue(page, 2);
 
     // 29. Verify Memory Reconstructed Status & Holographic Revelation Dialogue
-    await expect(page.locator('.status-badge')).toContainText('Phase 4: Memory Reconstructed');
+    await expectScene(page, undefined, 'Phase 4: Memory Reconstructed');
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Holographic Projection Online');
 
     // Advance revelation dialogue
-    await continueBtn.click();
-    const readyChoice = page.locator('[data-testid="dialogue-choice-0"]');
-    await expect(readyChoice).toBeVisible();
-    await readyChoice.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await advanceDialogue(page, 1);
+    await selectDialogueChoice(page, 0);
+    await advanceDialogue(page, 1, true);
 
     // 30. Step forward to Discard Passage Gateway (at [0, 0, -8.0] from [0, 0, -6.5])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(400);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await holdKey(page, 'KeyW', 400);
 
     // 31. Enter Discard Passage
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Enter Discard Passage');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Enter Discard Passage');
 
     // 32. Verify Discard Passage Transition & Advance Entry Inscription Monologue
-    await expect(page.locator('.status-badge')).toContainText('Phase 5: Discard Consequence');
-    await expect(page.locator('.game-subtitle')).toContainText('Passage of Broken Tiles');
+    await expectScene(page, 'Passage of Broken Tiles', 'Phase 5: Discard Consequence');
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Alice');
-
-    // Advance through 3 entry dialogue nodes
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await advanceDialogue(page, 3, true);
 
     // 33. Walk forward to Reliquary Table (at [0, 0, 3.0] from spawn [0, 0, 6.0])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(900);
-    await page.keyboard.up('KeyW');
+    await focusGame(page);
+    await holdKey(page, 'KeyW', 900);
 
     // 34. Draw offering tiles from Reliquary
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Draw Offering Tiles from Reliquary');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Draw Offering Tiles from Reliquary');
 
     // Verify Bamboo 4 and Red Dragon in slots 1 and 2
-    await expect(slot1).toHaveClass(/occupied/);
-    await expect(slot1).toContainText('4 BAM');
-    const slot2 = page.locator('[data-testid="inventory-slot-2"]');
-    await expect(slot2).toHaveClass(/occupied/);
-    await expect(slot2).toContainText('RED DRG');
+    await expectInventorySlot(page, 1, '4 BAM', true);
+    await expectInventorySlot(page, 2, 'RED DRG', true);
 
     // 35. Walk to West Archivist Stone Furnace (at [-3.0, 0, -5.0] from [0, 0, 3.0])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(600);
-    await page.keyboard.up('KeyA');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1350);
-    await page.keyboard.up('KeyW');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await sprintMove(page, 'KeyA', 600);
+    await sprintMove(page, 'KeyW', 1350);
 
     // 36. Test White Tile Protection: Select slot 0 (Digit1) and attempt sacrifice
-    await page.waitForTimeout(200);
-    await page.locator('body').focus();
-    await page.keyboard.press('Digit1');
-    await page.waitForTimeout(200);
+    await focusGame(page);
+    await selectInventorySlot(page, 0);
 
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Sacrifice Selected Tile to Archivist Furnace');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Sacrifice Selected Tile to Archivist Furnace');
 
     // Verify rejection dialogue
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Blank tile refuses to be categorized');
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await advanceDialogue(page, 2, true);
 
     // 37. Select Bamboo 4 in Slot 1 and perform Scholar's Sacrifice
-    await page.waitForTimeout(200);
-    await page.locator('body').focus();
-    await page.keyboard.press('Digit2');
-    await page.waitForTimeout(200);
+    await focusGame(page);
+    await selectInventorySlot(page, 1);
 
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page);
 
     // Verify consequence dialogue and status badge
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Emerald flame consumes the offered tile');
-    await expect(page.locator('.status-badge')).toContainText(
-      'Phase 5: Scholar’s Ascent (West Unlocked)',
-    );
-
-    // Advance consequence dialogue
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 5: Scholar’s Ascent (West Unlocked)');
+    await advanceDialogue(page, 2, true);
 
     // 38. Walk through opened West Portcullis to North Threshold (from [-3.0, 0, -5.0] to [0, 0, -20.5])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2800);
-    await page.keyboard.up('KeyW');
-
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(600);
-    await page.keyboard.up('KeyD');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await sprintMove(page, 'KeyW', 2800);
+    await holdKey(page, 'KeyD', 600);
 
     // 39. Interact with North Threshold to Enter Watcher Courtyard
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText("Cross Threshold into Watcher's Courtyard");
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, "Cross Threshold into Watcher's Courtyard");
 
     // 40. Verify Dead Hand Scene Transition & Advance Entry Monologue
-    await expect(page.locator('.status-badge')).toContainText('Phase 6: Watcher Encounter');
-    await expect(page.locator('.game-subtitle')).toContainText('Courtyard of the Watchers');
+    await expectScene(page, 'Courtyard of the Watchers', 'Phase 6: Watcher Encounter');
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Alice');
-
-    // Advance 3 entry dialogue nodes
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await advanceDialogue(page, 3, true);
 
     // 41. Stealth Flank along West Colonnade behind Watcher Alpha to Central Gong ([0, 0, -8.0])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(900);
-    await page.keyboard.up('KeyA');
-
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2800);
-    await page.keyboard.up('KeyW');
-
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(900);
-    await page.keyboard.up('KeyD');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await sprintMove(page, 'KeyA', 900);
+    await sprintMove(page, 'KeyW', 2800);
+    await sprintMove(page, 'KeyD', 900);
 
     // 42. Strike Invalidation Gong to Declare Chombo (Dead Hand)
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Strike Gong to Declare Chombo');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Strike Gong to Declare Chombo');
 
     // 43. Verify Dead Hand Invalidation Dialogue & Stasis Status Badge
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('CHOMBO');
-    await expect(page.locator('.status-badge')).toContainText(
-      'Phase 6: Dead Hand Declared (Stasis Lock)',
-    );
-
-    // Advance 3 invalidation dialogue nodes
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 6: Dead Hand Declared (Stasis Lock)');
+    await advanceDialogue(page, 3, true);
 
     // 44. Walk around central gong and forward to unsealed Dealer's Court Gateway (at [0, 0, -20.5])
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
+    await focusGame(page);
+    await holdKey(page, 'KeyD', 350);
+    await sprintMove(page, 'KeyW', 2600);
+    await holdKey(page, 'KeyA', 350);
 
-    // Move slightly right to bypass gong pedestal obstacle
-    await page.keyboard.down('KeyD');
-    await page.waitForTimeout(350);
-    await page.keyboard.up('KeyD');
-
-    // Sprint forward towards the northern gateway
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(2600);
-    await page.keyboard.up('KeyW');
-
-    // Move back towards centerline
-    await page.keyboard.down('KeyA');
-    await page.waitForTimeout(350);
-    await page.keyboard.up('KeyA');
-    await page.keyboard.up('ShiftLeft');
-
-    // 45. Cross Gateway into Dealer's Court
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Cross Gateway into Dealer’s Court');
-    await promptButton.click({ force: true });
+    // 45. Cross Gateway into Dealer’s Court
+    await interactWithPrompt(page, 'Cross Gateway into Dealer’s Court');
 
     // 46. Verify Dealer's Intro Dialogue in Boss Court
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('Seat of the Dealer');
-    await expect(page.locator('.status-badge')).toContainText('Phase 7: Dealer’s Court');
-
-    // Advance 4 intro dialogue nodes
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 7: Dealer’s Court');
+    await advanceDialogue(page, 4, true);
 
     // 47. Walk forward from entrance [0, 0, 8.5] to Central Tribunal Dais [0, 0, 0]
-    await page.waitForTimeout(300);
-    await page.locator('body').focus();
-    await page.waitForTimeout(200);
-
-    await page.keyboard.down('ShiftLeft');
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1600);
-    await page.keyboard.up('KeyW');
-    await page.keyboard.up('ShiftLeft');
+    await focusGame(page);
+    await sprintMove(page, 'KeyW', 1600);
 
     // 48. Summon First Wind: Wind of the East (Ton)
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Hear Dealer’s Decree (Summon East Wind)');
-    await promptButton.click({ force: true });
-
-    // Verify East Wind dialogue & status badge
+    await interactWithPrompt(page, 'Hear Dealer’s Decree (Summon East Wind)');
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('WIND OF THE EAST');
-    await expect(page.locator('.status-badge')).toContainText('Phase 7: Wind of the East');
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 7: Wind of the East');
+    await advanceDialogue(page, 1, true);
 
     // 49. Rotate Arena: Wind of the South (Nan)
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Endure East Wind (Rotate to South Wind)');
-    await promptButton.click({ force: true });
-
-    // Verify South Wind dialogue & status badge
+    await interactWithPrompt(page, 'Endure East Wind (Rotate to South Wind)');
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('WIND OF THE SOUTH');
-    await expect(page.locator('.status-badge')).toContainText('Phase 7: Wind of the South');
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 7: Wind of the South');
+    await advanceDialogue(page, 1, true);
 
     // 50. Trigger Final Hand Demand (Ron)
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Endure South Wind (Trigger Final Hand)');
-    await promptButton.click({ force: true });
-
-    // Verify Forced Hand dialogue & status badge
+    await interactWithPrompt(page, 'Endure South Wind (Trigger Final Hand)');
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('RON! The Final Wind is declared');
-    await expect(page.locator('.status-badge')).toContainText('Phase 7: The Final Hand (Ron)');
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 7: The Final Hand (Ron)');
+    await advanceDialogue(page, 2, true);
 
-    // 51. Select White Tile (Slot 1 / Key1) to refuse the premise
-    await page.keyboard.press('Digit1');
+    // 51. Select White Tile (Slot 0 / Key1) to refuse the premise
+    await selectInventorySlot(page, 0);
 
     // 52. Place White Tile on Central Tribunal Anchor
-    await expect(promptButton).toBeVisible({ timeout: 5000 });
-    await expect(promptButton).toContainText('Place White Tile to Refuse Premise');
-    await promptButton.click({ force: true });
+    await interactWithPrompt(page, 'Place White Tile to Refuse Premise');
 
     // 53. Verify Refusal Dialogue & Shattered False Trial
     await expect(dialogueCard).toBeVisible({ timeout: 5000 });
     await expect(dialogueCard).toContainText('refuse the premise');
-    await expect(page.locator('.status-badge')).toContainText('Phase 7: Trial Shattered (Victory)');
-
-    // Advance 5 climax dialogue nodes
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await continueBtn.click();
-    await expect(dialogueCard).not.toBeVisible({ timeout: 3000 });
+    await expectScene(page, undefined, 'Phase 7: Trial Shattered (Victory)');
+    await advanceDialogue(page, 5, true);
 
     // 54. Verify Vertical Slice Complete Victory Modal
     const victoryModal = page.locator('[data-testid="victory-modal"]');
