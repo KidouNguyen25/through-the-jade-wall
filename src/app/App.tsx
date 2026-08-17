@@ -108,6 +108,10 @@ export function App() {
   );
 
   useEffect(() => {
+    useGameStore.getState().loadGame();
+  }, []);
+
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
