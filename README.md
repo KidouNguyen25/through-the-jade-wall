@@ -64,7 +64,7 @@ npm run typecheck
 # Unit tests
 npm run test
 
-# End-to-end smoke tests
+# End-to-end gameplay validation & regression tests (Playwright)
 npm run test:e2e
 
 # Production build

@@ -34,22 +34,39 @@ Required for:
 `npm run build` passes.
 No TypeScript build bypass.
 
-## Gate 4 — Runtime smoke test
+## Gate 4 — Runtime smoke test & Gameplay validation gate
 
-At minimum:
+Automated via Playwright in continuous integration (`npm run test:e2e`). Enforced as a blocking gate on pull requests, pushes to `main`, and GitHub Pages release deployment.
 
-- page loads;
-- canvas renders;
-- player can move;
-- no fatal console error;
-- first interaction works.
+Test suites required:
 
-Automate through Playwright once stable selectors/boot signals exist.
+- Full vertical-slice traversal (`tests/e2e/smoke.spec.ts`):
+  - boot & 3D canvas render;
+  - player locomotion & interaction;
+  - White Tile acquisition & Tea House transition;
+  - Sequence Gate alignment & Same-Door quantum pair portal;
+  - Memory Sanctuary inspection & holographic reconstruction;
+  - Discard Passage sacrifice & dynamic barrier collapse;
+  - Dead Hand stealth evasion & Chombo Invalidation Gong;
+  - Dealer Boss Court arena rotation & 4 Wind hazard phases;
+  - White Tile premise refusal climax & victory modal;
+  - zero fatal console errors throughout entire traversal.
+- Save persistence regression (`tests/e2e/save-persistence.spec.ts`):
+  - cold session reload preserves scene, player coordinates, and inventory;
+  - mid-game checkpoint restoration from stored state.
+- Discard consequence & protection regression (`tests/e2e/discard-consequence.spec.ts`):
+  - alternate Regent sacrifice path verification;
+  - White Tile immunity and discard refusal enforcement.
+- Spatial gate invalidation regression (`tests/e2e/puzzle-gate-invalidation.spec.ts`):
+  - unbridged sequence prevention;
+  - incomplete same-door pair prevention.
 
-## Gate 5 — Gameplay acceptance
+## Gate 5 — Gameplay acceptance & Deployment gating
 
-For each task, verify player-visible acceptance criteria.
-A technically passing build with broken gameplay is a failure.
+For each task, verify player-visible acceptance criteria:
+
+- A technically passing build with broken gameplay is a failure.
+- GitHub Pages release deployment is strictly gated on 100% passing Playwright gameplay validation. Release builds cannot deploy if E2E validation fails.
 
 ## Gate 6 — Performance budget
 
