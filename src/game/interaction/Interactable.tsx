@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { useGameStore } from '../../state/gameStore';
 import { useInput } from '../input/useInput';
 import { isWithinInteractionRange } from '../../domain/interaction/interactionModel';
+import { getPlayerRuntimePosition } from '../runtime/playerRuntime';
 
 interface InteractableProps {
   id: string;
@@ -31,20 +32,18 @@ export function Interactable({
   const groupRef = useRef<THREE.Group>(null);
   const inputRef = useInput();
   const wasInteracting = useRef(false);
+  const isInRangeRef = useRef(false);
+  const lastPublishedPromptRef = useRef<string | null>(null);
 
-  const {
-    playerPosition,
-    activeInteractable,
-    setActiveInteractable,
-    setActiveInspection,
-    isPaused,
-  } = useGameStore();
+  const isPaused = useGameStore((state) => state.isPaused);
+  const activeInteractableId = useGameStore((state) => state.activeInteractable?.id ?? null);
+  const setActiveInteractable = useGameStore((state) => state.setActiveInteractable);
+  const setActiveInspection = useGameStore((state) => state.setActiveInspection);
 
   // Clear active interactable if this component unmounts while active
   useEffect(() => {
     return () => {
-      const current = useGameStore.getState().activeInteractable;
-      if (current?.id === id) {
+      if (useGameStore.getState().activeInteractable?.id === id) {
         useGameStore.getState().setActiveInteractable(null);
       }
     };
@@ -57,7 +56,6 @@ export function Interactable({
       if (customEvent.detail?.id === id) {
         if (onInteract) {
           onInteract();
-          useGameStore.getState().setActiveInteractable(null);
         } else if (inspectTitle && inspectDescription) {
           useGameStore.getState().setActiveInspection({
             title: inspectTitle,
@@ -76,10 +74,32 @@ export function Interactable({
   useFrame(() => {
     if (isPaused) return;
 
-    const inRange = isWithinInteractionRange(playerPosition, position, radius);
+    // Query engine-local runtime player position directly without React rerender
+    const runtimePos = getPlayerRuntimePosition();
+    const inRange = isWithinInteractionRange(runtimePos, position, radius);
 
     if (inRange) {
-      if (!activeInteractable || activeInteractable.id === id) {
+      const isAlreadyActiveForThis = activeInteractableId === id;
+      const isAvailable = !activeInteractableId;
+
+      if (isAlreadyActiveForThis) {
+        // Only republish if prompt metadata semantically changed
+        if (lastPublishedPromptRef.current !== promptText) {
+          lastPublishedPromptRef.current = promptText;
+          setActiveInteractable({
+            id,
+            name,
+            position,
+            radius,
+            promptText,
+            inspectTitle,
+            inspectDescription,
+          });
+        }
+      } else if (isAvailable) {
+        // Claim active interactable
+        isInRangeRef.current = true;
+        lastPublishedPromptRef.current = promptText;
         setActiveInteractable({
           id,
           name,
@@ -89,26 +109,29 @@ export function Interactable({
           inspectTitle,
           inspectDescription,
         });
-
-        // Trigger on key down (edge trigger)
-        const isInteracting = inputRef.current.interact;
-        if (isInteracting && !wasInteracting.current) {
-          if (onInteract) {
-            onInteract();
-            setActiveInteractable(null);
-          } else if (inspectTitle && inspectDescription) {
-            setActiveInspection({
-              title: inspectTitle,
-              description: inspectDescription,
-            });
-          }
-        }
-        wasInteracting.current = isInteracting;
       }
+
+      // Trigger interaction on key down (edge trigger)
+      const isInteracting = inputRef.current.interact;
+      if (isInteracting && !wasInteracting.current && (isAlreadyActiveForThis || isAvailable)) {
+        if (onInteract) {
+          onInteract();
+        } else if (inspectTitle && inspectDescription) {
+          setActiveInspection({
+            title: inspectTitle,
+            description: inspectDescription,
+          });
+        }
+      }
+      wasInteracting.current = isInteracting;
     } else {
-      if (activeInteractable?.id === id) {
-        setActiveInteractable(null);
+      if (isInRangeRef.current || activeInteractableId === id) {
+        isInRangeRef.current = false;
+        lastPublishedPromptRef.current = null;
         wasInteracting.current = false;
+        if (activeInteractableId === id) {
+          setActiveInteractable(null);
+        }
       }
     }
   });

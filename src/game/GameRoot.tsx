@@ -2,12 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 import PlayerController from './player/PlayerController';
 import ThirdPersonCamera from './camera/ThirdPersonCamera';
-import RainAlleyScene from '../world/scenes/RainAlleyScene';
-import EastArcadeScene from '../world/scenes/EastArcadeScene';
-import MemoryRoomScene from '../world/scenes/MemoryRoomScene';
-import DiscardPassageScene from '../world/scenes/DiscardPassageScene';
-import DeadHandScene from '../world/scenes/DeadHandScene';
-import BossCourtScene from '../world/scenes/BossCourtScene';
+import { getSceneDefinition } from '../world/scenes/sceneRegistry';
 import { useGameStore } from '../state/gameStore';
 
 export function SceneLighting() {
@@ -26,7 +21,9 @@ export function SceneLighting() {
 }
 
 export function GameRoot() {
-  const { currentScene } = useGameStore();
+  // Narrow selector: only rerender when currentScene changes
+  const currentScene = useGameStore((state) => state.currentScene);
+  const { component: ActiveSceneComponent } = getSceneDefinition(currentScene);
 
   return (
     <div
@@ -40,20 +37,8 @@ export function GameRoot() {
         <ThirdPersonCamera />
         <SceneLighting />
 
-        {/* Scene Switcher based on Progression */}
-        {currentScene === 'boss_court' ? (
-          <BossCourtScene />
-        ) : currentScene === 'dead_hand' ? (
-          <DeadHandScene />
-        ) : currentScene === 'discard_passage' ? (
-          <DiscardPassageScene />
-        ) : currentScene === 'memory_room' ? (
-          <MemoryRoomScene />
-        ) : currentScene === 'east_arcade' ? (
-          <EastArcadeScene />
-        ) : (
-          <RainAlleyScene />
-        )}
+        {/* Dynamic Scene rendered via Scene Registry */}
+        <ActiveSceneComponent />
 
         <PlayerController />
       </Canvas>

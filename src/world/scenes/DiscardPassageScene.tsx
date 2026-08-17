@@ -9,7 +9,9 @@ import { useGameStore } from '../../state/gameStore';
  */
 function ArchivistFurnace() {
   const flameRef = useRef<THREE.Mesh>(null);
-  const { performSacrifice, discardPassageResolved, westPathOpen } = useGameStore();
+  const performSacrifice = useGameStore((state) => state.performSacrifice);
+  const discardPassageResolved = useGameStore((state) => state.discardPassageResolved);
+  const westPathOpen = useGameStore((state) => state.westPathOpen);
 
   useFrame(({ clock }) => {
     if (flameRef.current) {
@@ -81,7 +83,9 @@ function ArchivistFurnace() {
  */
 function RegentBrazier() {
   const flameRef = useRef<THREE.Mesh>(null);
-  const { performSacrifice, discardPassageResolved, eastPathOpen } = useGameStore();
+  const performSacrifice = useGameStore((state) => state.performSacrifice);
+  const discardPassageResolved = useGameStore((state) => state.discardPassageResolved);
+  const eastPathOpen = useGameStore((state) => state.eastPathOpen);
 
   useFrame(({ clock }) => {
     if (flameRef.current) {
@@ -152,7 +156,9 @@ function RegentBrazier() {
  * Massive Physical Portcullis Gates & Spatial Collapse
  */
 function SpatialGates() {
-  const { westPathOpen, eastPathOpen, discardPassageResolved } = useGameStore();
+  const westPathOpen = useGameStore((state) => state.westPathOpen);
+  const eastPathOpen = useGameStore((state) => state.eastPathOpen);
+  const discardPassageResolved = useGameStore((state) => state.discardPassageResolved);
 
   return (
     <group>
@@ -251,7 +257,8 @@ function SpatialGates() {
  * North Threshold Doorway & Bridge
  */
 function NorthThreshold() {
-  const { discardPassageResolved, enterDeadHandCourtyard } = useGameStore();
+  const discardPassageResolved = useGameStore((state) => state.discardPassageResolved);
+  const enterDeadHandCourtyard = useGameStore((state) => state.enterDeadHandCourtyard);
 
   return (
     <group position={[0, 0, -21.0]}>
@@ -301,9 +308,13 @@ function NorthThreshold() {
  * Allows the player to draw candidate tiles for the sacrificial dilemma.
  */
 function ReliquaryTable() {
-  const { addTileToInventory, inventoryTiles, setNarrativeMessage } = useGameStore();
-  const hasCandidates =
-    inventoryTiles.includes('tile_bamboo_4') || inventoryTiles.includes('tile_dragon_red');
+  const addTileToInventory = useGameStore((state) => state.addTileToInventory);
+  const setNarrativeMessage = useGameStore((state) => state.setNarrativeMessage);
+  const hasCandidates = useGameStore(
+    (state) =>
+      state.inventoryTiles.includes('tile_bamboo_4') ||
+      state.inventoryTiles.includes('tile_dragon_red'),
+  );
 
   const handleDrawTiles = () => {
     addTileToInventory('tile_bamboo_4');

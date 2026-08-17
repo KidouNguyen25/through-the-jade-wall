@@ -5,6 +5,23 @@ All notable changes to **Through the Jade Wall** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-17
+
+### Added
+
+- **Engine-Local Player Runtime Layer**: Implemented `src/game/runtime/playerRuntime.ts` maintaining high-frequency player coordinates (`x, y, z`, `rotation`, `isMoving`) without triggering React rerenders or Zustand publications on every frame.
+- **Runtime Synchronization Event Bus**: Added `onPlayerRuntimeSync` listener for deterministic, zero-allocation position updates across scene transitions, portal warps, checkpoint respawns, and save/load restorations.
+- **Typed Scene Registry**: Created `src/world/scenes/sceneRegistry.ts` with typed scene definitions mapping scene IDs to components, default spawns, and titles, replacing nested conditional ternaries in `GameRoot.tsx`.
+- **Extracted Modular UI Components**: Split monolithic UI in `App.tsx` into modular components under `src/ui/hud/`, `src/ui/dialogue/`, and `src/ui/modals/` with atomic, narrow Zustand selectors.
+- **Runtime Boundary Unit Test Suite**: Added `src/test/runtimeBoundary.test.ts` validating player runtime state querying, sync listener dispatch, save state snapshotting, and scene registry integrity (81/81 total unit tests passing).
+- **Architecture Decision Record**: Authored `docs/adr/0002-runtime-state-boundary.md` documenting context, design decisions, and consequences of the runtime decoupling.
+
+### Refactored
+
+- **Player Locomotion & Camera Tracking**: Refactored `PlayerController.tsx` and `ThirdPersonCamera.tsx` to read/write directly to `playerRuntime.ts` in `useFrame`, eliminating per-frame Zustand store updates and zeroing out frame-local vector allocations.
+- **Edge-Triggered Proximity Checking**: Refactored `Interactable.tsx` to evaluate interaction ranges in `useFrame` via `playerRuntime`, publishing active prompt state to Zustand ONLY on range entry/exit edges or prompt text modifications.
+- **Dead Hand Sentinel AI**: Refactored `WatcherSentinel` in `DeadHandScene.tsx` to query `playerRuntime` directly for cone-of-sight detection.
+
 ## [1.1.0] - 2026-08-17
 
 ### Added

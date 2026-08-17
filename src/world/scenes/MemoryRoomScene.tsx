@@ -7,7 +7,7 @@ import { Interactable } from '../../game/interaction/Interactable';
 export function HologramProjectorDais() {
   const projectorRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Mesh>(null);
-  const { memoryReconstructed } = useGameStore();
+  const memoryReconstructed = useGameStore((state) => state.memoryReconstructed);
 
   useFrame(({ clock }) => {
     if (!projectorRef.current) return;
@@ -108,8 +108,8 @@ export function MemoryPedestal({
   emissiveColor: string;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { memoryFragments, collectMemoryFragment } = useGameStore();
-  const isCollected = memoryFragments[fragmentId];
+  const isCollected = useGameStore((state) => state.memoryFragments[fragmentId]);
+  const collectMemoryFragment = useGameStore((state) => state.collectMemoryFragment);
 
   useFrame(({ clock }) => {
     if (!meshRef.current || isCollected) return;
@@ -162,7 +162,7 @@ export function MemoryPedestal({
 }
 
 export function MemoryRoomEnvironment() {
-  const { memoryReconstructed } = useGameStore();
+  const memoryReconstructed = useGameStore((state) => state.memoryReconstructed);
 
   return (
     <group>
@@ -259,7 +259,8 @@ export function MemoryRoomScene() {
 }
 
 function ExitGatewayToDiscardPassage() {
-  const { memoryReconstructed, enterDiscardPassage } = useGameStore();
+  const memoryReconstructed = useGameStore((state) => state.memoryReconstructed);
+  const enterDiscardPassage = useGameStore((state) => state.enterDiscardPassage);
 
   if (!memoryReconstructed) return null;
 

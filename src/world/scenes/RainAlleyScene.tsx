@@ -64,7 +64,8 @@ export function RainParticles({ count = 200 }: { count?: number }) {
 
 export function WhiteTileProp() {
   const meshRef = useRef<THREE.Group>(null);
-  const { hasWhiteTile, collectWhiteTile } = useGameStore();
+  const hasWhiteTile = useGameStore((state) => state.hasWhiteTile);
+  const collectWhiteTile = useGameStore((state) => state.collectWhiteTile);
 
   useFrame(({ clock }) => {
     if (!meshRef.current || hasWhiteTile) return;
@@ -119,7 +120,7 @@ export function WhiteTileProp() {
 export function TeaHouseEntrance() {
   const leftDoorRef = useRef<THREE.Mesh>(null);
   const rightDoorRef = useRef<THREE.Mesh>(null);
-  const { teaHouseUnlocked } = useGameStore();
+  const teaHouseUnlocked = useGameStore((state) => state.teaHouseUnlocked);
 
   useFrame((_, delta) => {
     // Animate doors opening sideways when unlocked
@@ -257,7 +258,8 @@ export function AlleyEnvironment() {
 }
 
 export function RainAlleyScene() {
-  const { teaHouseUnlocked, enterTeaHouse } = useGameStore();
+  const teaHouseUnlocked = useGameStore((state) => state.teaHouseUnlocked);
+  const enterTeaHouse = useGameStore((state) => state.enterTeaHouse);
 
   return (
     <group>

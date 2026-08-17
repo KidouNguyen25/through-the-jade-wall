@@ -6,7 +6,9 @@ import { Interactable } from '../../game/interaction/Interactable';
 
 export function RedDragonPickup() {
   const meshRef = useRef<THREE.Group>(null);
-  const { hasRedDragon, collectRedDragon, balconiesAligned } = useGameStore();
+  const hasRedDragon = useGameStore((state) => state.hasRedDragon);
+  const collectRedDragon = useGameStore((state) => state.collectRedDragon);
+  const balconiesAligned = useGameStore((state) => state.balconiesAligned);
 
   useFrame(({ clock }) => {
     if (!meshRef.current || hasRedDragon) return;
@@ -22,7 +24,7 @@ export function RedDragonPickup() {
       id="pickup_dragon_red"
       name="Red Dragon Plaque"
       position={[0, 0, -12.0]}
-      radius={2.6}
+      radius={3.5}
       promptText="Pick up Red Dragon Plaque"
       onInteract={collectRedDragon}
     >
@@ -86,17 +88,14 @@ export function PortalMistPlane({ isActive }: { isActive: boolean }) {
 }
 
 export function SameDoorGate() {
-  const {
-    placedTiles,
-    placeTileInSocket,
-    traverseSameDoor,
-    sameDoorPairActive,
-    inventoryTiles,
-    enterMemoryRoom,
-  } = useGameStore();
+  const placedTiles = useGameStore((state) => state.placedTiles);
+  const placeTileInSocket = useGameStore((state) => state.placeTileInSocket);
+  const traverseSameDoor = useGameStore((state) => state.traverseSameDoor);
+  const sameDoorPairActive = useGameStore((state) => state.sameDoorPairActive);
+  const hasRedDragon = useGameStore((state) => state.inventoryTiles.includes('tile_dragon_red'));
+  const enterMemoryRoom = useGameStore((state) => state.enterMemoryRoom);
 
   const socketBetaTile = placedTiles['socket_door_beta'] ?? null;
-  const hasRedDragon = inventoryTiles.includes('tile_dragon_red');
 
   const handleDoorBetaSocketInteract = () => {
     if (!socketBetaTile && hasRedDragon) {
@@ -114,7 +113,7 @@ export function SameDoorGate() {
         id="door_alpha_portal"
         name="Doorway Alpha"
         position={[3.5, 0, -10.0]}
-        radius={2.8}
+        radius={3.8}
         promptText={
           sameDoorPairActive
             ? 'Step Through Doorway Alpha'
@@ -159,7 +158,7 @@ export function SameDoorGate() {
         id="door_beta_socket"
         name="Doorway Beta"
         position={[-3.5, 0, -15.0]}
-        radius={3.5}
+        radius={4.2}
         promptText={
           sameDoorPairActive
             ? 'Step Through Doorway Beta'
@@ -209,13 +208,13 @@ export function SameDoorGate() {
         )}
       </Interactable>
 
-      {/* 4. Memory Sanctuary Gateway Door (High Observation Deck at [-3.5, 0, -19.5]) */}
+      {/* 4. Memory Sanctuary Gateway Door (High Observation Deck at [-3.5, 0, -18.5]) */}
       {sameDoorPairActive && (
         <Interactable
           id="memory_sanctuary_door"
           name="Memory Sanctuary Gateway"
-          position={[-3.5, 0, -19.5]}
-          radius={2.8}
+          position={[-3.5, 0, -18.5]}
+          radius={3.5}
           promptText="Enter Memory Sanctuary"
           onInteract={() => {
             enterMemoryRoom();

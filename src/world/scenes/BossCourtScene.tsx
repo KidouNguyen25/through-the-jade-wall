@@ -82,7 +82,7 @@ function WindObelisk({
  */
 function DealerArbiter() {
   const haloRef = useRef<THREE.Group>(null);
-  const { dealerPhase } = useGameStore();
+  const dealerPhase = useGameStore((state) => state.dealerPhase);
 
   useFrame(({ clock }) => {
     if (haloRef.current) {
@@ -155,7 +155,9 @@ function DealerArbiter() {
  */
 function TribunalAnchorDais() {
   const tileGlowRef = useRef<THREE.Mesh>(null);
-  const { dealerPhase, interruptWithWhiteTile, advanceBossWind } = useGameStore();
+  const dealerPhase = useGameStore((state) => state.dealerPhase);
+  const interruptWithWhiteTile = useGameStore((state) => state.interruptWithWhiteTile);
+  const advanceBossWind = useGameStore((state) => state.advanceBossWind);
 
   useFrame(({ clock }) => {
     if (tileGlowRef.current) {
@@ -238,7 +240,9 @@ function TribunalAnchorDais() {
  */
 function CircularCourtEnvironment() {
   const rotatingRingRef = useRef<THREE.Group>(null);
-  const { arenaRotation, dealerPhase, activeHazardWind } = useGameStore();
+  const arenaRotation = useGameStore((state) => state.arenaRotation);
+  const dealerPhase = useGameStore((state) => state.dealerPhase);
+  const activeHazardWind = useGameStore((state) => state.activeHazardWind);
 
   useFrame((_, delta) => {
     if (rotatingRingRef.current) {

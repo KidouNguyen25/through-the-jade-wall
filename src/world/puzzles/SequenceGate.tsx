@@ -60,7 +60,7 @@ export function BalconySegment({
   initialY: number;
 }) {
   const meshRef = useRef<THREE.Group>(null);
-  const { balconiesAligned } = useGameStore();
+  const balconiesAligned = useGameStore((state) => state.balconiesAligned);
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
@@ -103,10 +103,12 @@ export function BalconySegment({
 }
 
 export function SequenceGate() {
-  const { placedTiles, inventoryTiles, placeTileInSocket, balconiesAligned } = useGameStore();
+  const placedTiles = useGameStore((state) => state.placedTiles);
+  const hasBamboo4 = useGameStore((state) => state.inventoryTiles.includes('tile_bamboo_4'));
+  const placeTileInSocket = useGameStore((state) => state.placeTileInSocket);
+  const balconiesAligned = useGameStore((state) => state.balconiesAligned);
 
   const socket3Tile = placedTiles['socket_balcony_3'] ?? null;
-  const hasBamboo4 = inventoryTiles.includes('tile_bamboo_4');
 
   const handleSocket3Interact = () => {
     if (!socket3Tile && hasBamboo4) {

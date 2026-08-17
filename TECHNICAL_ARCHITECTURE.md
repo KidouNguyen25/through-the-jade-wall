@@ -114,14 +114,15 @@ Frame-local state:
 
 - camera vectors;
 - interpolated transform;
-- raycast scratch objects.
+- raycast scratch objects;
+- player coordinates & locomotion flags (`src/game/runtime/playerRuntime.ts`).
 
-Frame-local state should use refs or engine-local structures, not React re-renders each frame.
+Frame-local state should use refs or engine-local structures, not React re-renders each frame. See [ADR 0002](docs/adr/0002-runtime-state-boundary.md).
 
 ## Performance rules
 
 - Avoid allocating objects every frame.
-- Reuse vectors/quaternions.
+- Reuse vectors/quaternions with preallocated module scratch vectors.
 - Dispose geometries/materials/textures when dynamically replaced.
 - Prefer instancing for repeated static props.
 - Use compressed web-friendly assets where practical.
@@ -133,16 +134,17 @@ Frame-local state should use refs or engine-local structures, not React re-rende
 
 ## Scene transitions
 
-Use a scene/level registry.
+Use a scene/level registry (`src/world/scenes/sceneRegistry.ts`).
 A scene exposes:
 
 - id;
-- preload requirements;
-- entry checkpoint;
+- title;
+- subtitle;
 - component;
-- optional cleanup hooks.
+- defaultSpawnPosition;
+- defaultFacingRotation.
 
-Do not create one enormous conditional `Game.tsx`.
+Do not create one enormous conditional `Game.tsx`. Scene resolution is fully typed via `SCENE_REGISTRY` map.
 
 ## Puzzle architecture
 

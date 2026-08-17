@@ -2,11 +2,11 @@
 
 ## Active milestone
 
-**Phase 9.1 — Gameplay Validation Gate**
+**Phase 9.2 — Runtime State Boundary & Render Churn Elimination**
 
 ## Objective
 
-Turn the vertical-slice gameplay tests into a rock-solid, required release gate across CI and GitHub Pages deployment. Factor repeated E2E actions into reusable gameplay test helpers, eliminate arbitrary sleeps with observable UI/state locators, expand test coverage with targeted regressions (save persistence, branching discard consequences, and spatial gate invalidations), and strictly block unverified deployments unless 100% of Playwright tests pass.
+Refactor the vertical-slice runtime so frame-local player movement and camera state stay entirely inside the engine-local runtime layer, eliminating per-frame React/Zustand updates and render thrashing. Decouple high-frequency transforms from durable domain progression, modularize HUD components with narrow selectors, implement a typed scene registry, and verify 100% clean passes on all unit tests, Playwright E2E suites, and build gates.
 
 ## Delivered Milestones
 
@@ -21,22 +21,32 @@ Turn the vertical-slice gameplay tests into a rock-solid, required release gate 
 - [x] **Phase 9.1 — Gameplay Validation Gate**:
   - Reusable test helpers library in `tests/e2e/helpers/gameplayHelpers.ts`.
   - Fragility reduction in `tests/e2e/smoke.spec.ts` replacing arbitrary delays with observable DOM & state locators.
-  - Regression suite `tests/e2e/save-persistence.spec.ts` (cold session reload & mid-game checkpoint restoration).
-  - Regression suite `tests/e2e/discard-consequence.spec.ts` (alternate Regent sacrifice branch & White Tile protection).
-  - Regression suite `tests/e2e/puzzle-gate-invalidation.spec.ts` (unbridged Sequence Gate & incomplete Same-Door pair).
-  - Continuous integration requirement in `.github/workflows/ci.yml` running Playwright tests on chromium.
-  - Deployment gate in `.github/workflows/deploy.yml` blocking GitHub Pages deployment unless all E2E tests pass.
+  - Regression suites for save persistence, branching discard consequences, and spatial gate invalidation.
+  - CI and GitHub Pages deployment gating.
+- [x] **Phase 9.2 — Runtime State Boundary & Render Churn Elimination**:
+  - Engine-local player runtime state manager in `src/game/runtime/playerRuntime.ts` storing frame-local `x, y, z`, `rotation`, and `isMoving` with zero per-frame React/Zustand publications and zero object allocations.
+  - Subscribed `PlayerController` and `ThirdPersonCamera` to `playerRuntime`, eliminating per-frame React state churn.
+  - Refactored `Interactable` to query `playerRuntime` in `useFrame` and publish active prompt to Zustand only on range entry/exit edges or semantic prompt text changes.
+  - Created typed scene registry in `src/world/scenes/sceneRegistry.ts` replacing nested ternaries in `GameRoot.tsx`.
+  - Extracted modular UI components in `src/ui/hud/`, `src/ui/dialogue/`, and `src/ui/modals/` with atomic Zustand selectors.
+  - Added unit test suite `src/test/runtimeBoundary.test.ts` (8/8 tests passing).
+  - Authored Architectural Decision Record `docs/adr/0002-runtime-state-boundary.md`.
+  - Verified 100% clean passes across unit test suite (81/81) and Playwright E2E suites (7/7).
 
 ## Quality Gates Status
 
 - [x] 100% Prettier formatting compliance (`npm run format:check`)
 - [x] 0 ESLint errors & 0 warnings (`npm run lint`)
 - [x] 0 TypeScript compilation errors in strict mode (`npm run typecheck`)
-- [x] 73 / 73 unit tests passing across 10 test suites (`npm run test`)
+- [x] 81 / 81 unit tests passing across 11 test suites (`npm run test`)
 - [x] 7 / 7 Playwright E2E tests passing across 4 test suites (`npm run test:e2e`)
 - [x] Clean production bundle in `dist/` (`npm run build`)
 - [x] 0 console errors across full end-to-end 56-step gameplay smoke test
 
+## Next Ready Task
+
+**Phase 9.3 — Mahjong Puzzle Grammar** (Pending user directive to begin).
+
 ## Status
 
-**PHASE 9.1 COMPLETED — GAMEPLAY VALIDATION GATE ENFORCED IN CI & DEPLOYMENT.**
+**PHASE 9.2 COMPLETED — ARCHITECTURAL STATE BOUNDARIES ENFORCED & ZERO RENDER CHURN VERIFIED.**

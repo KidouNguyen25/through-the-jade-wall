@@ -6,6 +6,7 @@ import {
   EAST_ARCADE_SAME_DOOR_PUZZLE,
 } from '../domain/puzzle/puzzleModel';
 import {
+  SceneId,
   SaveStateV1,
   createInitialSave,
   saveToLocalStorage,
@@ -38,6 +39,10 @@ import {
 } from '../domain/narrative/dialogueData';
 
 import { audioEngine } from '../audio/audioEngine';
+import {
+  takePlayerPositionSnapshot,
+  syncPlayerRuntimeFromDurable,
+} from '../game/runtime/playerRuntime';
 import { useSettingsStore } from './settingsStore';
 
 const getSfxVolume = () => {
@@ -49,8 +54,7 @@ const getSfxVolume = () => {
   }
 };
 
-export type SceneId =
-  'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
+export type { SceneId };
 
 export interface ActiveInteractable {
   id: string;
@@ -230,7 +234,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   verticalSliceCompleted: false,
   victoryModalOpen: false,
 
-  setPlayerPosition: (position) => set({ playerPosition: position }),
+  setPlayerPosition: (position) => {
+    syncPlayerRuntimeFromDurable(position);
+    set({ playerPosition: position });
+  },
   setCurrentScene: (scene) => set({ currentScene: scene }),
   setCheckpoint: (checkpoint) => {
     set({ checkpoint });
@@ -321,9 +328,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   enterTeaHouse: () => {
+    const entryPos: [number, number, number] = [0, 0, 8.0];
+    syncPlayerRuntimeFromDurable(entryPos);
     set({
       currentScene: 'east_arcade',
-      playerPosition: [0, 0, 8.0],
+      playerPosition: entryPos,
       checkpoint: 'cp_east_arcade_entered',
       narrativeMessage:
         'East Arcade — Three isolated balconies overlook the void. Complete the sequence to bridge the chasm.',
@@ -335,9 +344,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   enterMemoryRoom: () => {
+    const entryPos: [number, number, number] = [0, 0, 4.5];
+    syncPlayerRuntimeFromDurable(entryPos);
     set((state) => ({
       currentScene: 'memory_room',
-      playerPosition: [0, 0, 4.5],
+      playerPosition: entryPos,
       checkpoint: 'cp_memory_room_entered',
       narrativeMessage:
         'Memory Sanctuary — The Dais of Triads awaits three resonance fragments to reconstruct the record.',
@@ -350,9 +361,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   enterDiscardPassage: () => {
+    const entryPos: [number, number, number] = [0, 0, 6.0];
+    syncPlayerRuntimeFromDurable(entryPos);
     set({
       currentScene: 'discard_passage',
-      playerPosition: [0, 0, 6.0],
+      playerPosition: entryPos,
       checkpoint: 'cp_discard_passage_entered',
       narrativeMessage:
         'Passage of Broken Tiles — Two colossal sacrificial altars stand above the abyss.',
@@ -414,9 +427,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   enterDeadHandCourtyard: () => {
+    const entryPos: [number, number, number] = [0, 0, 7.5];
+    syncPlayerRuntimeFromDurable(entryPos);
     set({
       currentScene: 'dead_hand',
-      playerPosition: [0, 0, 7.5],
+      playerPosition: entryPos,
       checkpoint: 'cp_dead_hand_entered',
       narrativeMessage:
         'Courtyard of the Watchers — Two patrolling sentinels scan the floor. Stand on Safe Discard tiles to remain hidden.',
@@ -432,8 +447,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     const state = get();
     if (state.watchersFrozen) return;
 
+    const respawnPos: [number, number, number] = [0, 0, 7.5];
+    syncPlayerRuntimeFromDurable(respawnPos);
     set({
-      playerPosition: [0, 0, 7.5],
+      playerPosition: respawnPos,
       narrativeMessage: 'Detected by Watcher Sentinel! Repositioned to courtyard entrance.',
       activeInteractable: null,
     });
@@ -538,16 +555,20 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     if (fromDoor === 'alpha') {
       // Warp to Doorway Beta High Tower observation deck
+      const warpPos: [number, number, number] = [-3.5, 0, -15.8];
+      syncPlayerRuntimeFromDurable(warpPos);
       set({
-        playerPosition: [-3.5, 0, -15.8],
+        playerPosition: warpPos,
         checkpoint: 'cp_upper_terrace_reached',
         narrativeMessage:
           'Impossible Traversal: Alice steps through Doorway Alpha and emerges at Doorway Beta on the high observation tower.',
       });
     } else {
       // Warp back to Doorway Alpha Pavilion
+      const warpPos: [number, number, number] = [3.5, 0, -8.5];
+      syncPlayerRuntimeFromDurable(warpPos);
       set({
-        playerPosition: [3.5, 0, -8.5],
+        playerPosition: warpPos,
         checkpoint: 'cp_door_alpha_returned',
         narrativeMessage:
           'Impossible Traversal: Alice steps through Doorway Beta and returns to Doorway Alpha.',
@@ -676,9 +697,11 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   // Phase 7: Dealer Boss Puzzle Actions
   enterBossCourt: () => {
+    const entryPos: [number, number, number] = [0, 0, 8.5];
+    syncPlayerRuntimeFromDurable(entryPos);
     set({
       currentScene: 'boss_court',
-      playerPosition: [0, 0, 8.5],
+      playerPosition: entryPos,
       checkpoint: 'cp_boss_court_entered',
       dealerPhase: 'intro',
       arenaRotation: 0,
@@ -763,12 +786,19 @@ export const useGameStore = create<GameState>((set, get) => ({
   // Persistence
   saveGame: () => {
     const state = get();
+    const runtimePos = takePlayerPositionSnapshot();
+    // Use runtime position snapshot if initialized, otherwise fall back to durable state
+    const isRuntimeInitialized = runtimePos[0] !== 0 || runtimePos[1] !== 0 || runtimePos[2] !== 0;
+    const savePosition: [number, number, number] = isRuntimeInitialized
+      ? runtimePos
+      : state.playerPosition;
+
     const saveState: SaveStateV1 = {
       version: 1,
       savedAt: new Date().toISOString(),
       currentScene: state.currentScene,
       checkpoint: state.checkpoint,
-      playerPosition: state.playerPosition,
+      playerPosition: savePosition,
       inventoryTiles: state.inventoryTiles,
       selectedSlot: state.selectedSlot,
       teaHouseUnlocked: state.teaHouseUnlocked,
@@ -798,6 +828,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   loadGame: () => {
     const loaded = loadFromLocalStorage();
     if (!loaded) return false;
+
+    syncPlayerRuntimeFromDurable(loaded.playerPosition);
 
     set({
       currentScene: loaded.currentScene,
@@ -832,6 +864,8 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   resetGame: () => {
     const initial = createInitialSave();
+    syncPlayerRuntimeFromDurable(initial.playerPosition);
+
     set({
       currentScene: initial.currentScene,
       checkpoint: initial.checkpoint,

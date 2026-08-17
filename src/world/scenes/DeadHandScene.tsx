@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { useGameStore } from '../../state/gameStore';
 import { Interactable } from '../../game/interaction/Interactable';
 import { isPlayerInSafeZone, isPlayerDetectedByWatcher } from '../../domain/deadhand/deadHandModel';
+import { getPlayerRuntimePosition } from '../../game/runtime/playerRuntime';
 
 /**
  * Watcher Automaton Sentinel Component
@@ -22,7 +23,8 @@ function WatcherSentinel({
   sweepSpeed: number;
 }) {
   const headRef = useRef<THREE.Group>(null);
-  const { playerPosition, watchersFrozen, triggerWatcherDetection } = useGameStore();
+  const watchersFrozen = useGameStore((state) => state.watchersFrozen);
+  const triggerWatcherDetection = useGameStore((state) => state.triggerWatcherDetection);
 
   useFrame(({ clock }) => {
     if (watchersFrozen || !headRef.current) return;
@@ -31,10 +33,11 @@ function WatcherSentinel({
     const currentAngle = baseAngle + Math.sin(t) * sweepRange;
     headRef.current.rotation.y = currentAngle;
 
-    // Detection check in world space
-    const inSafeZone = isPlayerInSafeZone(playerPosition);
+    // Detection check in world space using engine-local player position
+    const runtimePos = getPlayerRuntimePosition();
+    const inSafeZone = isPlayerInSafeZone(runtimePos);
     const detected = isPlayerDetectedByWatcher(
-      playerPosition,
+      runtimePos,
       position,
       currentAngle,
       6.5,
@@ -161,7 +164,8 @@ function SanctuaryZone({
  * Central Invalidation Gong Component ([0, 0, -8.0])
  */
 function InvalidationGongDais() {
-  const { deadHandInvalidated, activateDeadHandInvalidation } = useGameStore();
+  const deadHandInvalidated = useGameStore((state) => state.deadHandInvalidated);
+  const activateDeadHandInvalidation = useGameStore((state) => state.activateDeadHandInvalidation);
 
   return (
     <group position={[0, 0, -8.0]}>
@@ -236,7 +240,8 @@ function InvalidationGongDais() {
  * North Monumental Gateway to Dealer's Boss Court ([0, 0, -21.0])
  */
 function BossCourtGateway() {
-  const { bossCourtUnlocked, enterBossCourt } = useGameStore();
+  const bossCourtUnlocked = useGameStore((state) => state.bossCourtUnlocked);
+  const enterBossCourt = useGameStore((state) => state.enterBossCourt);
 
   const handleEnterBossCourt = () => {
     enterBossCourt();

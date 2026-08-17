@@ -1,3 +1,6 @@
+export type SceneId =
+  'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
+
 export interface MemoryFragmentState {
   eastGate: boolean;
   midnightBell: boolean;
@@ -7,8 +10,7 @@ export interface MemoryFragmentState {
 export interface SaveStateV1 {
   version: 1;
   savedAt: string;
-  currentScene:
-    'rain_alley' | 'east_arcade' | 'memory_room' | 'discard_passage' | 'dead_hand' | 'boss_court';
+  currentScene: SceneId;
   checkpoint: string;
   playerPosition: [number, number, number];
   inventoryTiles: string[];

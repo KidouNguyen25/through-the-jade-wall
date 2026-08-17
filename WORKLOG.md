@@ -1,5 +1,31 @@
 # WORKLOG
 
+## 2026-08-17 — Phase 9.2: Runtime State Boundary & Render Churn Elimination
+
+- **Task**: Phase 9.2 — Runtime State Boundary & Render Churn Elimination (`current_project_task.md`).
+- **Branch**: `refactor/phase-9-2-runtime-boundary`
+- **Actions Taken**:
+  1. Created dedicated branch `refactor/phase-9-2-runtime-boundary`.
+  2. Implemented engine-local player runtime state manager in `src/game/runtime/playerRuntime.ts` with zero React rerenders and zero garbage allocations per frame.
+  3. Refactored `PlayerController.tsx` to update `playerRuntime` during `useFrame` locomotion without per-frame Zustand store updates.
+  4. Refactored `ThirdPersonCamera.tsx` to read `playerRuntime` in `useFrame`, eliminating per-frame store subscriptions and using preallocated static `Vector3` scratch objects.
+  5. Refactored `Interactable.tsx` to query `playerRuntime` for range calculations in `useFrame`, publishing active prompt state to Zustand ONLY on range entry/exit edges or prompt text mutations.
+  6. Refactored `WatcherSentinel` in `DeadHandScene.tsx` to query `playerRuntime` directly for cone-of-sight detection without React store subscriptions.
+  7. Created typed scene registry in `src/world/scenes/sceneRegistry.ts` mapping scene IDs to components, default spawns, and titles, replacing nested ternaries in `GameRoot.tsx`.
+  8. Extracted modular UI components with narrow Zustand selectors in `src/ui/hud/`, `src/ui/dialogue/`, and `src/ui/modals/`.
+  9. Added unit test suite `src/test/runtimeBoundary.test.ts` (8/8 tests passing).
+  10. Authored Architectural Decision Record `docs/adr/0002-runtime-state-boundary.md`.
+  11. Updated `TECHNICAL_ARCHITECTURE.md`, `current_project_task.md`, `CHANGELOG.md`, and `package.json` to `v1.2.0`.
+- **Quality Gates Results**:
+  - `npm run format:check`: PASSED (100% Prettier compliance)
+  - `npm run lint`: PASSED (0 errors, 0 warnings)
+  - `npm run typecheck`: PASSED (0 errors)
+  - `npm run test`: PASSED (81 / 81 unit tests passed across 11 test suites)
+  - `npm run test:e2e`: PASSED (7 / 7 Playwright E2E tests passed across 4 test suites with 0 console errors)
+  - `npm run build`: PASSED (Clean production bundle in `dist/`)
+
+---
+
 ## 2026-08-17 — Phase 9.1: Gameplay Validation Gate
 
 - **Task**: Phase 9.1 — Gameplay Validation Gate (`current_project_task.md`).

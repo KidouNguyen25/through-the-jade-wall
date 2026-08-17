@@ -1,8 +1,15 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useInput } from '../input/useInput';
 import { useGameStore } from '../../state/gameStore';
+import {
+  setPlayerRuntimePosition,
+  setPlayerRuntimeRotation,
+  setPlayerRuntimeMoving,
+  syncPlayerRuntimeFromDurable,
+  onPlayerRuntimeSync,
+} from '../runtime/playerRuntime';
 import {
   ALLEY_BOUNDS,
   ALLEY_OBSTACLES,
@@ -97,32 +104,28 @@ export function PlayerController() {
   const groupRef = useRef<THREE.Group>(null);
   const inputRef = useInput();
 
-  const {
-    playerPosition,
-    setPlayerPosition,
-    currentScene,
-    isPaused,
-    teaHouseUnlocked,
-    balconiesAligned,
-    westPathOpen,
-    eastPathOpen,
-    bossCourtUnlocked,
-  } = useGameStore();
+  // Narrow Zustand selectors
+  const isPaused = useGameStore((state) => state.isPaused);
+  const currentScene = useGameStore((state) => state.currentScene);
+  const teaHouseUnlocked = useGameStore((state) => state.teaHouseUnlocked);
+  const balconiesAligned = useGameStore((state) => state.balconiesAligned);
+  const westPathOpen = useGameStore((state) => state.westPathOpen);
+  const eastPathOpen = useGameStore((state) => state.eastPathOpen);
+  const bossCourtUnlocked = useGameStore((state) => state.bossCourtUnlocked);
+  const durablePlayerPosition = useGameStore((state) => state.playerPosition);
 
-  const currentPos = useRef(new THREE.Vector3(...playerPosition));
+  const currentPos = useRef(new THREE.Vector3(...durablePlayerPosition));
   const currentRotation = useRef(0);
   const walkCycle = useRef(0);
-  const lastKnownStorePos = useRef<[number, number, number]>(playerPosition);
 
-  // Sync position if external code changed playerPosition (e.g. portal warp or scene entry)
-  if (
-    lastKnownStorePos.current[0] !== playerPosition[0] ||
-    lastKnownStorePos.current[1] !== playerPosition[1] ||
-    lastKnownStorePos.current[2] !== playerPosition[2]
-  ) {
-    lastKnownStorePos.current = playerPosition;
-    currentPos.current.set(...playerPosition);
-  }
+  // Subscribe to engine-local runtime sync events (scene transitions, portal warps, respawns, save loads)
+  useEffect(() => {
+    syncPlayerRuntimeFromDurable(durablePlayerPosition);
+    return onPlayerRuntimeSync((x, y, z, rot) => {
+      currentPos.current.set(x, y, z);
+      currentRotation.current = rot;
+    });
+  }, [durablePlayerPosition]);
 
   useFrame((_, delta) => {
     if (isPaused || !groupRef.current) return;
@@ -227,16 +230,13 @@ export function PlayerController() {
       walkCycle.current += delta * speed * 3.5;
       groupRef.current.position.y = Math.sin(walkCycle.current * 2) * 0.04;
 
-      // Sync to game store for camera and interaction logic
-      const newPos: [number, number, number] = [
-        currentPos.current.x,
-        currentPos.current.y,
-        currentPos.current.z,
-      ];
-      lastKnownStorePos.current = newPos;
-      setPlayerPosition(newPos);
+      // Update engine-local runtime state (no React/Zustand publication churn)
+      setPlayerRuntimePosition(clampedX, currentPos.current.y, clampedZ);
+      setPlayerRuntimeRotation(currentRotation.current);
+      setPlayerRuntimeMoving(true);
     } else {
       groupRef.current.position.y = 0;
+      setPlayerRuntimeMoving(false);
     }
 
     // Apply transform to group
@@ -246,7 +246,7 @@ export function PlayerController() {
   });
 
   return (
-    <group ref={groupRef} position={playerPosition}>
+    <group ref={groupRef} position={durablePlayerPosition}>
       <AliceMesh />
     </group>
   );
